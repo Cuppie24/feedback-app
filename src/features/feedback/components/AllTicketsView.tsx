@@ -1,10 +1,9 @@
-import { Search } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import type { Ticket } from '../types'
+import type { Category, Status, Ticket } from '../types'
 import { PageHeader } from './PageHeader'
+import { SearchFilterBar } from './SearchFilterBar'
 import { TicketList } from './TicketList'
 import './ViewLayout.css'
-import './AllTicketsView.css'
 
 type AllTicketsViewProps = {
   tickets: Ticket[]
@@ -22,11 +21,15 @@ function ticketCountLabel(count: number): string {
 
 export function AllTicketsView({ tickets, onOpenTicket, onToggleLike }: AllTicketsViewProps) {
   const [search, setSearch] = useState('')
+  const [categories, setCategories] = useState<Category[]>([])
+  const [statuses, setStatuses] = useState<Status[]>([])
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
-    if (!query) return tickets
     return tickets.filter((ticket) => {
+      if (categories.length > 0 && !categories.includes(ticket.category)) return false
+      if (statuses.length > 0 && !statuses.includes(ticket.status)) return false
+      if (!query) return true
       const snippet = ticket.messages.at(-1)?.text ?? ''
       return (
         ticket.title.toLowerCase().includes(query) ||
@@ -34,7 +37,7 @@ export function AllTicketsView({ tickets, onOpenTicket, onToggleLike }: AllTicke
         ticket.author.toLowerCase().includes(query)
       )
     })
-  }, [tickets, search])
+  }, [tickets, search, categories, statuses])
 
   return (
     <div className="fb-view-wide">
@@ -44,15 +47,14 @@ export function AllTicketsView({ tickets, onOpenTicket, onToggleLike }: AllTicke
         meta={<span className="fb-page-count">{ticketCountLabel(tickets.length)}</span>}
       />
 
-      <div className="fb-search-field">
-        <Search className="fb-search-icon" size={16} />
-        <input
-          className="fb-search-input"
-          placeholder="Поиск по обращениям..."
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-        />
-      </div>
+      <SearchFilterBar
+        search={search}
+        onSearchChange={setSearch}
+        categories={categories}
+        onCategoriesChange={setCategories}
+        statuses={statuses}
+        onStatusesChange={setStatuses}
+      />
 
       <TicketList
         tickets={filtered}

@@ -1,7 +1,16 @@
+.fb-filter-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-12);
+  margin-bottom: var(--space-16);
+}
+
 .fb-search-field {
   position: relative;
-  width: 280px;
-  margin-bottom: var(--space-16);
+  flex: 1 1 220px;
+  min-width: 220px;
+  max-width: 280px;
 }
 
 .fb-search-icon {
@@ -34,4 +43,30 @@
 .fb-search-input:focus-visible {
   outline: none;
   box-shadow: inset 0 0 0 1px var(--color-accent), var(--focus-ring);
+}
+
+.fb-filter-clear {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  height: var(--field-height);
+  padding: 0 var(--space-8);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  font-size: var(--font-size-ui);
+  font-family: inherit;
+  color: var(--color-text-subtle);
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-in-out);
+}
+
+.fb-filter-clear:hover {
+  color: var(--color-text);
+}
+
+.fb-filter-clear:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
 }
