@@ -11,11 +11,18 @@
   --fb-fab-offset: var(--space-24);
   --fb-fab-cx: calc(100% - var(--fb-fab-offset) - (var(--fb-fab-size) / 2));
   --fb-fab-cy: calc(100% - var(--fb-fab-offset) - (var(--fb-fab-size) / 2));
-  /* Slower and gentler than the token durations allow on their own - a
-     quick, front-loaded reveal reads as a harsh flash of colour rather
-     than a smooth expansion. */
-  --fb-transform-duration: calc(var(--duration-medium) * 3);
-  --fb-transform-half: calc(var(--duration-medium) * 1.5);
+  /* Slower than the token durations allow on their own - the circle's
+     area grows with the square of its radius, so most of the visible
+     coverage happens well before the transition's nominal end no matter
+     how long it runs; stretching it out is what keeps that early growth
+     from reading as an abrupt flash. */
+  --fb-transform-duration: calc(var(--duration-medium) * 4);
+  --fb-transform-half: calc(var(--duration-medium) * 2);
+  /* Between --color-accent-wash (too faint to read as "coloured") and
+     solid --color-accent (a harsh flash at this size) - tunable via the
+     percentage, and derived rather than a new hex so it still tracks the
+     accent/bg pair's dark-mode values. */
+  --fb-reveal-color: color-mix(in srgb, var(--color-accent) 38%, var(--color-bg) 62%);
 }
 
 .fb-create-fab {
@@ -59,18 +66,19 @@
 /* Fills .fb-main (which is position: relative) rather than the viewport,
    so it covers exactly the area to the right of the sidebar and never
    overlaps it - the sidebar stays clickable to collapse this back to the
-   fab. Starts filled with the fab's own accent colour (a white circle
-   expanding over a white page is nearly invisible) and crossfades to the
-   page background across the whole transition; the form content is a
-   separate layer that only fades in for the second half, once the colour
-   is most of the way to the page background, so text is never rendered
-   over a strong accent wash. */
+   fab. Starts filled with --fb-reveal-color, a muted tint of the fab's
+   own accent colour (a white circle expanding over a white page is
+   nearly invisible, but the full-strength accent is a harsh flash at
+   this size) and crossfades to the page background across the whole
+   transition; the form content is a separate layer that only fades in
+   for the second half, once the colour is most of the way to the page
+   background, so text is never rendered over the tint. */
 .fb-create-panel {
   position: absolute;
   inset: 0;
   z-index: 20;
   overflow-y: auto;
-  background: var(--color-accent);
+  background: var(--fb-reveal-color);
   clip-path: circle(0% at var(--fb-fab-cx) var(--fb-fab-cy));
   pointer-events: none;
   visibility: hidden;

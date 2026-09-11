@@ -5,9 +5,14 @@ import { LoginPage } from './pages/LoginPage'
 
 function App() {
   const { status } = useAuth()
-  void status
-  void LoadingScreen
-  void LoginPage
+
+  if (status === 'loading') {
+    return <LoadingScreen />
+  }
+
+  if (status === 'unauthenticated') {
+    return <LoginPage />
+  }
 
   return <FeedbackApp />
 }
