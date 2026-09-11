@@ -1,8 +1,8 @@
 # Feedback App - Design System
 
-Notion-inspired: warm-neutral surfaces, one blue accent, restrained
-status hues, small radii, quiet shadows. Every token has a light and a
-dark value.
+Notion-inspired: warm-neutral surfaces, one sage-green accent,
+restrained status hues, small radii, quiet shadows. Every token has a
+light and a dark value.
 
 - **Tokens (source of truth):** [src/styles/tokens.css](src/styles/tokens.css),
   imported at the top of [src/index.css](src/index.css).
@@ -18,8 +18,10 @@ big-bang restyle in one pass.
 
 - [x] `LoginPage` - on tokens (card, brand mark, field/focus/error
   states, primary button). `#root` no longer boxed to a fixed width.
-- [ ] Signed-in view (`App.tsx` / `App.css`) - still on the old Vite
-  starter styles.
+- [x] `LoadingScreen` (initial-load state) - on tokens; a single quiet
+  pulse on the brand mark, themed with the rest of the app.
+- [ ] Signed-in view (`App.tsx` `#center` / `App.css`) - still on the
+  old Vite starter styles.
 - [ ] Feedback UI - when it lands.
 
 ## Principles
@@ -32,9 +34,11 @@ big-bang restyle in one pass.
   heavy contrast between panels.
 - **Muted status colours.** Wash background + darker text of the same
   hue, never a saturated fill.
-- **Dark mode is token-only.** No `data-theme` toggle; it follows
-  `prefers-color-scheme`. Never hard-code a colour that only has a
-  light value.
+- **Dark mode is token-only.** Palettes follow `prefers-color-scheme`
+  by default; a `data-theme="light" | "dark"` attribute on `<html>`
+  (set by the theme switcher, persisted to `localStorage`, pre-applied
+  by an inline script in `index.html`) forces one. Never hard-code a
+  colour that only has a light value.
 - **Icons are `lucide-react`, never hand-drawn.** Stroke icons on the
   16 / 20 / 24 grid. Size with the `size` prop; colour through
   `currentColor`.
@@ -56,11 +60,11 @@ hex.
 | `--color-text-muted` | `rgba(55,53,47,.65)` | `rgba(255,255,255,.46)` | Secondary text, labels |
 | `--color-text-subtle` | `rgba(55,53,47,.45)` | `rgba(255,255,255,.28)` | Captions, placeholder |
 | `--color-text-on-accent` | `#ffffff` | `#ffffff` | Text on the accent fill |
-| `--color-accent` | `#2383e2` | `#2d9bf0` | Primary action, links, focus |
-| `--color-accent-hover` | `#0b6bcb` | `#4aa8f2` | Accent hover |
-| `--color-accent-active` | `#0a5db2` | `#2588d6` | Accent pressed |
-| `--color-accent-wash` | `#e7f3f8` | `#1e3a4c` | Selected state, info tag |
-| `--color-accent-ring` | `rgba(35,131,226,.24)` | `rgba(45,155,240,.3)` | Focus ring |
+| `--color-accent` | `#5f7355` | `#8ba579` | Primary action, links, focus |
+| `--color-accent-hover` | `#53664a` | `#9bb489` | Accent hover |
+| `--color-accent-active` | `#46543e` | `#7a9268` | Accent pressed |
+| `--color-accent-wash` | `#ebeee4` | `#2b3327` | Selected state, brand rail, info tag |
+| `--color-accent-ring` | `rgba(95,115,85,.28)` | `rgba(139,165,121,.32)` | Focus ring |
 | `--color-danger` | `#e03e3e` | `#ff7369` | Errors, destructive |
 | `--color-danger-wash` | `#fdebec` | `#4b2b2b` | Error field / tag bg |
 | `--color-danger-ring` | `rgba(224,62,62,.16)` | `rgba(255,115,105,.24)` | Error focus ring |
@@ -85,7 +89,8 @@ Tags pair a `*-wash` background with a darker text of the same hue:
 ## Typography
 
 One system stack (`--font-sans`), four weights. Tight tracking on
-large text, `1.5` line-height on body.
+large text, `1.5` line-height on body. `--font-serif` (Georgia stack)
+is reserved for the login title only.
 
 | Role | Size | Weight | Tracking | Line-height |
 | --- | --- | --- | --- | --- |
@@ -238,10 +243,18 @@ Avatar: initials, `--color-accent` bg, `--color-text-on-accent`,
 
 ## Screens
 
-- **Login** - restyle of the existing `LoginPage`: centred card,
-  brand mark, `Sign in` heading, `Username` + `Password` fields, full
-  width primary button. 401 copy unchanged (`Invalid username or
-  password`).
+- **Login** - a centered card on a gridded canvas
+  (`--color-surface-sunken` + a 40px `--color-border` grid). The card
+  splits into a tinted brand rail (`--color-accent-wash`: solid accent
+  mark, `Micros`, decorative skeleton lines, `рабочее пространство`
+  note) and a form panel (`Вход` overline, serif `Обратная связь`
+  title, placeholder-only email + password fields with visually-hidden
+  labels, full-width primary button, and a centered
+  `Не можете войти? Свяжитесь с администратором` help note - plain
+  text, not a link). A theme switcher (`Monitor` / `Sun` / `Moon`,
+  cycles system -> light -> dark) sits in the top-right of the canvas.
+  The rail drops below 620px, leaving the form full width. 401 copy
+  unchanged (`Неверный логин или пароль`).
 - **Feedback (proposed, not spec'd yet)** - top bar with brand +
   identity, a `Share feedback` page: category select, message
   textarea, "attach page" checkbox, right-aligned primary; then a

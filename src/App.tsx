@@ -1,4 +1,5 @@
 import { useAuth } from './context/useAuth'
+import { LoadingScreen } from './shared/LoadingScreen'
 import { LoginPage } from './pages/LoginPage'
 import './App.css'
 
@@ -6,11 +7,7 @@ function App() {
   const { status, user } = useAuth()
 
   if (status === 'loading') {
-    return (
-      <section id="center">
-        <p>Загрузка…</p>
-      </section>
-    )
+    return <LoadingScreen />
   }
 
   if (status === 'unauthenticated') {

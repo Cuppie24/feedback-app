@@ -13,7 +13,9 @@ states, and the visual canvas link are in [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
 The token layer is live but components are **not migrated yet**. When you touch a
 component, move its hard-coded values onto the tokens (LoginPage first). Use the semantic
 role, not the hex. Never hard-code a colour that only has a light value - dark mode is
-token-only, following `prefers-color-scheme`.
+token-only. The palette follows `prefers-color-scheme`; the theme switcher on LoginPage
+overrides it with a `data-theme` attribute on `<html>` (see `src/shared/useTheme.ts`, and
+the pre-paint init script in `index.html`).
 
 ## Stack (don't swap without a concrete reason)
 
@@ -40,6 +42,9 @@ src/
     auth-context.ts  # createContext + AuthContextValue / AuthStatus types (NO components)
     AuthContext.tsx  # <AuthProvider> only
     useAuth.ts       # useAuth() hook only
+  shared/
+    useTheme.ts      # theme preference hook (system/light/dark) -> <html data-theme>
+    LoadingScreen.tsx # token-based initial-load screen (App.tsx status==='loading')
   pages/
     LoginPage.tsx
   App.tsx            # renders Loading / LoginPage / signed-in view off useAuth().status

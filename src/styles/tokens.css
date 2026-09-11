@@ -29,12 +29,12 @@
   --color-text-subtle: rgba(55, 53, 47, 0.45);
   --color-text-on-accent: #ffffff;
 
-  /* --- Accent (single blue) --- */
-  --color-accent: #2383e2;
-  --color-accent-hover: #0b6bcb;
-  --color-accent-active: #0a5db2;
-  --color-accent-wash: #e7f3f8;
-  --color-accent-ring: rgba(35, 131, 226, 0.24);
+  /* --- Accent (sage green) --- */
+  --color-accent: #5f7355;
+  --color-accent-hover: #53664a;
+  --color-accent-active: #46543e;
+  --color-accent-wash: #ebeee4;
+  --color-accent-ring: rgba(95, 115, 85, 0.28);
 
   /* --- Status --- */
   --color-danger: #e03e3e;
@@ -48,6 +48,7 @@
 
   /* --- Typography --- */
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-serif: Georgia, "Times New Roman", Times, serif;
   --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
 
   --font-size-display: 40px;
@@ -111,8 +112,14 @@
   --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Dark palette: automatic when the OS asks for it and the user has not
+   forced a theme, or forced by <html data-theme="dark"> from the theme
+   switcher. The token body is repeated for the forced selector below
+   because CSS custom properties can't be shared between two rules any
+   other way. */
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
     --color-bg: #191919;
     --color-surface-sunken: #202020;
     --color-surface-hover: rgba(255, 255, 255, 0.055);
@@ -126,11 +133,11 @@
     --color-text-subtle: rgba(255, 255, 255, 0.28);
     --color-text-on-accent: #ffffff;
 
-    --color-accent: #2d9bf0;
-    --color-accent-hover: #4aa8f2;
-    --color-accent-active: #2588d6;
-    --color-accent-wash: #1e3a4c;
-    --color-accent-ring: rgba(45, 155, 240, 0.3);
+    --color-accent: #8ba579;
+    --color-accent-hover: #9bb489;
+    --color-accent-active: #7a9268;
+    --color-accent-wash: #2b3327;
+    --color-accent-ring: rgba(139, 165, 121, 0.32);
 
     --color-danger: #ff7369;
     --color-danger-wash: #4b2b2b;
@@ -149,4 +156,51 @@
       0 3px 6px rgba(0, 0, 0, 0.5),
       0 9px 24px rgba(0, 0, 0, 0.6);
   }
+}
+
+/* Forced dark, regardless of prefers-color-scheme. Keep in sync with the
+   media block above. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --color-bg: #191919;
+  --color-surface-sunken: #202020;
+  --color-surface-hover: rgba(255, 255, 255, 0.055);
+  --color-surface-active: rgba(255, 255, 255, 0.09);
+
+  --color-border: rgba(255, 255, 255, 0.094);
+  --color-border-strong: rgba(255, 255, 255, 0.14);
+
+  --color-text: rgba(255, 255, 255, 0.81);
+  --color-text-muted: rgba(255, 255, 255, 0.46);
+  --color-text-subtle: rgba(255, 255, 255, 0.28);
+  --color-text-on-accent: #ffffff;
+
+  --color-accent: #8ba579;
+  --color-accent-hover: #9bb489;
+  --color-accent-active: #7a9268;
+  --color-accent-wash: #2b3327;
+  --color-accent-ring: rgba(139, 165, 121, 0.32);
+
+  --color-danger: #ff7369;
+  --color-danger-wash: #4b2b2b;
+  --color-danger-ring: rgba(255, 115, 105, 0.24);
+  --color-success: #4dab9a;
+  --color-success-wash: #213b37;
+  --color-warning: #ffdc49;
+  --color-warning-wash: #3d3016;
+  --color-neutral-wash: rgba(255, 255, 255, 0.09);
+
+  --shadow-raised:
+    0 0 0 1px rgba(0, 0, 0, 0.4),
+    0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-overlay:
+    0 0 0 1px rgba(0, 0, 0, 0.4),
+    0 3px 6px rgba(0, 0, 0, 0.5),
+    0 9px 24px rgba(0, 0, 0, 0.6);
+}
+
+/* Forced light: the :root defaults already are light; just pin the
+   scheme so form controls and scrollbars follow. */
+:root[data-theme='light'] {
+  color-scheme: light;
 }

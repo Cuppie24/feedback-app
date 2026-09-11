@@ -5,6 +5,19 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>feedback-app</title>
+    <script>
+      // Apply a stored theme choice before first paint so there is no flash
+      // of the wrong palette. 'system' (or nothing stored) falls through to
+      // the prefers-color-scheme rules in tokens.css.
+      try {
+        var t = localStorage.getItem('feedback-app-theme');
+        if (t === 'light' || t === 'dark') {
+          document.documentElement.setAttribute('data-theme', t);
+        }
+      } catch (e) {
+        /* localStorage unavailable */
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>

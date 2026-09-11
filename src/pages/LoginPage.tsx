@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react'
+import { Monitor, Moon, Sun } from 'lucide-react'
 import { ApiError } from '../api/client'
 import { useAuth } from '../context/useAuth'
+import { useTheme } from '../shared/useTheme'
 import './LoginPage.css'
 
 type FieldErrors = {
@@ -8,8 +10,15 @@ type FieldErrors = {
   password?: string
 }
 
+const THEME_META = {
+  system: { label: 'Системная тема', Icon: Monitor },
+  light: { label: 'Светлая тема', Icon: Sun },
+  dark: { label: 'Тёмная тема', Icon: Moon },
+} as const
+
 export function LoginPage() {
   const { login } = useAuth()
+  const { preference, cycleTheme } = useTheme()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
@@ -55,68 +64,106 @@ export function LoginPage() {
   const isInvalid = (field: keyof FieldErrors) =>
     fieldErrors[field] || error ? true : undefined
 
+  const { label: themeLabel, Icon: ThemeIcon } = THEME_META[preference]
+
   return (
     <section className="login-page">
+      <button
+        type="button"
+        className="login-theme-toggle"
+        onClick={cycleTheme}
+        aria-label={`${themeLabel}. Нажмите, чтобы сменить`}
+        title={themeLabel}
+      >
+        <ThemeIcon size={16} aria-hidden="true" />
+      </button>
+
       <div className="login-card">
-        <h1>Вход</h1>
+        <aside className="login-rail">
+          <div className="login-brand">
+            <span className="login-brand-mark" aria-hidden="true" />
+            <span className="login-brand-name">Micros</span>
+          </div>
+          <div className="login-rail-lines" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </div>
+          <p className="login-rail-note">рабочее пространство</p>
+        </aside>
 
-        <form className="login-form" onSubmit={handleSubmit} noValidate>
-          <div className="login-field">
-            <label htmlFor="username">Логин</label>
-            <input
-              id="username"
-              name="username"
-              type="text"
-              autoComplete="username"
-              value={username}
-              onChange={(event) => {
-                setUsername(event.target.value)
-                clearFieldError('username')
-              }}
-              aria-invalid={isInvalid('username')}
-              aria-describedby={describedBy('username')}
-              required
-            />
-            {fieldErrors.username && (
-              <p className="login-field-error" id="username-error" role="alert">
-                {fieldErrors.username}
+        <div className="login-panel">
+          <p className="login-overline">Вход</p>
+          <h1 className="login-title">Техническая поддержка</h1>
+
+          <form className="login-form" onSubmit={handleSubmit} noValidate>
+            <div className="login-field">
+              <label className="login-sr-only" htmlFor="username">
+                Электронная почта
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                autoComplete="username"
+                placeholder="Электронная почта"
+                value={username}
+                onChange={(event) => {
+                  setUsername(event.target.value)
+                  clearFieldError('username')
+                }}
+                aria-invalid={isInvalid('username')}
+                aria-describedby={describedBy('username')}
+                required
+              />
+              {fieldErrors.username && (
+                <p className="login-field-error" id="username-error" role="alert">
+                  {fieldErrors.username}
+                </p>
+              )}
+            </div>
+
+            <div className="login-field">
+              <label className="login-sr-only" htmlFor="password">
+                Пароль
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="Пароль"
+                value={password}
+                onChange={(event) => {
+                  setPassword(event.target.value)
+                  clearFieldError('password')
+                }}
+                aria-invalid={isInvalid('password')}
+                aria-describedby={describedBy('password')}
+                required
+              />
+              {fieldErrors.password && (
+                <p className="login-field-error" id="password-error" role="alert">
+                  {fieldErrors.password}
+                </p>
+              )}
+            </div>
+
+            {error && (
+              <p className="login-error" id="login-error" role="alert">
+                {error}
               </p>
             )}
-          </div>
 
-          <div className="login-field">
-            <label htmlFor="password">Пароль</label>
-            <input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(event) => {
-                setPassword(event.target.value)
-                clearFieldError('password')
-              }}
-              aria-invalid={isInvalid('password')}
-              aria-describedby={describedBy('password')}
-              required
-            />
-            {fieldErrors.password && (
-              <p className="login-field-error" id="password-error" role="alert">
-                {fieldErrors.password}
-              </p>
-            )}
-          </div>
+            <button className="login-submit" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Вход...' : 'Войти'}
+            </button>
+          </form>
 
-          {error && (
-            <p className="login-error" id="login-error" role="alert">
-              {error}
-            </p>
-          )}
-
-          <button className="login-submit" type="submit" disabled={isSubmitting}>
-            {isSubmitting ? 'Вход...' : 'Войти'}
-          </button>
-        </form>
+          <p className="login-help">
+            Не можете войти? Свяжитесь с администратором
+          </p>
+        </div>
       </div>
     </section>
   )
