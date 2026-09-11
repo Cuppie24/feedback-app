@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Обращение ОБ-104 — Feedback App mockup</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-layout">
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="sidebar-brand-mark">M</div>
+      <div class="sidebar-brand-text">
+        <div class="sidebar-brand-name">Micros</div>
+        <div class="sidebar-brand-sub">Рабочее пространство</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <a class="nav-item" href="new-ticket.html">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M12 7v6"/><path d="M9 10h6"/></svg>
+        Новое обращение
+      </a>
+      <a class="nav-item" href="my-tickets.html">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+        Мои обращения
+      </a>
+      <a class="nav-item active" href="all-tickets.html">
+        <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/><path d="M14 4h7"/><path d="M14 9h7"/><path d="M14 15h7"/><path d="M14 20h7"/></svg>
+        Все обращения
+      </a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <div class="view">
+      <a class="back-link" href="all-tickets.html">
+        <svg class="icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+        Назад
+      </a>
+      <div class="detail-tags">
+        <span class="tag tag-danger">Баг</span>
+        <span class="tag tag-warning">Открыто</span>
+      </div>
+      <h1 class="page-title-sm">Обращение ОБ-104</h1>
+
+      <div class="chat-panel">
+        <div class="chat-messages">
+          <div class="msg-row mine">
+            <div class="msg-bubble mine">
+              <div>Кнопка сохранения не работает на странице профиля.</div>
+              <div class="msg-time">2 ч назад</div>
+            </div>
+          </div>
+          <div class="msg-row">
+            <div class="msg-bubble">
+              <div>Спасибо, приняли в работу, уточним детали.</div>
+              <div class="msg-time">1 ч назад</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="compose-bar">
+          <button class="compose-attach" type="button" title="Прикрепить файл">
+            <svg class="icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+          </button>
+          <textarea class="compose-input" placeholder="Написать сообщение..." rows="1"></textarea>
+          <button class="compose-send" type="button" disabled>
+            <svg class="icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z"/><path d="m21.854 2.147-10.94 10.939"/></svg>
+            Отправить
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script src="interactions.js"></script>
+</body>
+</html>
