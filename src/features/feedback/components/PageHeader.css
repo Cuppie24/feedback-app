@@ -15,6 +15,7 @@
   font-weight: var(--font-weight-semibold);
   letter-spacing: -0.012em;
   line-height: var(--line-height-tight);
+  color: var(--color-text);
   user-select: none;
 }
 

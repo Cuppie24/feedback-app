@@ -58,6 +58,7 @@ export function FeedbackApp() {
         <CreateFeedbackWidget
           open={createOpen}
           onOpen={() => setCreateOpen(true)}
+          onClose={() => setCreateOpen(false)}
           tickets={tickets}
           onSubmit={(input) => openTicket(addTicket(input))}
           onOpenTicket={openTicket}

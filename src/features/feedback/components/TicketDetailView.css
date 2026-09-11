@@ -1,28 +1,3 @@
-.fb-back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-6);
-  background: none;
-  border: none;
-  padding: 0;
-  margin-bottom: var(--space-16);
-  font-size: 13px;
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition: color var(--duration-instant) var(--ease-in-out);
-}
-
-.fb-back-link:hover {
-  color: var(--color-text);
-}
-
-.fb-back-link:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-  border-radius: var(--radius-sm);
-}
-
 .fb-detail-tags {
   display: flex;
   align-items: center;
@@ -36,6 +11,7 @@
   font-weight: var(--font-weight-semibold);
   letter-spacing: -0.012em;
   line-height: var(--line-height-tight);
+  color: var(--color-text);
   user-select: none;
 }
 

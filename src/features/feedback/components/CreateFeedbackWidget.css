@@ -1,6 +1,8 @@
 /* Floating create-feedback widget: a round button that expands to fill the
    main content area (the sidebar stays put, so it's still reachable to
-   collapse the panel again). No close button - see CreateFeedbackWidget.tsx.
+   collapse the panel again; the panel also has its own close button, sat
+   in the empty gutter beside CreateFeedbackView's centered .fb-view
+   column rather than inside it - see CreateFeedbackWidget.tsx).
 
    Opening/closing is a container transform: the panel clip-paths open as a
    circle growing from the fab's own position (same corner offset, both
@@ -23,6 +25,11 @@
      percentage, and derived rather than a new hex so it still tracks the
      accent/bg pair's dark-mode values. */
   --fb-reveal-color: color-mix(in srgb, var(--color-accent) 38%, var(--color-bg) 62%);
+  /* Half the width CreateFeedbackView's .fb-view ever actually occupies
+     (its own 680px max-width plus its 32px padding on each side, per
+     ViewLayout.css) - lets .fb-create-close sit just outside that column
+     instead of pinned to the panel's far edge. */
+  --fb-content-half: calc(340px + var(--space-32));
 }
 
 .fb-create-fab {
@@ -99,6 +106,8 @@
 }
 
 .fb-create-panel-content {
+  position: relative;
+  min-height: 100%;
   opacity: 0;
   transition: opacity var(--fb-transform-half) var(--ease-out);
 }
@@ -106,6 +115,49 @@
 .fb-create-panel.open .fb-create-panel-content {
   opacity: 1;
   transition: opacity var(--fb-transform-half) var(--ease-out) var(--fb-transform-half);
+}
+
+/* A neutral surface button (not the fab's accent colour) - sits just
+   outside CreateFeedbackView's centered .fb-view column, never closer to
+   the panel's edge than the fab's own corner inset, but hugging the
+   content on wider panels instead of stranding itself out by the
+   sidebar. Positioned against .fb-create-panel-content itself (not the
+   wider .fb-create-panel) so it scrolls with the form. */
+.fb-create-close {
+  --fb-close-size: 40px;
+  position: absolute;
+  top: var(--fb-fab-offset);
+  left: max(var(--fb-fab-offset), calc(50% - var(--fb-content-half) - var(--space-16) - var(--fb-close-size)));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--fb-close-size);
+  height: var(--fb-close-size);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-sunken);
+  box-shadow: var(--shadow-raised);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-in-out),
+    color var(--duration-fast) var(--ease-in-out),
+    transform var(--duration-fast) var(--ease-in-out);
+}
+
+.fb-create-close:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+  transform: translateY(-1px);
+}
+
+.fb-create-close:active {
+  background: var(--color-surface-active);
+  transform: translateY(0);
+}
+
+.fb-create-close:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 @media (max-width: 520px) {
