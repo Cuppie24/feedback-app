@@ -1,32 +1,35 @@
 .fb-page-header {
-  margin-bottom: var(--space-24);
-}
-
-.fb-page-header-row {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--space-12);
+  margin-bottom: var(--space-32);
 }
 
 .fb-page-title {
   margin: 0;
-  font-size: var(--font-size-heading);
-  font-weight: var(--font-weight-semibold);
-  letter-spacing: -0.012em;
-  line-height: var(--line-height-tight);
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: -0.022em;
+  line-height: 1.12;
   color: var(--color-text);
   user-select: none;
 }
 
+.fb-page-meta-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-12);
+  margin-top: var(--space-6);
+}
+
 .fb-page-sub {
-  margin: var(--space-4) 0 0;
+  margin: 0;
   font-size: var(--font-size-ui);
   line-height: var(--line-height-body);
   color: var(--color-text-muted);
 }
 
 .fb-page-count {
-  font-size: 13px;
+  flex-shrink: 0;
+  font-size: var(--font-size-caption);
   color: var(--color-text-subtle);
+  white-space: nowrap;
 }
