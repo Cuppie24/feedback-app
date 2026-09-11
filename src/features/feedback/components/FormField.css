@@ -1,0 +1,14 @@
+/* Shared by FeedbackForm and AttachmentsField - both render a labeled
+   field in the same create-feedback form. */
+
+.fb-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.fb-field-label {
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}

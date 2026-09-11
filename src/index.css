@@ -62,6 +62,24 @@ body {
   margin: 0;
 }
 
+/* Reset native button chrome - Safari/Firefox both apply their own default
+   padding/border/margin on top of any explicit padding unless appearance
+   is cleared, which otherwise reads as lopsided padding around icon+label
+   buttons (found via the feedback UI's segmented control). */
+button {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
+  border: none;
+  font: inherit;
+  color: inherit;
+}
+
+button::-moz-focus-inner {
+  border: 0;
+  padding: 0;
+}
+
 /* Design system: UI chrome is not text-selectable. See DESIGN_SYSTEM.md > Selection. */
 button,
 label {

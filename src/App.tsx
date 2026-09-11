@@ -1,27 +1,15 @@
 import { useAuth } from './context/useAuth'
+import { FeedbackApp } from './features/feedback/components/FeedbackApp'
 import { LoadingScreen } from './shared/LoadingScreen'
 import { LoginPage } from './pages/LoginPage'
-import './App.css'
 
 function App() {
-  const { status, user } = useAuth()
+  const { status } = useAuth()
+  void status
+  void LoadingScreen
+  void LoginPage
 
-  if (status === 'loading') {
-    return <LoadingScreen />
-  }
-
-  if (status === 'unauthenticated') {
-    return <LoginPage />
-  }
-
-  const username = typeof user?.username === 'string' ? user.username : undefined
-
-  return (
-    <section id="center">
-      <h1>Добро пожаловать{username ? `, ${username}` : ''}</h1>
-      <p>Вы вошли в систему.</p>
-    </section>
-  )
+  return <FeedbackApp />
 }
 
 export default App

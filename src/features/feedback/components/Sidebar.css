@@ -1,0 +1,185 @@
+.fb-sidebar {
+  flex: none;
+  width: 240px;
+  height: 100%;
+  background: var(--color-surface-sunken);
+  border-right: 1px solid var(--color-border);
+  /* Sidebar collapse is the one deliberate exception to "never animate
+     width" (DESIGN_SYSTEM.md > Motion): there's no transform-only way to
+     resize a flex sibling, and this is a rare, whole-panel transition,
+     not a hover/press micro-interaction. */
+  transition: width var(--duration-medium) var(--ease-in-out);
+}
+
+.fb-sidebar.collapsed {
+  width: 64px;
+}
+
+.fb-sidebar-content {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-16) var(--space-12);
+}
+
+.collapsed .fb-sidebar-content {
+  padding-left: var(--space-8);
+  padding-right: var(--space-8);
+}
+
+.fb-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-4) var(--space-8) var(--space-24);
+  user-select: none;
+}
+
+.collapsed .fb-sidebar-brand {
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Doubles as the collapse toggle: shows "M" at rest, crossfades to the
+   panel icon on sidebar hover/focus - no separate floating button, so
+   none of the gap/dead-zone handling that needed. */
+.fb-sidebar-brand-mark {
+  position: relative;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+  cursor: pointer;
+  transition: background-color var(--duration-instant) var(--ease-in-out);
+}
+
+.fb-sidebar-brand-mark:hover {
+  background: var(--color-accent-hover);
+}
+
+.fb-sidebar-brand-mark:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.fb-mark-letter,
+.fb-mark-icon {
+  grid-area: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-semibold);
+  transition: opacity var(--duration-fast) var(--ease-in-out);
+}
+
+.fb-mark-icon {
+  opacity: 0;
+}
+
+.fb-sidebar:hover .fb-mark-letter,
+.fb-sidebar-brand-mark:focus-visible .fb-mark-letter {
+  opacity: 0;
+}
+
+.fb-sidebar:hover .fb-mark-icon,
+.fb-sidebar-brand-mark:focus-visible .fb-mark-icon {
+  opacity: 1;
+}
+
+.fb-sidebar-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.collapsed .fb-sidebar-brand-text {
+  display: none;
+}
+
+.fb-sidebar-brand-name {
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-tight);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.fb-sidebar-brand-sub {
+  font-size: var(--font-size-caption);
+  color: var(--color-text-subtle);
+  line-height: var(--line-height-tight);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.fb-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fb-nav-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  height: var(--control-height);
+  padding: 0 var(--space-8);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  background: transparent;
+  color: var(--color-text);
+  transition: background-color var(--duration-instant) var(--ease-in-out);
+}
+
+.collapsed .fb-nav-item {
+  justify-content: center;
+  padding: 0;
+}
+
+.fb-nav-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collapsed .fb-nav-label {
+  display: none;
+}
+
+.fb-nav-item svg {
+  flex: none;
+  color: var(--color-text-subtle);
+}
+
+.fb-nav-item:hover {
+  background: var(--color-surface-hover);
+}
+
+.fb-nav-item:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.fb-nav-item.active {
+  background: var(--color-accent-wash);
+  color: var(--color-text);
+}
+
+.fb-nav-item.active svg {
+  color: var(--color-accent);
+}

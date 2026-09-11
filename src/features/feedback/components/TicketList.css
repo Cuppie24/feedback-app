@@ -1,0 +1,130 @@
+.fb-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.fb-list-empty {
+  margin: var(--space-24) 0;
+  font-size: var(--font-size-ui);
+  color: var(--color-text-muted);
+}
+
+.fb-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-12);
+  padding: var(--space-8) var(--space-4);
+  border-bottom: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: inherit;
+  transition: background-color var(--duration-instant) var(--ease-in-out);
+}
+
+.fb-row:hover {
+  background: var(--color-surface-hover);
+}
+
+.fb-row:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.fb-row-comfortable,
+.fb-row-wide {
+  gap: var(--space-16);
+}
+
+.fb-row-comfortable {
+  padding: var(--space-12) var(--space-4);
+}
+
+/* Category tag column: fixed so a longer label (e.g. "Предложение") can
+   never push into the title column instead of just widening its own box. */
+.fb-row-cat {
+  flex: none;
+  width: 104px;
+}
+
+.fb-row-status {
+  flex: none;
+  width: 78px;
+}
+
+.fb-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  user-select: text;
+}
+
+.fb-row-title {
+  font-size: 13px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fb-row-snippet {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fb-row-comfortable .fb-row-title,
+.fb-row-wide .fb-row-title {
+  font-size: var(--font-size-ui);
+}
+
+.fb-row-comfortable .fb-row-snippet,
+.fb-row-wide .fb-row-snippet {
+  font-size: 13px;
+}
+
+.fb-row-author {
+  flex: none;
+  width: 140px;
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+.fb-row-avatar {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+  font-size: 10px;
+  font-weight: var(--font-weight-semibold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fb-row-author-name {
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fb-row-time {
+  flex: none;
+  width: 80px;
+  text-align: right;
+  font-size: 12px;
+  color: var(--color-text-subtle);
+}
+
+.fb-row-comfortable .fb-row-time {
+  width: 88px;
+}

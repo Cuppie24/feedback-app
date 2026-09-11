@@ -1,0 +1,61 @@
+.fb-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-8);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.fb-tag-neutral {
+  background: var(--color-neutral-wash);
+  color: var(--color-text);
+}
+
+.fb-tag-info {
+  background: var(--color-info-wash);
+  color: var(--color-info-text);
+}
+
+.fb-tag-success {
+  background: var(--color-success-wash);
+  color: #1c3a2e;
+}
+
+.fb-tag-danger {
+  background: var(--color-danger-wash);
+  color: #5d1715;
+}
+
+.fb-tag-warning {
+  background: var(--color-warning-wash);
+  color: #402c1b;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    .fb-tag-success {
+      color: #7fcbbb;
+    }
+    .fb-tag-danger {
+      color: #ff9e96;
+    }
+    .fb-tag-warning {
+      color: #f2d072;
+    }
+  }
+}
+
+:root[data-theme='dark'] {
+  .fb-tag-success {
+    color: #7fcbbb;
+  }
+  .fb-tag-danger {
+    color: #ff9e96;
+  }
+  .fb-tag-warning {
+    color: #f2d072;
+  }
+}

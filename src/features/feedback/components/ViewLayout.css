@@ -1,0 +1,23 @@
+/* Shared page-level container for every feedback view - see
+   DESIGN_SYSTEM.md > Motion for the entrance rule (fade + small
+   translateY, ease-out, duration-medium). */
+
+.fb-view {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: var(--space-32);
+  animation: fb-view-in var(--duration-medium) var(--ease-out);
+}
+
+.fb-view-wide {
+  max-width: none;
+  padding: var(--space-32) var(--space-32) var(--space-24);
+  animation: fb-view-in var(--duration-medium) var(--ease-out);
+}
+
+@keyframes fb-view-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}

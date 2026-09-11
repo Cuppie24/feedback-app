@@ -20,9 +20,11 @@ big-bang restyle in one pass.
   states, primary button). `#root` no longer boxed to a fixed width.
 - [x] `LoadingScreen` (initial-load state) - on tokens; a single quiet
   pulse on the brand mark, themed with the rest of the app.
-- [ ] Signed-in view (`App.tsx` `#center` / `App.css`) - still on the
-  old Vite starter styles.
-- [ ] Feedback UI - when it lands.
+- [x] Feedback UI (`src/features/feedback`) - the old `App.tsx` `#center`
+  placeholder and the dead `App.css` starter styles are gone; `App.tsx`
+  now renders `<FeedbackApp />` for the signed-in state. Runs on
+  in-memory seed data (no backend yet). See CLAUDE.md for the file
+  layout.
 
 ## Principles
 
@@ -80,11 +82,11 @@ Tags pair a `*-wash` background with a darker text of the same hue:
 
 | Tag | Light bg / text | Dark bg / text |
 | --- | --- | --- |
-| Neutral | `--color-neutral-wash` / `#37352f` | `--color-neutral-wash` / `rgba(255,255,255,.81)` |
-| Info (Idea) | `#e7f3f8` / `#183d54` | `#1e3a4c` / `#8fcbf2` |
-| Success (Shipped) | `#ddedea` / `#1c3a2e` | `#213b37` / `#7fcbbb` |
-| Danger (Bug) | `#fdebec` / `#5d1715` | `#4b2b2b` / `#ff9e96` |
-| Warning (Open) | `#fbf3db` / `#402c1b` | `#3d3016` / `#f2d072` |
+| Neutral | `--color-neutral-wash` / `--color-text` | `--color-neutral-wash` / `--color-text` |
+| Info (Idea) | `--color-info-wash` / `--color-info-text` | `--color-info-wash` / `--color-info-text` |
+| Success (Shipped) | `--color-success-wash` / `#1c3a2e` | `--color-success-wash` / `#7fcbbb` |
+| Danger (Bug) | `--color-danger-wash` / `#5d1715` | `--color-danger-wash` / `#ff9e96` |
+| Warning (Open) | `--color-warning-wash` / `#402c1b` | `--color-warning-wash` / `#f2d072` |
 
 ## Typography
 
@@ -255,8 +257,25 @@ Avatar: initials, `--color-accent` bg, `--color-text-on-accent`,
   cycles system -> light -> dark) sits in the top-right of the canvas.
   The rail drops below 620px, leaving the form full width. 401 copy
   unchanged (`Неверный логин или пароль`).
-- **Feedback (proposed, not spec'd yet)** - top bar with brand +
-  identity, a `Share feedback` page: category select, message
-  textarea, "attach page" checkbox, right-aligned primary; then a
-  `Recent` list of `category tag + text + status tag + relative time`
-  rows. Confirm the real flow before building.
+- **Feedback** - a persistent left sidebar (brand mark + `Новое
+  обращение` / `Мои обращения` / `Все обращения` nav, active item on
+  `--color-accent-wash`) beside a scrolling main pane. No router: nav
+  clicks are local view state in `FeedbackApp`.
+  - *Новое обращение* - a bordered form card (type as three single-select
+    pills - Ошибка/danger, Предложение/info, Отзыв/neutral - title
+    input, message textarea, an attachments dropzone with uniform 72px
+    tiles for images and files alike, right-aligned primary submit)
+    followed by a ticket list under a sliding `Недавние`/`Популярные`
+    segmented control (chronological vs. sorted by votes).
+  - *Мои обращения* / *Все обращения* - the same ticket list
+    (`category tag + title/last-message snippet + status tag + vote
+    button + relative time`, "Все" adds an author column and a search
+    field) filtered to the current user or everyone.
+  - *Обращение detail* - back link, category + status tags, title, a
+    read-only message thread (own messages filled `--color-accent`,
+    right-aligned; others flat-bordered, left-aligned). No reply
+    composer yet.
+  - Category tag column is a fixed 104px (`Предложение` is the long
+    pole) so a label can never overlap the title column next to it.
+  - Voting lives on the shared ticket list (`useFeedbackTickets`), so a
+    vote made from any list is reflected everywhere, including detail.

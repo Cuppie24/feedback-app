@@ -1,7 +1,10 @@
 # CLAUDE.md
 
-Small React SPA: username/password login against an external backend, then a feedback UI
-(the feedback part isn't built yet). Single page, no router yet.
+Small React SPA: username/password login against an external backend, then a feedback UI.
+The feedback UI is built (create/browse/vote/detail) but runs on in-memory seed data — there
+is no feedback backend yet, so `src/features/feedback` has no `api.ts`. Single page, no
+router yet — navigating between feedback screens is local view state in `FeedbackApp`, the
+same pattern `App.tsx` uses for loading/login/signed-in.
 
 ## Design system
 
@@ -10,12 +13,14 @@ at the top of `src/index.css`) - `--color-*` semantic roles with light + dark va
 `--font-*`, `--space-*` (4px base), `--radius-*`, `--shadow-*`. Full spec, component
 states, and the visual canvas link are in [DESIGN_SYSTEM.md](DESIGN_SYSTEM.md).
 
-The token layer is live but components are **not migrated yet**. When you touch a
-component, move its hard-coded values onto the tokens (LoginPage first). Use the semantic
-role, not the hex. Never hard-code a colour that only has a light value - dark mode is
-token-only. The palette follows `prefers-color-scheme`; the theme switcher on LoginPage
+The token layer is live; `LoginPage`, `LoadingScreen`, and the `feedback` feature are on it.
+When you touch a component still on hard-coded values, move them onto the tokens. Use the
+semantic role, not the hex. Never hard-code a colour that only has a light value - dark mode
+is token-only. The palette follows `prefers-color-scheme`; the theme switcher on LoginPage
 overrides it with a `data-theme` attribute on `<html>` (see `src/shared/useTheme.ts`, and
-the pre-paint init script in `index.html`).
+the pre-paint init script in `index.html`). `tokens.css` also carries `--color-info-wash` /
+`--color-info-text` now (added for the feedback feature's "idea" tag) - see DESIGN_SYSTEM.md
+> Tag text colours.
 
 ## Stack (don't swap without a concrete reason)
 
@@ -47,7 +52,19 @@ src/
     LoadingScreen.tsx # token-based initial-load screen (App.tsx status==='loading')
   pages/
     LoginPage.tsx
-  App.tsx            # renders Loading / LoginPage / signed-in view off useAuth().status
+  features/
+    feedback/
+      types.ts       # Category/Status/Ticket/Message/Attachment/NewFeedbackInput
+      data.ts         # placeholder ticket seed data + label/tone lookup maps (no api.ts yet)
+      hooks.ts        # useFeedbackTickets() (list/vote/create), useAttachments() (file picker state)
+      utils.ts        # extOf / formatFileSize
+      components/
+        FeedbackApp.tsx       # top-level: owns ticket state + view state, renders Sidebar + view
+        Sidebar.tsx
+        CreateFeedbackView.tsx / MyTicketsView.tsx / AllTicketsView.tsx / TicketDetailView.tsx
+        FeedbackForm.tsx, AttachmentsField.tsx, TicketList.tsx, SegmentedControl.tsx,
+        Tag.tsx, VoteButton.tsx, PageHeader.tsx  # shared pieces, each with its own .css
+  App.tsx            # renders Loading / LoginPage / <FeedbackApp /> off useAuth().status
   main.tsx           # createRoot + <AuthProvider>
 ```
 
@@ -55,10 +72,11 @@ src/
 module to export only components. Keep the context object, the hook, and the provider in
 separate files — don't merge them back into one.
 
-**Intended direction as features land:** group by feature under `src/features/<name>/`
-(`components/`, `api.ts`, `hooks.ts`, `types.ts`); genuinely shared code in `src/shared/`;
-route-level composition in `src/pages/`. Follow the existing `api/` and `context/` boundaries
-until then — don't scaffold empty feature folders ahead of need.
+**Feature folder convention:** `src/features/<name>/` (`components/`, `api.ts`, `hooks.ts`,
+`types.ts`); genuinely shared code in `src/shared/`; route-level composition in `src/pages/`.
+`feedback` is the first feature built this way — follow it as the precedent. Don't scaffold
+an `api.ts` (or any file) ahead of need; `feedback` has none because there's nothing to call
+yet.
 
 ## Auth & the cookie gotcha (read before touching auth or the fetch layer)
 

@@ -45,6 +45,8 @@
   --color-warning: #cb912f;
   --color-warning-wash: #fbf3db;
   --color-neutral-wash: rgba(55, 53, 47, 0.08);
+  --color-info-wash: #e7f3f8;
+  --color-info-text: #183d54;
 
   /* --- Typography --- */
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -147,6 +149,8 @@
     --color-warning: #ffdc49;
     --color-warning-wash: #3d3016;
     --color-neutral-wash: rgba(255, 255, 255, 0.09);
+    --color-info-wash: #1e3a4c;
+    --color-info-text: #8fcbf2;
 
     --shadow-raised:
       0 0 0 1px rgba(0, 0, 0, 0.4),
@@ -189,6 +193,8 @@
   --color-warning: #ffdc49;
   --color-warning-wash: #3d3016;
   --color-neutral-wash: rgba(255, 255, 255, 0.09);
+  --color-info-wash: #1e3a4c;
+  --color-info-text: #8fcbf2;
 
   --shadow-raised:
     0 0 0 1px rgba(0, 0, 0, 0.4),

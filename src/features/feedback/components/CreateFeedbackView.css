@@ -1,0 +1,18 @@
+.fb-list-section {
+  margin-top: var(--space-32);
+}
+
+.fb-list-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-12);
+}
+
+.fb-section-title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-muted);
+  user-select: none;
+}

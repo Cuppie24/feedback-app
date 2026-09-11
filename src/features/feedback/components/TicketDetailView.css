@@ -1,0 +1,105 @@
+.fb-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-6);
+  background: none;
+  border: none;
+  padding: 0;
+  margin-bottom: var(--space-16);
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: color var(--duration-instant) var(--ease-in-out);
+}
+
+.fb-back-link:hover {
+  color: var(--color-text);
+}
+
+.fb-back-link:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+.fb-detail-tags {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  margin-bottom: var(--space-8);
+}
+
+.fb-detail-title {
+  margin: 0;
+  font-size: var(--font-size-subheading);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: -0.012em;
+  line-height: var(--line-height-tight);
+  user-select: none;
+}
+
+.fb-chat-panel {
+  margin-top: var(--space-16);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  min-height: 200px;
+  max-height: 52vh;
+  overflow: hidden;
+}
+
+.fb-chat-messages {
+  height: 100%;
+  overflow-y: auto;
+  padding: var(--space-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.fb-msg-row {
+  display: flex;
+  justify-content: flex-start;
+  animation: fb-msg-in var(--duration-medium) var(--ease-out);
+}
+
+.fb-msg-row.mine {
+  justify-content: flex-end;
+}
+
+@keyframes fb-msg-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+}
+
+.fb-msg-bubble {
+  max-width: 78%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-8) var(--space-12);
+  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-sm);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-body);
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-shadow: var(--shadow-flat);
+  user-select: text;
+}
+
+.fb-msg-bubble.mine {
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-sm) var(--radius-lg);
+  box-shadow: none;
+}
+
+.fb-msg-time {
+  font-size: 11px;
+  opacity: 0.65;
+  text-align: right;
+  user-select: none;
+}
