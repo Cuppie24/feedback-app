@@ -18,6 +18,10 @@ type FilterDropdownProps<T extends string> = {
 export function FilterDropdown<T extends string>({ label, Icon, options, selected, onChange }: FilterDropdownProps<T>) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
+  const selectedLabels = selected
+    .map((value) => options.find((option) => option.value === value)?.label)
+    .filter((optionLabel): optionLabel is string => Boolean(optionLabel))
+    .join(', ')
 
   useEffect(() => {
     if (!open) return
@@ -50,9 +54,11 @@ export function FilterDropdown<T extends string>({ label, Icon, options, selecte
         aria-expanded={open}
         aria-haspopup="true"
       >
-        <Icon size={14} />
-        <span>{label}</span>
-        {selected.length > 0 && <span className="fb-filter-count">{selected.length}</span>}
+        <Icon size={14} strokeWidth={3} />
+        <span className="fb-filter-label">
+          <span className="fb-filter-name">{label}</span>
+          {selected.length > 0 && <span className="fb-filter-selection">: {selectedLabels}</span>}
+        </span>
         <ChevronDown size={14} className="fb-filter-chevron" />
       </button>
 

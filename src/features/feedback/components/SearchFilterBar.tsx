@@ -2,6 +2,7 @@ import { ListFilter, Search, Tag as TagIcon, X } from 'lucide-react'
 import { CATEGORY_LABEL, STATUS_LABEL } from '../data'
 import type { Category, Status } from '../types'
 import { FilterDropdown } from './FilterDropdown'
+import { SortDropdown } from './SortDropdown'
 import './SearchFilterBar.css'
 
 const CATEGORY_OPTIONS = (Object.entries(CATEGORY_LABEL) as [Category, string][]).map(([value, label]) => ({
@@ -21,7 +22,11 @@ export type SearchFilterBarProps = {
   onCategoriesChange: (value: Category[]) => void
   statuses: Status[]
   onStatusesChange: (value: Status[]) => void
+  sort: TicketSort
+  onSortChange: (value: TicketSort) => void
 }
+
+export type TicketSort = 'newest' | 'oldest' | 'popular'
 
 export function SearchFilterBar({
   search,
@@ -30,6 +35,8 @@ export function SearchFilterBar({
   onCategoriesChange,
   statuses,
   onStatusesChange,
+  sort,
+  onSortChange,
 }: SearchFilterBarProps) {
   const hasActiveFilters = categories.length > 0 || statuses.length > 0 || search.trim().length > 0
 
@@ -40,39 +47,45 @@ export function SearchFilterBar({
   }
 
   return (
-    <div className="fb-filter-bar">
-      <div className="fb-search-field">
-        <Search className="fb-search-icon" size={16} />
-        <input
-          className="fb-search-input"
-          placeholder="Поиск по обращениям..."
-          value={search}
-          onChange={(event) => onSearchChange(event.target.value)}
+    <div className="fb-database-toolbar">
+      <div className="fb-filter-bar">
+        <div className="fb-search-field">
+          <Search className="fb-search-icon" size={15} strokeWidth={3} />
+          <input
+            className="fb-search-input"
+            type="search"
+            aria-label="Поиск по обращениям"
+            placeholder="Поиск..."
+            value={search}
+            onChange={(event) => onSearchChange(event.target.value)}
+          />
+        </div>
+
+        <FilterDropdown
+          label="Категория"
+          Icon={TagIcon}
+          options={CATEGORY_OPTIONS}
+          selected={categories}
+          onChange={onCategoriesChange}
         />
+
+        <FilterDropdown
+          label="Статус"
+          Icon={ListFilter}
+          options={STATUS_OPTIONS}
+          selected={statuses}
+          onChange={onStatusesChange}
+        />
+
+        {hasActiveFilters && (
+          <button type="button" className="fb-filter-clear" onClick={clearAll}>
+            <X size={14} />
+            Сбросить
+          </button>
+        )}
+
+        <SortDropdown value={sort} onChange={onSortChange} />
       </div>
-
-      <FilterDropdown
-        label="Категория"
-        Icon={TagIcon}
-        options={CATEGORY_OPTIONS}
-        selected={categories}
-        onChange={onCategoriesChange}
-      />
-
-      <FilterDropdown
-        label="Статус"
-        Icon={ListFilter}
-        options={STATUS_OPTIONS}
-        selected={statuses}
-        onChange={onStatusesChange}
-      />
-
-      {hasActiveFilters && (
-        <button type="button" className="fb-filter-clear" onClick={clearAll}>
-          <X size={14} />
-          Сбросить
-        </button>
-      )}
     </div>
   )
 }

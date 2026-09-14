@@ -48,6 +48,42 @@
   --color-info-wash: #e7f3f8;
   --color-info-text: #183d54;
 
+  /* --- Extended tag palette ---
+     Notion's full 10-hue categorical set (text/wash/icon per hue), for
+     tags/categories beyond the 5 semantic roles above. Not yet consumed
+     by any component - defined ahead of use for when ticket categories
+     grow past the current 3. */
+  --color-tag-default-text: #373530;
+  --color-tag-default-wash: #ffffff;
+  --color-tag-default-icon: #55534e;
+  --color-tag-gray-text: #787774;
+  --color-tag-gray-wash: #f1f1ef;
+  --color-tag-gray-icon: #a6a299;
+  --color-tag-brown-text: #976d57;
+  --color-tag-brown-wash: #f3eeee;
+  --color-tag-brown-icon: #9f6b53;
+  --color-tag-orange-text: #cc782f;
+  --color-tag-orange-wash: #f8ecdf;
+  --color-tag-orange-icon: #d87620;
+  --color-tag-yellow-text: #c29343;
+  --color-tag-yellow-wash: #faf3dd;
+  --color-tag-yellow-icon: #cb912f;
+  --color-tag-green-text: #548164;
+  --color-tag-green-wash: #eef3ed;
+  --color-tag-green-icon: #448361;
+  --color-tag-blue-text: #487ca5;
+  --color-tag-blue-wash: #e9f3f7;
+  --color-tag-blue-icon: #337ea9;
+  --color-tag-purple-text: #8a67ab;
+  --color-tag-purple-wash: #f6f3f8;
+  --color-tag-purple-icon: #9065b0;
+  --color-tag-pink-text: #b35488;
+  --color-tag-pink-wash: #f9f2f5;
+  --color-tag-pink-icon: #c14c8a;
+  --color-tag-red-text: #c4554d;
+  --color-tag-red-wash: #faecec;
+  --color-tag-red-icon: #d44c47;
+
   /* --- Typography --- */
   --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
   --font-serif: Georgia, "Times New Roman", Times, serif;
@@ -151,6 +187,37 @@
     --color-neutral-wash: rgba(255, 255, 255, 0.09);
     --color-info-wash: #1e3a4c;
     --color-info-text: #8fcbf2;
+
+    --color-tag-default-text: #d4d4d4;
+    --color-tag-default-wash: #191919;
+    --color-tag-default-icon: #d3d3d3;
+    --color-tag-gray-text: #9b9b9b;
+    --color-tag-gray-wash: #252525;
+    --color-tag-gray-icon: #7f7f7f;
+    --color-tag-brown-text: #a27763;
+    --color-tag-brown-wash: #2e2724;
+    --color-tag-brown-icon: #aa755f;
+    --color-tag-orange-text: #cb7b37;
+    --color-tag-orange-wash: #36291f;
+    --color-tag-orange-icon: #d9730d;
+    --color-tag-yellow-text: #c19138;
+    --color-tag-yellow-wash: #372e20;
+    --color-tag-yellow-icon: #ca8e1b;
+    --color-tag-green-text: #4f9768;
+    --color-tag-green-wash: #242b26;
+    --color-tag-green-icon: #2d9964;
+    --color-tag-blue-text: #447acb;
+    --color-tag-blue-wash: #1f282d;
+    --color-tag-blue-icon: #2e7cd1;
+    --color-tag-purple-text: #865dbb;
+    --color-tag-purple-wash: #2a2430;
+    --color-tag-purple-icon: #8d5bc1;
+    --color-tag-pink-text: #ba4a78;
+    --color-tag-pink-wash: #2e2328;
+    --color-tag-pink-icon: #c94079;
+    --color-tag-red-text: #be524b;
+    --color-tag-red-wash: #332523;
+    --color-tag-red-icon: #cd4945;
 
     --shadow-raised:
       0 0 0 1px rgba(0, 0, 0, 0.4),

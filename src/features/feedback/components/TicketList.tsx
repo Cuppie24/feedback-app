@@ -1,3 +1,4 @@
+import { FileText } from 'lucide-react'
 import { CATEGORY_LABEL, CATEGORY_TONE, STATUS_LABEL, STATUS_TONE } from '../data'
 import type { Ticket } from '../types'
 import { Tag } from './Tag'
@@ -29,6 +30,17 @@ export function TicketList({
 
   return (
     <div className="fb-list">
+      {variant === 'wide' && (
+        <div className="fb-list-header" aria-hidden="true">
+          <span>Обращение</span>
+          <span>Автор</span>
+          <span>Категория</span>
+          <span>Статус</span>
+          <span>Голоса</span>
+          <span>Обновлено</span>
+        </div>
+      )}
+
       {tickets.map((ticket) => {
         const snippet = ticket.messages.at(-1)?.text ?? ticket.title
 
@@ -46,12 +58,11 @@ export function TicketList({
               }
             }}
           >
-            <span className="fb-row-cat">
-              <Tag tone={CATEGORY_TONE[ticket.category]}>{CATEGORY_LABEL[ticket.category]}</Tag>
-            </span>
-
             <span className="fb-row-body">
-              <span className="fb-row-title">{ticket.title}</span>
+              <span className="fb-row-title-line">
+                <FileText className="fb-row-page-icon" size={15} />
+                <span className="fb-row-title">{ticket.title}</span>
+              </span>
               <span className="fb-row-snippet">{snippet}</span>
             </span>
 
@@ -61,6 +72,10 @@ export function TicketList({
                 <span className="fb-row-author-name">{ticket.author}</span>
               </span>
             )}
+
+            <span className="fb-row-cat">
+              <Tag tone={CATEGORY_TONE[ticket.category]}>{CATEGORY_LABEL[ticket.category]}</Tag>
+            </span>
 
             <span className="fb-row-status">
               <Tag tone={STATUS_TONE[ticket.status]}>{STATUS_LABEL[ticket.status]}</Tag>

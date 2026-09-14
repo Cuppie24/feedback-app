@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { Category, Status, Ticket } from '../types'
 import { PageHeader } from './PageHeader'
-import { SearchFilterBar } from './SearchFilterBar'
+import { SearchFilterBar, type TicketSort } from './SearchFilterBar'
 import { TicketList } from './TicketList'
 import './ViewLayout.css'
 
@@ -11,22 +11,15 @@ type AllTicketsViewProps = {
   onToggleLike: (id: string) => void
 }
 
-function ticketCountLabel(count: number): string {
-  const mod10 = count % 10
-  const mod100 = count % 100
-  if (mod10 === 1 && mod100 !== 11) return `${count} обращение`
-  if ([2, 3, 4].includes(mod10) && ![12, 13, 14].includes(mod100)) return `${count} обращения`
-  return `${count} обращений`
-}
-
 export function AllTicketsView({ tickets, onOpenTicket, onToggleLike }: AllTicketsViewProps) {
   const [search, setSearch] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   const [statuses, setStatuses] = useState<Status[]>([])
+  const [sort, setSort] = useState<TicketSort>('newest')
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
-    return tickets.filter((ticket) => {
+    const matches = tickets.filter((ticket) => {
       if (categories.length > 0 && !categories.includes(ticket.category)) return false
       if (statuses.length > 0 && !statuses.includes(ticket.status)) return false
       if (!query) return true
@@ -37,14 +30,17 @@ export function AllTicketsView({ tickets, onOpenTicket, onToggleLike }: AllTicke
         ticket.author.toLowerCase().includes(query)
       )
     })
-  }, [tickets, search, categories, statuses])
+
+    if (sort === 'popular') return [...matches].sort((a, b) => b.likes - a.likes)
+    if (sort === 'oldest') return [...matches].reverse()
+    return matches
+  }, [tickets, search, categories, statuses, sort])
 
   return (
     <div className="fb-view-wide">
       <PageHeader
         title="Все обращения"
         subtitle="Обращения от всех сотрудников."
-        meta={<span className="fb-page-count">{ticketCountLabel(tickets.length)}</span>}
       />
 
       <SearchFilterBar
@@ -54,6 +50,8 @@ export function AllTicketsView({ tickets, onOpenTicket, onToggleLike }: AllTicke
         onCategoriesChange={setCategories}
         statuses={statuses}
         onStatusesChange={setStatuses}
+        sort={sort}
+        onSortChange={setSort}
       />
 
       <TicketList

@@ -47,7 +47,7 @@ export function Sidebar({ active, onNavigate, collapsed, onToggleCollapsed }: Si
               onClick={() => onNavigate(view)}
               aria-current={active === view ? 'page' : undefined}
               aria-label={label}
-              title={collapsed ? label : undefined}
+              title={label}
             >
               <Icon size={16} />
               <span className="fb-nav-label">{label}</span>
