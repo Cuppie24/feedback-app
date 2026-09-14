@@ -1,5 +1,6 @@
 import { Mail, X } from 'lucide-react'
 import { useRef, useState } from 'react'
+import { USERS } from '../data'
 import { useDismissOnOutsideOrEscape } from '../hooks'
 import type { User } from '../types'
 
@@ -23,6 +24,8 @@ export function UserPopover({ user, label, showName = false }: UserPopoverProps)
       </span>
     )
   }
+
+  const isCurrentUser = user.id === USERS.me.id
 
   return (
     <div
@@ -48,6 +51,7 @@ export function UserPopover({ user, label, showName = false }: UserPopoverProps)
       >
         <span className="fb-row-assignee-initials">{user.initials}</span>
         {showName && <span className="fb-user-popover-name">{user.name}</span>}
+        {showName && isCurrentUser && <span className="fb-user-popover-self-label">Вы</span>}
       </button>
 
       {open && (

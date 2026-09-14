@@ -4,11 +4,11 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  height: 26px;
-  padding: 0 var(--space-8);
-  border: none;
+  height: var(--control-height);
+  padding: 0 var(--space-12);
+  border: 1px solid var(--color-border);
   border-radius: var(--radius-pill);
-  background: transparent;
+  background: var(--color-surface-sunken);
   font-size: 12px;
   font-weight: var(--font-weight-medium);
   font-family: inherit;
@@ -23,8 +23,9 @@
 }
 
 .fb-vote-btn:hover {
-  background: var(--color-surface-hover);
-  color: var(--color-text-muted);
+  border-color: var(--color-accent);
+  background: var(--color-accent-wash);
+  color: var(--color-accent);
 }
 
 .fb-vote-btn:active svg {
@@ -37,5 +38,7 @@
 }
 
 .fb-vote-btn.liked {
+  border-color: var(--color-accent);
+  background: var(--color-accent-wash);
   color: var(--color-accent);
 }

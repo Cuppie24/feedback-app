@@ -39,6 +39,7 @@ export type Message = {
   text: string
   time: string
   attachments: Attachment[]
+  replyToId?: string
 }
 
 export type User = {

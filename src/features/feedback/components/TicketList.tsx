@@ -27,6 +27,7 @@ type TicketListProps = {
   onToggleLike: (id: string) => void
   onSystemChange: (id: string, system: System | null) => void
   onStatusChange: (id: string, status: Status | null) => void
+  onOpenTicket?: (ticket: Ticket) => void
   sort?: TicketSort
   onSortChange?: (sort: TicketSort) => void
 }
@@ -48,6 +49,7 @@ export function TicketList({
   onToggleLike,
   onSystemChange,
   onStatusChange,
+  onOpenTicket,
   sort,
   onSortChange,
 }: TicketListProps) {
@@ -106,6 +108,15 @@ export function TicketList({
           <div
             key={ticket.id}
             className={`fb-row fb-row-${variant}${showAuthor ? '' : ' fb-cols-no-author'}${showCategory ? '' : ' fb-cols-no-category'}`}
+            role={onOpenTicket ? 'button' : undefined}
+            tabIndex={onOpenTicket ? 0 : undefined}
+            onClick={() => onOpenTicket?.(ticket)}
+            onKeyDown={(event) => {
+              if (onOpenTicket && (event.key === 'Enter' || event.key === ' ')) {
+                event.preventDefault()
+                onOpenTicket(ticket)
+              }
+            }}
           >
             {showCategory && (
               <span className="fb-row-cat" title={categoryLabel} aria-label={categoryLabel}>

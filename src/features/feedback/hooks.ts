@@ -99,6 +99,22 @@ export function useFeedbackTickets() {
     setTickets((prev) => prev.map((ticket) => (ticket.id === id ? { ...ticket, status } : ticket)))
   }, [])
 
+  const addComment = useCallback((id: string, text: string, replyToId?: string, attachments: Attachment[] = []) => {
+    const commentId = crypto.randomUUID()
+    const message = {
+      id: commentId,
+      sender: 'me' as const,
+      text,
+      time: 'только что',
+      attachments,
+      ...(replyToId ? { replyToId } : {}),
+    }
+    setTickets((prev) =>
+      prev.map((ticket) => (ticket.id === id ? { ...ticket, messages: [...ticket.messages, message] } : ticket)),
+    )
+    return commentId
+  }, [])
+
   const addTicket = useCallback((input: NewFeedbackInput): string => {
     nextNumber.current += 1
     const id = `ОБ-${nextNumber.current}`
@@ -130,7 +146,7 @@ export function useFeedbackTickets() {
     return id
   }, [])
 
-  return { tickets, toggleLike, updateSystem, updateStatus, addTicket }
+  return { tickets, toggleLike, updateSystem, updateStatus, addComment, addTicket }
 }
 
 // Backing state for the attachments widget: turns picked/dropped Files

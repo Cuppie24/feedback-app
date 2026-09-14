@@ -138,6 +138,9 @@
     0 0 0 1px rgba(15, 15, 15, 0.05),
     0 3px 6px rgba(15, 15, 15, 0.1),
     0 9px 24px rgba(15, 15, 15, 0.18);
+  --shadow-dock:
+    0 0 0 1px rgba(15, 15, 15, 0.12),
+    0 0 56px rgba(15, 15, 15, 0.32);
 
   /* --- Focus --- */
   --focus-ring: 0 0 0 3px var(--color-accent-ring);
@@ -226,6 +229,9 @@
       0 0 0 1px rgba(0, 0, 0, 0.4),
       0 3px 6px rgba(0, 0, 0, 0.5),
       0 9px 24px rgba(0, 0, 0, 0.6);
+    --shadow-dock:
+      0 0 0 1px rgba(0, 0, 0, 0.7),
+      0 0 56px rgba(0, 0, 0, 0.9);
   }
 }
 
@@ -270,6 +276,9 @@
     0 0 0 1px rgba(0, 0, 0, 0.4),
     0 3px 6px rgba(0, 0, 0, 0.5),
     0 9px 24px rgba(0, 0, 0, 0.6);
+  --shadow-dock:
+    0 0 0 1px rgba(0, 0, 0, 0.7),
+    0 0 56px rgba(0, 0, 0, 0.9);
 }
 
 /* Forced light: the :root defaults already are light; just pin the

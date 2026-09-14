@@ -13,6 +13,7 @@ type CategoryTicketsViewProps = {
   onToggleLike: (id: string) => void
   onSystemChange: (id: string, system: System | null) => void
   onStatusChange: (id: string, status: Status | null) => void
+  onOpenTicket: (ticket: Ticket) => void
 }
 
 export function CategoryTicketsView({
@@ -21,6 +22,7 @@ export function CategoryTicketsView({
   onToggleLike,
   onSystemChange,
   onStatusChange,
+  onOpenTicket,
 }: CategoryTicketsViewProps) {
   const [search, setSearch] = useState('')
   const [statuses, setStatuses] = useState<Status[]>([])
@@ -89,6 +91,7 @@ export function CategoryTicketsView({
         onToggleLike={onToggleLike}
         onSystemChange={onSystemChange}
         onStatusChange={onStatusChange}
+        onOpenTicket={onOpenTicket}
         emptyMessage="Ничего не найдено."
       />
     </div>

@@ -1,5 +1,5 @@
 import { Bug, Lightbulb, MessageSquare, type LucideIcon } from 'lucide-react'
-import type { Category, Status, System, TagTone, Ticket, User } from './types'
+import type { Category, Message, Status, System, TagTone, Ticket, User } from './types'
 
 // Placeholder data: the feedback backend does not exist yet (see
 // CLAUDE.md). Seeds useFeedbackTickets() so the feature is fully
@@ -79,7 +79,7 @@ export const SYSTEM_TONE: Record<System, TagTone> = {
 export const USERS = {
   me: {
     id: 'current-user',
-    name: 'Вы',
+    name: 'Ishnazarov Saidnazar',
     initials: 'ВЫ',
     role: 'Сотрудник · Micros',
     email: 'you@example.com',
@@ -150,6 +150,7 @@ type TicketSeed = Omit<Ticket, 'createdAt' | 'time' | 'messages'> & {
     text: string
     time: string
   }
+  comments?: Array<Omit<Message, 'id' | 'attachments'>>
 }
 
 const TICKET_SEEDS = [
@@ -186,6 +187,70 @@ const TICKET_SEEDS = [
     likes: 14,
     liked: true,
     text: 'Перед активацией нового прайс-листа нужна таблица изменений: старая цена, новая цена, разница в процентах. Строки с изменением больше 20% стоит выделять.',
+    response: {
+      text: 'Отличная идея. Добавили в план ближайшего обновления: сравнение будет доступно до публикации, а крупные изменения цены выделим отдельно.',
+      time: '1 ч назад',
+    },
+    comments: [
+      {
+        sender: 'me',
+        text: 'Спасибо. Важно, чтобы порог 20% можно было менять: для разных групп товаров он отличается.',
+        time: '55 мин назад',
+      },
+      {
+        sender: 'agent',
+        text: 'Поняла. Добавим порог в настройки прайс-листа, а в самом сравнении покажем его рядом с фильтрами.',
+        time: '51 мин назад',
+      },
+      {
+        sender: 'me',
+        text: 'Ещё нужен быстрый фильтр: только новые позиции, только удалённые и только изменённые цены.',
+        time: '46 мин назад',
+      },
+      {
+        sender: 'agent',
+        text: 'Это входит в первый вариант. Для изменённых цен добавим фильтр по направлению: повышение или снижение.',
+        time: '41 мин назад',
+        replyToId: 'ОБ-247-5',
+      },
+      {
+        sender: 'me',
+        text: 'Отлично. А сравнение будет открываться до сохранения прайс-листа или только для уже созданной версии?',
+        time: '35 мин назад',
+      },
+      {
+        sender: 'agent',
+        text: 'До публикации: пользователь сможет загрузить новую версию, проверить изменения и затем подтвердить публикацию.',
+        time: '31 мин назад',
+        replyToId: 'ОБ-247-7',
+      },
+      {
+        sender: 'me',
+        text: 'Тогда полезно сохранить черновик, если во время проверки нужно вернуться к исходному файлу.',
+        time: '25 мин назад',
+      },
+      {
+        sender: 'agent',
+        text: 'Да, черновик и исходный файл будут доступны до публикации. После публикации останется история версий.',
+        time: '20 мин назад',
+      },
+      {
+        sender: 'me',
+        text: 'Историю версий тоже хотелось бы видеть: кто опубликовал и когда, с возможностью скачать файл.',
+        time: '14 мин назад',
+      },
+      {
+        sender: 'agent',
+        text: 'Зафиксировала. Добавим автора и дату публикации в историю, а скачивание исходного файла проверим с командой безопасности.',
+        time: '9 мин назад',
+        replyToId: 'ОБ-247-11',
+      },
+      {
+        sender: 'me',
+        text: 'Спасибо, такой сценарий закроет нашу ежемесячную проверку цен.',
+        time: '3 мин назад',
+      },
+    ],
   },
   {
     id: 'ОБ-246',
@@ -544,7 +609,7 @@ const TICKET_SEEDS = [
 ] satisfies TicketSeed[]
 
 export const INITIAL_TICKETS: Ticket[] = TICKET_SEEDS.map((seed): Ticket => {
-  const { ageHours, text, response, ...ticket } = seed
+  const { ageHours, text, response, comments, ...ticket } = seed
   return {
     ...ticket,
     createdAt: now - ageHours * HOUR_MS,
@@ -568,6 +633,11 @@ export const INITIAL_TICKETS: Ticket[] = TICKET_SEEDS.map((seed): Ticket => {
             },
           ]
         : []),
+      ...(comments?.map((comment, index) => ({
+        ...comment,
+        id: `${seed.id}-${index + 3}`,
+        attachments: [],
+      })) ?? []),
     ],
   }
 })
