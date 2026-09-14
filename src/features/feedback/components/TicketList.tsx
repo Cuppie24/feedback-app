@@ -62,10 +62,10 @@ export function TicketList({
           className={`fb-list-header${showAuthor ? '' : ' fb-cols-no-author'}${showCategory ? '' : ' fb-cols-no-category'}`}
         >
           {showCategory && <span aria-hidden="true" />}
+          <span>Статус</span>
           <span>Обращение</span>
           {showAuthor && <span className="fb-list-header-author">Автор</span>}
           <span className="fb-list-header-system">Система</span>
-          <span>Статус</span>
           <span className="fb-list-header-assignee" title="Исполнитель">
             Исп.
           </span>
@@ -113,6 +113,15 @@ export function TicketList({
               </span>
             )}
 
+            <div className="fb-row-status">
+              <TicketCellSelect
+                label="Статус"
+                value={ticket.status}
+                options={STATUS_OPTIONS}
+                onChange={(status) => onStatusChange(ticket.id, status)}
+              />
+            </div>
+
             <span className="fb-row-body">
               <span className="fb-row-title">{ticket.title}</span>
               <span className="fb-row-snippet">{snippet}</span>
@@ -130,15 +139,6 @@ export function TicketList({
                 value={ticket.system}
                 options={SYSTEM_OPTIONS}
                 onChange={(system) => onSystemChange(ticket.id, system)}
-              />
-            </div>
-
-            <div className="fb-row-status">
-              <TicketCellSelect
-                label="Статус"
-                value={ticket.status}
-                options={STATUS_OPTIONS}
-                onChange={(status) => onStatusChange(ticket.id, status)}
               />
             </div>
 

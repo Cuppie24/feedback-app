@@ -6,7 +6,7 @@
 .fb-list-header {
   position: relative;
   display: grid;
-  grid-template-columns: 28px minmax(260px, 1fr) minmax(120px, 160px) 100px 86px 36px 64px 84px;
+  grid-template-columns: 28px 86px minmax(260px, 1fr) minmax(120px, 160px) 100px 36px 64px 84px;
   align-items: center;
   gap: var(--space-12);
   min-height: 34px;
@@ -91,7 +91,7 @@
 
 .fb-row-wide {
   display: grid;
-  grid-template-columns: 28px minmax(260px, 1fr) minmax(120px, 160px) 100px 86px 36px 64px 84px;
+  grid-template-columns: 28px 86px minmax(260px, 1fr) minmax(120px, 160px) 100px 36px 64px 84px;
   gap: var(--space-12);
   min-height: 52px;
   padding-left: var(--space-4);
@@ -110,17 +110,17 @@
 
 .fb-list-header.fb-cols-no-author,
 .fb-row-wide.fb-cols-no-author {
-  grid-template-columns: 28px minmax(260px, 1fr) 100px 86px 36px 64px 84px;
+  grid-template-columns: 28px 86px minmax(260px, 1fr) 100px 36px 64px 84px;
 }
 
 .fb-list-header.fb-cols-no-category,
 .fb-row-wide.fb-cols-no-category {
-  grid-template-columns: minmax(260px, 1fr) minmax(120px, 160px) 100px 86px 36px 64px 84px;
+  grid-template-columns: 86px minmax(260px, 1fr) minmax(120px, 160px) 100px 36px 64px 84px;
 }
 
 .fb-list-header.fb-cols-no-author.fb-cols-no-category,
 .fb-row-wide.fb-cols-no-author.fb-cols-no-category {
-  grid-template-columns: minmax(260px, 1fr) 100px 86px 36px 64px 84px;
+  grid-template-columns: 86px minmax(260px, 1fr) 100px 36px 64px 84px;
 }
 
 .fb-row-cat {
@@ -560,35 +560,35 @@
 @media (max-width: 1080px) {
   .fb-list-header,
   .fb-row-wide {
-    grid-template-columns: 28px minmax(220px, 1fr) minmax(100px, 130px) 90px 80px 32px 58px 74px;
+    grid-template-columns: 28px 80px minmax(220px, 1fr) minmax(100px, 130px) 90px 32px 58px 74px;
     gap: var(--space-8);
   }
 
   .fb-list-header.fb-cols-no-author,
   .fb-row-wide.fb-cols-no-author {
-    grid-template-columns: 28px minmax(220px, 1fr) 90px 80px 32px 58px 74px;
+    grid-template-columns: 28px 80px minmax(220px, 1fr) 90px 32px 58px 74px;
   }
 
   .fb-list-header.fb-cols-no-category,
   .fb-row-wide.fb-cols-no-category {
-    grid-template-columns: minmax(220px, 1fr) minmax(100px, 130px) 90px 80px 32px 58px 74px;
+    grid-template-columns: 80px minmax(220px, 1fr) minmax(100px, 130px) 90px 32px 58px 74px;
   }
 
   .fb-list-header.fb-cols-no-author.fb-cols-no-category,
   .fb-row-wide.fb-cols-no-author.fb-cols-no-category {
-    grid-template-columns: minmax(220px, 1fr) 90px 80px 32px 58px 74px;
+    grid-template-columns: 80px minmax(220px, 1fr) 90px 32px 58px 74px;
   }
 }
 
 @media (max-width: 900px) {
   .fb-list-header,
   .fb-row-wide {
-    grid-template-columns: 28px minmax(220px, 1fr) 90px 80px 32px 58px 74px;
+    grid-template-columns: 28px 80px minmax(220px, 1fr) 90px 32px 58px 74px;
   }
 
   .fb-list-header.fb-cols-no-category,
   .fb-row-wide.fb-cols-no-category {
-    grid-template-columns: minmax(220px, 1fr) 90px 80px 32px 58px 74px;
+    grid-template-columns: 80px minmax(220px, 1fr) 90px 32px 58px 74px;
   }
 
   .fb-list-header-author,

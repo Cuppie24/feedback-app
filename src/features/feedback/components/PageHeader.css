@@ -2,6 +2,21 @@
   margin-bottom: var(--space-24);
 }
 
+/* No title (a tab already names the page - see PageHeader.tsx): the
+   subtitle's margin-top was spacing from the h1, which leaves it
+   floating with a stray gap above it and nothing to anchor to. Tighten
+   that gap - the subtitle otherwise stays exactly what the design
+   system calls it: secondary text, so it keeps --color-text-muted and
+   caption-scale sizing rather than being promoted to look primary
+   (DESIGN_SYSTEM.md > Colors, Typography). */
+.fb-page-header.no-title {
+  margin-bottom: var(--space-16);
+}
+
+.fb-page-header.no-title .fb-page-meta-row {
+  margin-top: 0;
+}
+
 .fb-page-title {
   display: flex;
   align-items: center;

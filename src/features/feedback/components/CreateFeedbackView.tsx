@@ -10,10 +10,7 @@ type CreateFeedbackViewProps = {
 export function CreateFeedbackView({ onSubmit }: CreateFeedbackViewProps) {
   return (
     <div className="fb-view">
-      <PageHeader
-        title="Новое обращение"
-        subtitle="Заполните форму ниже — мы свяжемся с вами прямо в этом обращении."
-      />
+      <PageHeader subtitle="Заполните форму ниже — мы свяжемся с вами прямо в этом обращении." />
 
       <FeedbackForm onSubmit={onSubmit} />
     </div>

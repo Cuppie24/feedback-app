@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useAppMode, useFeedbackTickets, useSidebarCollapsed } from '../hooks'
+import { AgentsView } from './AgentsView'
 import { AllTicketsView } from './AllTicketsView'
 import { CategoryTicketsView } from './CategoryTicketsView'
 import { CreateFeedbackView } from './CreateFeedbackView'
@@ -7,6 +8,7 @@ import { ModeSwitch } from './ModeSwitch'
 import { MyTicketsView } from './MyTicketsView'
 import { PopularTicketsView } from './PopularTicketsView'
 import { Sidebar, type SidebarView } from './Sidebar'
+import { SystemsView } from './SystemsView'
 import { UserTabBar, type UserView } from './UserTabBar'
 import './FeedbackApp.css'
 
@@ -80,6 +82,8 @@ export function FeedbackApp() {
             onStatusChange={updateStatus}
           />
         )}
+        {view === 'systems' && <SystemsView />}
+        {view === 'agents' && <AgentsView />}
       </main>
     </div>
   )

@@ -53,7 +53,6 @@ export function MyTicketsView({
   return (
     <div className="fb-view-wide">
       <PageHeader
-        title="Мои обращения"
         subtitle="Обращения, которые вы отправили."
         meta={
           <span className="fb-page-count">

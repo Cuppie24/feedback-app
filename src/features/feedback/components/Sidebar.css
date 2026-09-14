@@ -128,6 +128,35 @@
   gap: 2px;
 }
 
+/* Category items nest under "Все обращения" - every category is a
+   subset of all tickets, so the nav shows that as one parent, three
+   indented children, instead of four flat siblings. */
+.fb-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fb-nav-group .fb-nav-item {
+  padding-left: calc(var(--space-8) + var(--space-16));
+}
+
+.collapsed .fb-nav-group .fb-nav-item {
+  padding-left: 0;
+}
+
+/* Systems/agents aren't ticket views - a thin top border sets them
+   apart from the "Все обращения" group above instead of nesting or
+   flattening them into it. */
+.fb-nav-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: var(--space-12);
+  padding-top: var(--space-12);
+  border-top: 1px solid var(--color-border);
+}
+
 .fb-nav-item {
   display: flex;
   align-items: center;
@@ -184,6 +213,23 @@
   color: var(--color-accent);
 }
 
+/* Category icons keep their own tone (same palette as TicketList's row
+   icon and CategoryTicketsView's page-title icon) instead of flipping
+   to the generic active accent colour - these selectors intentionally
+   match the specificity of the rules above and rely on appearing after
+   them, so they win in both the resting and active state. */
+.fb-nav-item svg.fb-nav-icon-danger {
+  color: var(--color-tag-red-icon);
+}
+
+.fb-nav-item svg.fb-nav-icon-warning {
+  color: var(--color-tag-yellow-icon);
+}
+
+.fb-nav-item svg.fb-nav-icon-info {
+  color: var(--color-tag-blue-icon);
+}
+
 @media (max-width: 900px) {
   .fb-sidebar,
   .fb-sidebar.collapsed {
@@ -209,7 +255,8 @@
   }
 
   .fb-nav-item,
-  .collapsed .fb-nav-item {
+  .collapsed .fb-nav-item,
+  .fb-nav-group .fb-nav-item {
     justify-content: center;
     padding: 0;
   }
