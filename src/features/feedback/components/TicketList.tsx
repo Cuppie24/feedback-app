@@ -1,8 +1,18 @@
 import { ArrowDown, ArrowUp } from 'lucide-react'
-import { CATEGORY_ICON, CATEGORY_LABEL, CATEGORY_TONE, CATEGORY_VOTABLE, STATUS_LABEL, STATUS_TONE } from '../data'
-import type { Ticket } from '../types'
+import {
+  CATEGORY_ICON,
+  CATEGORY_LABEL,
+  CATEGORY_TONE,
+  CATEGORY_VOTABLE,
+  STATUS_LABEL,
+  STATUS_TONE,
+  SYSTEM_LABEL,
+  SYSTEM_TONE,
+} from '../data'
+import type { Status, System, Ticket } from '../types'
+import { UserPopover } from './UserPopover'
 import type { TicketSort } from './SearchFilterBar'
-import { Tag } from './Tag'
+import { TicketCellSelect, type TicketCellOption } from './TicketCellSelect'
 import { VoteButton } from './VoteButton'
 import './TicketList.css'
 
@@ -15,9 +25,19 @@ type TicketListProps = {
   emptyMessage?: string
   onOpen: (id: string) => void
   onToggleLike: (id: string) => void
+  onSystemChange: (id: string, system: System | null) => void
+  onStatusChange: (id: string, status: Status | null) => void
   sort?: TicketSort
   onSortChange?: (sort: TicketSort) => void
 }
+
+const SYSTEM_OPTIONS = (Object.entries(SYSTEM_LABEL) as [System, string][]).map(
+  ([value, label]): TicketCellOption<System> => ({ value, label, tone: SYSTEM_TONE[value] }),
+)
+
+const STATUS_OPTIONS = (Object.entries(STATUS_LABEL) as [Status, string][]).map(
+  ([value, label]): TicketCellOption<Status> => ({ value, label, tone: STATUS_TONE[value] }),
+)
 
 export function TicketList({
   tickets,
@@ -26,6 +46,8 @@ export function TicketList({
   emptyMessage = 'Ничего не найдено.',
   onOpen,
   onToggleLike,
+  onSystemChange,
+  onStatusChange,
   sort,
   onSortChange,
 }: TicketListProps) {
@@ -40,7 +62,11 @@ export function TicketList({
           <span aria-hidden="true" />
           <span>Обращение</span>
           {showAuthor && <span className="fb-list-header-author">Автор</span>}
+          <span className="fb-list-header-system">Система</span>
           <span>Статус</span>
+          <span className="fb-list-header-assignee" title="Исполнитель">
+            Исп.
+          </span>
           {onSortChange ? (
             <button
               type="button"
@@ -82,6 +108,7 @@ export function TicketList({
             tabIndex={0}
             onClick={() => onOpen(ticket.id)}
             onKeyDown={(event) => {
+              if (event.target !== event.currentTarget) return
               if (event.key === 'Enter' || event.key === ' ') {
                 event.preventDefault()
                 onOpen(ticket.id)
@@ -98,15 +125,33 @@ export function TicketList({
             </span>
 
             {showAuthor && (
-              <span className="fb-row-author">
-                <span className="fb-row-avatar">{ticket.initials}</span>
-                <span className="fb-row-author-name">{ticket.author}</span>
-              </span>
+              <div className="fb-row-author">
+                <UserPopover user={ticket.author} label="Автор" />
+                <span className="fb-row-author-name">{ticket.author.name}</span>
+              </div>
             )}
 
-            <span className="fb-row-status">
-              <Tag tone={STATUS_TONE[ticket.status]}>{STATUS_LABEL[ticket.status]}</Tag>
-            </span>
+            <div className="fb-row-system">
+              <TicketCellSelect
+                label="Система"
+                value={ticket.system}
+                options={SYSTEM_OPTIONS}
+                onChange={(system) => onSystemChange(ticket.id, system)}
+              />
+            </div>
+
+            <div className="fb-row-status">
+              <TicketCellSelect
+                label="Статус"
+                value={ticket.status}
+                options={STATUS_OPTIONS}
+                onChange={(status) => onStatusChange(ticket.id, status)}
+              />
+            </div>
+
+            <div className="fb-row-assignee">
+              <UserPopover user={ticket.assignee} label="Исполнитель" />
+            </div>
 
             {CATEGORY_VOTABLE[ticket.category] ? (
               <VoteButton likes={ticket.likes} liked={ticket.liked} onToggle={() => onToggleLike(ticket.id)} />

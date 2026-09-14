@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { comparePopularity } from '../data'
-import type { Category, Status, Ticket } from '../types'
+import type { Category, Status, System, Ticket } from '../types'
 import { pluralizeRu } from '../utils'
 import { PageHeader } from './PageHeader'
 import { SearchFilterBar, type TicketSort } from './SearchFilterBar'
@@ -11,33 +11,44 @@ type AllTicketsViewProps = {
   tickets: Ticket[]
   onOpenTicket: (id: string) => void
   onToggleLike: (id: string) => void
+  onSystemChange: (id: string, system: System | null) => void
+  onStatusChange: (id: string, status: Status | null) => void
 }
 
-export function AllTicketsView({ tickets, onOpenTicket, onToggleLike }: AllTicketsViewProps) {
+export function AllTicketsView({
+  tickets,
+  onOpenTicket,
+  onToggleLike,
+  onSystemChange,
+  onStatusChange,
+}: AllTicketsViewProps) {
   const [search, setSearch] = useState('')
   const [categories, setCategories] = useState<Category[]>([])
   const [statuses, setStatuses] = useState<Status[]>([])
+  const [systems, setSystems] = useState<System[]>([])
   const [sort, setSort] = useState<TicketSort>('newest')
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
     const matches = tickets.filter((ticket) => {
       if (categories.length > 0 && !categories.includes(ticket.category)) return false
-      if (statuses.length > 0 && !statuses.includes(ticket.status)) return false
+      if (statuses.length > 0 && (ticket.status === null || !statuses.includes(ticket.status))) return false
+      if (systems.length > 0 && (ticket.system === null || !systems.includes(ticket.system))) return false
       if (!query) return true
       const snippet = ticket.messages.at(-1)?.text ?? ''
       return (
         ticket.id.toLowerCase().includes(query) ||
         ticket.title.toLowerCase().includes(query) ||
         snippet.toLowerCase().includes(query) ||
-        ticket.author.toLowerCase().includes(query)
+        ticket.author.name.toLowerCase().includes(query) ||
+        ticket.assignee?.name.toLowerCase().includes(query)
       )
     })
 
     if (sort === 'popular') return [...matches].sort(comparePopularity)
     if (sort === 'oldest') return [...matches].sort((a, b) => a.createdAt - b.createdAt)
     return [...matches].sort((a, b) => b.createdAt - a.createdAt)
-  }, [tickets, search, categories, statuses, sort])
+  }, [tickets, search, categories, statuses, systems, sort])
 
   return (
     <div className="fb-view-wide">
@@ -58,6 +69,8 @@ export function AllTicketsView({ tickets, onOpenTicket, onToggleLike }: AllTicke
         onCategoriesChange={setCategories}
         statuses={statuses}
         onStatusesChange={setStatuses}
+        systems={systems}
+        onSystemsChange={setSystems}
         sort={sort}
         onSortChange={setSort}
       />
@@ -70,6 +83,8 @@ export function AllTicketsView({ tickets, onOpenTicket, onToggleLike }: AllTicke
         onSortChange={setSort}
         onOpen={onOpenTicket}
         onToggleLike={onToggleLike}
+        onSystemChange={onSystemChange}
+        onStatusChange={onStatusChange}
         emptyMessage="Ничего не найдено."
       />
     </div>

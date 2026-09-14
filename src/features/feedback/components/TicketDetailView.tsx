@@ -32,7 +32,7 @@ export function TicketDetailView({ ticket, onBack }: TicketDetailViewProps) {
 
       <div className="fb-detail-tags">
         <Tag tone={CATEGORY_TONE[ticket.category]}>{CATEGORY_LABEL[ticket.category]}</Tag>
-        <Tag tone={STATUS_TONE[ticket.status]}>{STATUS_LABEL[ticket.status]}</Tag>
+        {ticket.status && <Tag tone={STATUS_TONE[ticket.status]}>{STATUS_LABEL[ticket.status]}</Tag>}
       </div>
       <h1 className="fb-detail-title">Обращение {ticket.id}</h1>
 

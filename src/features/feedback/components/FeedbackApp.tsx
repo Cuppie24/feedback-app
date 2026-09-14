@@ -15,7 +15,7 @@ type View = SidebarView | 'detail'
 // anymore - it lives in the always-mounted CreateFeedbackWidget floating
 // button/panel, collapsed whenever the user navigates via the sidebar.
 export function FeedbackApp() {
-  const { tickets, toggleLike, addTicket } = useFeedbackTickets()
+  const { tickets, toggleLike, updateSystem, updateStatus, addTicket } = useFeedbackTickets()
   const { collapsed, toggleCollapsed } = useSidebarCollapsed()
   const [view, setView] = useState<View>('all')
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -43,10 +43,22 @@ export function FeedbackApp() {
 
       <main className="fb-main">
         {view === 'mine' && (
-          <MyTicketsView tickets={tickets} onOpenTicket={openTicket} onToggleLike={toggleLike} />
+          <MyTicketsView
+            tickets={tickets}
+            onOpenTicket={openTicket}
+            onToggleLike={toggleLike}
+            onSystemChange={updateSystem}
+            onStatusChange={updateStatus}
+          />
         )}
         {view === 'all' && (
-          <AllTicketsView tickets={tickets} onOpenTicket={openTicket} onToggleLike={toggleLike} />
+          <AllTicketsView
+            tickets={tickets}
+            onOpenTicket={openTicket}
+            onToggleLike={toggleLike}
+            onSystemChange={updateSystem}
+            onStatusChange={updateStatus}
+          />
         )}
         {view === 'detail' && (
           <TicketDetailView
@@ -63,6 +75,8 @@ export function FeedbackApp() {
           onSubmit={(input) => openTicket(addTicket(input))}
           onOpenTicket={openTicket}
           onToggleLike={toggleLike}
+          onSystemChange={updateSystem}
+          onStatusChange={updateStatus}
         />
       </main>
     </div>

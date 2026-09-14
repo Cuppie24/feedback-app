@@ -1,6 +1,6 @@
-import { ListFilter, Search, Tag as TagIcon, X } from 'lucide-react'
-import { CATEGORY_ICON, CATEGORY_LABEL, CATEGORY_TONE, STATUS_LABEL } from '../data'
-import type { Category, Status } from '../types'
+import { Layers, ListFilter, Search, Tag as TagIcon, X } from 'lucide-react'
+import { CATEGORY_ICON, CATEGORY_LABEL, CATEGORY_TONE, STATUS_LABEL, STATUS_TONE, SYSTEM_LABEL, SYSTEM_TONE } from '../data'
+import type { Category, Status, System } from '../types'
 import { FilterDropdown } from './FilterDropdown'
 import { SortDropdown } from './SortDropdown'
 import './SearchFilterBar.css'
@@ -15,6 +15,13 @@ const CATEGORY_OPTIONS = (Object.entries(CATEGORY_LABEL) as [Category, string][]
 const STATUS_OPTIONS = (Object.entries(STATUS_LABEL) as [Status, string][]).map(([value, label]) => ({
   value,
   label,
+  tone: STATUS_TONE[value],
+}))
+
+const SYSTEM_OPTIONS = (Object.entries(SYSTEM_LABEL) as [System, string][]).map(([value, label]) => ({
+  value,
+  label,
+  tone: SYSTEM_TONE[value],
 }))
 
 export type SearchFilterBarProps = {
@@ -24,6 +31,8 @@ export type SearchFilterBarProps = {
   onCategoriesChange: (value: Category[]) => void
   statuses: Status[]
   onStatusesChange: (value: Status[]) => void
+  systems: System[]
+  onSystemsChange: (value: System[]) => void
   sort: TicketSort
   onSortChange: (value: TicketSort) => void
 }
@@ -37,15 +46,19 @@ export function SearchFilterBar({
   onCategoriesChange,
   statuses,
   onStatusesChange,
+  systems,
+  onSystemsChange,
   sort,
   onSortChange,
 }: SearchFilterBarProps) {
-  const hasActiveFilters = categories.length > 0 || statuses.length > 0 || search.trim().length > 0
+  const hasActiveFilters =
+    categories.length > 0 || statuses.length > 0 || systems.length > 0 || search.trim().length > 0
 
   function clearAll() {
     onSearchChange('')
     onCategoriesChange([])
     onStatusesChange([])
+    onSystemsChange([])
   }
 
   return (
@@ -69,6 +82,7 @@ export function SearchFilterBar({
           options={CATEGORY_OPTIONS}
           selected={categories}
           onChange={onCategoriesChange}
+          wide
         />
 
         <FilterDropdown
@@ -77,6 +91,14 @@ export function SearchFilterBar({
           options={STATUS_OPTIONS}
           selected={statuses}
           onChange={onStatusesChange}
+        />
+
+        <FilterDropdown
+          label="Система"
+          Icon={Layers}
+          options={SYSTEM_OPTIONS}
+          selected={systems}
+          onChange={onSystemsChange}
         />
 
         {hasActiveFilters && (

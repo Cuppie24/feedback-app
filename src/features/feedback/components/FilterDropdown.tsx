@@ -1,8 +1,8 @@
-import { Check, ChevronDown, type LucideIcon } from 'lucide-react'
+import { ChevronDown, type LucideIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useDismissOnOutsideOrEscape } from '../hooks'
 import type { TagTone } from '../types'
-import { Tag } from './Tag'
+import { SelectionMenu } from './SelectionMenu'
 import './FilterDropdown.css'
 
 export type FilterOption<T extends string> = {
@@ -18,9 +18,10 @@ type FilterDropdownProps<T extends string> = {
   options: FilterOption<T>[]
   selected: T[]
   onChange: (selected: T[]) => void
+  wide?: boolean
 }
 
-export function FilterDropdown<T extends string>({ label, Icon, options, selected, onChange }: FilterDropdownProps<T>) {
+export function FilterDropdown<T extends string>({ label, Icon, options, selected, onChange, wide = false }: FilterDropdownProps<T>) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const selectedLabels = selected
@@ -30,12 +31,8 @@ export function FilterDropdown<T extends string>({ label, Icon, options, selecte
 
   useDismissOnOutsideOrEscape(open, rootRef, setOpen)
 
-  function toggleValue(value: T) {
-    onChange(selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value])
-  }
-
   return (
-    <div className="fb-filter" ref={rootRef}>
+    <div className={`fb-filter${wide ? ' fb-filter-wide' : ''}`} ref={rootRef}>
       <button
         type="button"
         className={`fb-filter-trigger${selected.length > 0 ? ' active' : ''}`}
@@ -52,33 +49,15 @@ export function FilterDropdown<T extends string>({ label, Icon, options, selecte
       </button>
 
       {open && (
-        <div className="fb-filter-panel" role="listbox" aria-multiselectable="true">
-          {options.map((option) => {
-            const checked = selected.includes(option.value)
-            return (
-              <button
-                key={option.value}
-                type="button"
-                className="fb-filter-option"
-                role="option"
-                aria-selected={checked}
-                onClick={() => toggleValue(option.value)}
-              >
-                <span className={`fb-filter-check${checked ? ' checked' : ''}`}>
-                  {checked && <Check size={12} strokeWidth={3} />}
-                </span>
-                {option.tone && option.Icon ? (
-                  <Tag tone={option.tone}>
-                    <option.Icon size={12} strokeWidth={2.5} />
-                    {option.label}
-                  </Tag>
-                ) : (
-                  option.label
-                )}
-              </button>
-            )
-          })}
-        </div>
+        <SelectionMenu
+          className="fb-filter-panel"
+          label={label}
+          options={options}
+          selected={selected}
+          multiple
+          onChange={onChange}
+          noWrapSelected={wide}
+        />
       )}
     </div>
   )

@@ -1,7 +1,7 @@
 import { Clock, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
 import { comparePopularity } from '../data'
-import type { NewFeedbackInput, Ticket } from '../types'
+import type { NewFeedbackInput, Status, System, Ticket } from '../types'
 import { FeedbackForm } from './FeedbackForm'
 import { PageHeader } from './PageHeader'
 import { SegmentedControl, type SegmentedOption } from './SegmentedControl'
@@ -21,9 +21,18 @@ type CreateFeedbackViewProps = {
   onSubmit: (input: NewFeedbackInput) => void
   onOpenTicket: (id: string) => void
   onToggleLike: (id: string) => void
+  onSystemChange: (id: string, system: System | null) => void
+  onStatusChange: (id: string, status: Status | null) => void
 }
 
-export function CreateFeedbackView({ tickets, onSubmit, onOpenTicket, onToggleLike }: CreateFeedbackViewProps) {
+export function CreateFeedbackView({
+  tickets,
+  onSubmit,
+  onOpenTicket,
+  onToggleLike,
+  onSystemChange,
+  onStatusChange,
+}: CreateFeedbackViewProps) {
   const [sort, setSort] = useState<SortMode>('recent')
 
   const sortedTickets =
@@ -43,7 +52,13 @@ export function CreateFeedbackView({ tickets, onSubmit, onOpenTicket, onToggleLi
           <h2 className="fb-section-title">Обращения</h2>
           <SegmentedControl options={SORT_OPTIONS} value={sort} onChange={setSort} />
         </div>
-        <TicketList tickets={sortedTickets} onOpen={onOpenTicket} onToggleLike={onToggleLike} />
+        <TicketList
+          tickets={sortedTickets}
+          onOpen={onOpenTicket}
+          onToggleLike={onToggleLike}
+          onSystemChange={onSystemChange}
+          onStatusChange={onStatusChange}
+        />
       </div>
     </div>
   )

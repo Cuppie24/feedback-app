@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Dispatch, RefObject, SetStateAction } from 'react'
-import { INITIAL_TICKETS } from './data'
-import type { Attachment, NewFeedbackInput, Ticket } from './types'
+import { INITIAL_TICKETS, USERS } from './data'
+import type { Attachment, NewFeedbackInput, Status, System, Ticket } from './types'
 import { extOf, formatFileSize } from './utils'
 
 const SIDEBAR_STORAGE_KEY = 'feedback-app-sidebar-collapsed'
@@ -57,6 +57,14 @@ export function useFeedbackTickets() {
     )
   }, [])
 
+  const updateSystem = useCallback((id: string, system: System | null) => {
+    setTickets((prev) => prev.map((ticket) => (ticket.id === id ? { ...ticket, system } : ticket)))
+  }, [])
+
+  const updateStatus = useCallback((id: string, status: Status | null) => {
+    setTickets((prev) => prev.map((ticket) => (ticket.id === id ? { ...ticket, status } : ticket)))
+  }, [])
+
   const addTicket = useCallback((input: NewFeedbackInput): string => {
     nextNumber.current += 1
     const id = `ОБ-${nextNumber.current}`
@@ -64,10 +72,12 @@ export function useFeedbackTickets() {
       id,
       title: input.title,
       category: input.category,
+      // The create form doesn't collect a system yet - default until it does.
+      system: 'cwatis',
       status: 'open',
       mine: true,
-      author: 'Вы',
-      initials: 'ВЫ',
+      author: USERS.me,
+      assignee: null,
       time: 'только что',
       createdAt: Date.now(),
       likes: 0,
@@ -86,7 +96,7 @@ export function useFeedbackTickets() {
     return id
   }, [])
 
-  return { tickets, toggleLike, addTicket }
+  return { tickets, toggleLike, updateSystem, updateStatus, addTicket }
 }
 
 // Backing state for the attachments widget: turns picked/dropped Files

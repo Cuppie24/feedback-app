@@ -35,6 +35,54 @@
   color: #402c1b;
 }
 
+/* Extended hue set (Notion's full 10-color tag palette) - already
+   theme-aware since the underlying tokens carry both light and dark
+   values, unlike the hardcoded on-wash hex above. */
+.fb-tag-gray {
+  background: var(--color-tag-gray-wash);
+  color: var(--color-tag-gray-text);
+}
+
+.fb-tag-brown {
+  background: var(--color-tag-brown-wash);
+  color: var(--color-tag-brown-text);
+}
+
+.fb-tag-orange {
+  background: var(--color-tag-orange-wash);
+  color: var(--color-tag-orange-text);
+}
+
+.fb-tag-yellow {
+  background: var(--color-tag-yellow-wash);
+  color: var(--color-tag-yellow-text);
+}
+
+.fb-tag-green {
+  background: var(--color-tag-green-wash);
+  color: var(--color-tag-green-text);
+}
+
+.fb-tag-blue {
+  background: var(--color-tag-blue-wash);
+  color: var(--color-tag-blue-text);
+}
+
+.fb-tag-purple {
+  background: var(--color-tag-purple-wash);
+  color: var(--color-tag-purple-text);
+}
+
+.fb-tag-pink {
+  background: var(--color-tag-pink-wash);
+  color: var(--color-tag-pink-text);
+}
+
+.fb-tag-red {
+  background: var(--color-tag-red-wash);
+  color: var(--color-tag-red-text);
+}
+
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
     .fb-tag-success {

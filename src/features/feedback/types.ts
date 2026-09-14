@@ -2,7 +2,23 @@ export type Category = 'bug' | 'idea' | 'review'
 
 export type Status = 'open' | 'progress' | 'done'
 
-export type TagTone = 'danger' | 'info' | 'success' | 'warning' | 'neutral'
+export type System = 'cwatis' | 'bookkeep' | 'personnel' | 'manufacture'
+
+export type TagTone =
+  | 'danger'
+  | 'info'
+  | 'success'
+  | 'warning'
+  | 'neutral'
+  | 'gray'
+  | 'brown'
+  | 'orange'
+  | 'yellow'
+  | 'green'
+  | 'blue'
+  | 'purple'
+  | 'pink'
+  | 'red'
 
 export type AttachmentKind = 'image' | 'file'
 
@@ -25,14 +41,23 @@ export type Message = {
   attachments: Attachment[]
 }
 
+export type User = {
+  id: string
+  name: string
+  initials: string
+  role: string
+  email: string
+}
+
 export type Ticket = {
   id: string
   title: string
   category: Category
-  status: Status
+  system: System | null
+  status: Status | null
   mine: boolean
-  author: string
-  initials: string
+  author: User
+  assignee: User | null
   time: string
   createdAt: number
   likes: number

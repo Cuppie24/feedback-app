@@ -86,6 +86,14 @@
   animation: fb-menu-in var(--duration-medium) var(--ease-out);
 }
 
+.fb-filter-wide .fb-filter-panel {
+  max-width: min(420px, calc(100vw - var(--space-32)));
+}
+
+.fb-filter-wide .fb-filter-panel.has-selection {
+  width: max-content;
+}
+
 @keyframes fb-menu-in {
   from{
     opacity: 0;

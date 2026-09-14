@@ -1,5 +1,5 @@
 import { Bug, Lightbulb, MessageSquare, type LucideIcon } from 'lucide-react'
-import type { Category, Status, TagTone, Ticket } from './types'
+import type { Category, Status, System, TagTone, Ticket, User } from './types'
 
 // Placeholder data: the feedback backend does not exist yet (see
 // CLAUDE.md). Seeds useFeedbackTickets() so the feature is fully
@@ -60,15 +60,85 @@ export const STATUS_TONE: Record<Status, TagTone> = {
   done: 'success',
 }
 
+export const SYSTEM_LABEL: Record<System, string> = {
+  cwatis: 'CWATIS',
+  bookkeep: 'BookKeep',
+  personnel: 'Personnel',
+  manufacture: 'Manufacture',
+}
+
+// Deliberately outside the danger/info/success/warning/yellow family
+// used by category/status, so a system tag reads as its own dimension
+// at a glance instead of blending into the other tags on a row.
+export const SYSTEM_TONE: Record<System, TagTone> = {
+  cwatis: 'purple',
+  bookkeep: 'brown',
+  personnel: 'pink',
+  manufacture: 'orange',
+}
+
+export const USERS = {
+  me: {
+    id: 'current-user',
+    name: 'Вы',
+    initials: 'ВЫ',
+    role: 'Сотрудник · Micros',
+    email: 'you@example.com',
+  },
+  irina: {
+    id: 'irina-smirnova',
+    name: 'Ирина Смирнова',
+    initials: 'ИС',
+    role: 'Frontend developer · Platform',
+    email: 'i.smirnova@example.com',
+  },
+  alexey: {
+    id: 'alexey-morozov',
+    name: 'Алексей Морозов',
+    initials: 'АМ',
+    role: 'Backend developer · Platform',
+    email: 'a.morozov@example.com',
+  },
+  elena: {
+    id: 'elena-kuznetsova',
+    name: 'Елена Кузнецова',
+    initials: 'ЕК',
+    role: 'Product manager · Business systems',
+    email: 'e.kuznetsova@example.com',
+  },
+  igor: {
+    id: 'igor-sokolov',
+    name: 'Игорь Соколов',
+    initials: 'ИС',
+    role: 'Сотрудник · BookKeep',
+    email: 'i.sokolov@example.com',
+  },
+  maria: {
+    id: 'maria-volkova',
+    name: 'Мария Волкова',
+    initials: 'МВ',
+    role: 'Сотрудник · BookKeep',
+    email: 'm.volkova@example.com',
+  },
+  dmitry: {
+    id: 'dmitry-orlov',
+    name: 'Дмитрий Орлов',
+    initials: 'ДО',
+    role: 'Сотрудник · Personnel',
+    email: 'd.orlov@example.com',
+  },
+} satisfies Record<string, User>
+
 export const INITIAL_TICKETS: Ticket[] = [
   {
     id: 'ОБ-104',
     title: 'Кнопка сохранения не работает на странице профиля.',
     category: 'bug',
+    system: 'cwatis',
     status: 'open',
     mine: true,
-    author: 'Вы',
-    initials: 'ВЫ',
+    author: USERS.me,
+    assignee: USERS.irina,
     time: '2 ч назад',
     createdAt: now - 2 * HOUR_MS,
     likes: 1,
@@ -94,10 +164,11 @@ export const INITIAL_TICKETS: Ticket[] = [
     id: 'ОБ-103',
     title: 'Добавить тёмную тему в мобильное приложение.',
     category: 'idea',
+    system: 'cwatis',
     status: 'progress',
     mine: true,
-    author: 'Вы',
-    initials: 'ВЫ',
+    author: USERS.me,
+    assignee: USERS.alexey,
     time: '1 день назад',
     createdAt: now - DAY_MS,
     likes: 4,
@@ -116,10 +187,11 @@ export const INITIAL_TICKETS: Ticket[] = [
     id: 'ОБ-098',
     title: 'Ускорить загрузку списка заказов.',
     category: 'review',
+    system: 'cwatis',
     status: 'done',
     mine: true,
-    author: 'Вы',
-    initials: 'ВЫ',
+    author: USERS.me,
+    assignee: USERS.irina,
     time: '3 дня назад',
     createdAt: now - 3 * DAY_MS,
     likes: 7,
@@ -145,10 +217,11 @@ export const INITIAL_TICKETS: Ticket[] = [
     id: 'ОБ-091',
     title: 'Не приходит уведомление на email после оформления заказа.',
     category: 'bug',
+    system: 'bookkeep',
     status: 'open',
     mine: false,
-    author: 'Игорь Соколов',
-    initials: 'ИС',
+    author: USERS.igor,
+    assignee: USERS.alexey,
     time: '4 дня назад',
     createdAt: now - 4 * DAY_MS,
     likes: 2,
@@ -167,10 +240,11 @@ export const INITIAL_TICKETS: Ticket[] = [
     id: 'ОБ-089',
     title: 'Добавить фильтр по дате в отчётах.',
     category: 'idea',
+    system: 'bookkeep',
     status: 'progress',
     mine: false,
-    author: 'Мария Волкова',
-    initials: 'МВ',
+    author: USERS.maria,
+    assignee: USERS.elena,
     time: '4 дня назад',
     createdAt: now - 4 * DAY_MS - 6 * HOUR_MS,
     likes: 5,
@@ -189,10 +263,11 @@ export const INITIAL_TICKETS: Ticket[] = [
     id: 'ОБ-076',
     title: 'Уточнить регламент доступа для новых сотрудников.',
     category: 'review',
+    system: 'personnel',
     status: 'progress',
     mine: false,
-    author: 'Дмитрий Орлов',
-    initials: 'ДО',
+    author: USERS.dmitry,
+    assignee: null,
     time: '6 дней назад',
     createdAt: now - 6 * DAY_MS,
     likes: 0,
@@ -211,10 +286,11 @@ export const INITIAL_TICKETS: Ticket[] = [
     id: 'ОБ-070',
     title: 'Сократить время загрузки главной страницы.',
     category: 'review',
+    system: 'manufacture',
     status: 'done',
     mine: false,
-    author: 'Игорь Соколов',
-    initials: 'ИС',
+    author: USERS.igor,
+    assignee: USERS.elena,
     time: '8 дней назад',
     createdAt: now - 8 * DAY_MS,
     likes: 3,

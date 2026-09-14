@@ -1,5 +1,5 @@
 import { MessageSquarePlus, X } from 'lucide-react'
-import type { NewFeedbackInput, Ticket } from '../types'
+import type { NewFeedbackInput, Status, System, Ticket } from '../types'
 import { CreateFeedbackView } from './CreateFeedbackView'
 import './CreateFeedbackWidget.css'
 
@@ -11,6 +11,8 @@ type CreateFeedbackWidgetProps = {
   onSubmit: (input: NewFeedbackInput) => void
   onOpenTicket: (id: string) => void
   onToggleLike: (id: string) => void
+  onSystemChange: (id: string, system: System | null) => void
+  onStatusChange: (id: string, status: Status | null) => void
 }
 
 // The create-feedback page as a floating widget rather than a sidebar view -
@@ -25,6 +27,8 @@ export function CreateFeedbackWidget({
   onSubmit,
   onOpenTicket,
   onToggleLike,
+  onSystemChange,
+  onStatusChange,
 }: CreateFeedbackWidgetProps) {
   return (
     <div className="fb-create-widget">
@@ -46,6 +50,8 @@ export function CreateFeedbackWidget({
             onSubmit={onSubmit}
             onOpenTicket={onOpenTicket}
             onToggleLike={onToggleLike}
+            onSystemChange={onSystemChange}
+            onStatusChange={onStatusChange}
           />
         </div>
       </div>
