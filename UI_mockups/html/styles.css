@@ -13,6 +13,7 @@
 html, body {
   margin: 0;
   padding: 0;
+  height: 100%;
 }
 
 body {
@@ -65,6 +66,12 @@ button, label, h1, h2 {
   --tag-danger-text: #5d1715;
   --tag-warning-bg: var(--color-warning-wash);
   --tag-warning-text: #402c1b;
+  /* Sent-message bubble: a flat pale green, not derived from
+     --color-accent-* (too saturated for this pastel look). Same pair
+     used by the bubble's CSS background/border and the tail's SVG
+     fill/stroke, so there's no seam between the two. */
+  --msg-mine-bg: #e3f7d3;
+  --msg-mine-border: #c9e6b3;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -74,6 +81,8 @@ button, label, h1, h2 {
     --tag-success-text: #7fcbbb;
     --tag-danger-text: #ff9e96;
     --tag-warning-text: #f2d072;
+    --msg-mine-bg: #2a3a20;
+    --msg-mine-border: #4a5a3a;
   }
 }
 
@@ -83,6 +92,8 @@ button, label, h1, h2 {
   --tag-success-text: #7fcbbb;
   --tag-danger-text: #ff9e96;
   --tag-warning-text: #f2d072;
+  --msg-mine-bg: #2a3a20;
+  --msg-mine-border: #4a5a3a;
 }
 
 /* Icons are lucide.dev SVG source (ISC licence), inlined at build time -
@@ -113,17 +124,31 @@ button, label, h1, h2 {
 .app-layout {
   display: flex;
   width: 100%;
-  min-height: 100vh;
+  height: 100vh;
 }
 
+/* The sidebar is pinned to the viewport (own height, own scroll if its
+   nav ever overflows) so it never depends on - or moves with - the
+   scroll position of whatever's in .main. See DESIGN_SYSTEM.md > Motion:
+   width is normally never animated, but the collapse-to-icons rail is a
+   structural layout affordance (not a hover/press micro-interaction),
+   so it's a deliberate, scoped exception - kept to this one container. */
 .sidebar {
   flex: none;
   width: 240px;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
   display: flex;
   flex-direction: column;
   background: var(--color-surface-sunken);
   border-right: 1px solid var(--color-border);
   padding: var(--space-16) var(--space-12);
+  transition: width var(--duration-medium) var(--ease-in-out);
+}
+
+.sidebar.is-collapsed {
+  width: 64px;
 }
 
 .sidebar-brand {
@@ -131,6 +156,11 @@ button, label, h1, h2 {
   align-items: center;
   gap: var(--space-8);
   padding: var(--space-4) var(--space-8) var(--space-24);
+}
+
+.sidebar.is-collapsed .sidebar-brand {
+  justify-content: center;
+  gap: 0;
 }
 
 .sidebar-brand-mark {
@@ -152,6 +182,17 @@ button, label, h1, h2 {
   flex-direction: column;
   gap: 1px;
   min-width: 0;
+  max-width: 160px;
+  overflow: hidden;
+  white-space: nowrap;
+  opacity: 1;
+  transition: opacity var(--duration-fast) var(--ease-in-out),
+    max-width var(--duration-medium) var(--ease-in-out);
+}
+
+.sidebar.is-collapsed .sidebar-brand-text {
+  opacity: 0;
+  max-width: 0;
 }
 
 .sidebar-brand-name {
@@ -196,6 +237,25 @@ button, label, h1, h2 {
   color: var(--color-text-subtle);
 }
 
+.nav-item-label {
+  overflow: hidden;
+  white-space: nowrap;
+  max-width: 180px;
+  opacity: 1;
+  transition: opacity var(--duration-fast) var(--ease-in-out),
+    max-width var(--duration-medium) var(--ease-in-out);
+}
+
+.sidebar.is-collapsed .nav-item {
+  justify-content: center;
+  gap: 0;
+}
+
+.sidebar.is-collapsed .nav-item-label {
+  opacity: 0;
+  max-width: 0;
+}
+
 .nav-item:hover {
   background: var(--color-surface-hover);
 }
@@ -217,7 +277,15 @@ button, label, h1, h2 {
 .main {
   flex: 1;
   min-width: 0;
+  height: 100%;
+  overflow-y: auto;
   background: var(--color-bg);
+}
+
+/* Used by pages that host a .messenger: the messenger's own panes each
+   scroll independently, so .main itself must not also scroll. */
+.main-flush {
+  overflow: hidden;
 }
 
 .view {
@@ -388,6 +456,128 @@ button, label, h1, h2 {
   overflow: hidden;
 }
 
+/* Fills a .messenger-chat pane instead of sitting as a bounded card in
+   the page flow - see "Messenger (My / All tickets)" below. */
+.chat-panel-full {
+  margin-top: 0;
+  height: 100%;
+  max-height: none;
+  border: none;
+  border-radius: 0;
+  background: var(--color-bg);
+}
+
+/* --- Chat header: ticket subject / tags, editable on a new ticket --- */
+
+.chat-header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-12) var(--space-16);
+  border-bottom: 1px solid var(--color-border);
+  min-height: 52px;
+}
+
+.chat-header-label {
+  flex: none;
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+}
+
+.chat-header-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: var(--space-4) var(--space-6);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text);
+  font-family: inherit;
+  transition: box-shadow var(--duration-fast) var(--ease-in-out);
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.chat-header-input::placeholder {
+  color: var(--color-text-subtle);
+  font-weight: var(--font-weight-regular);
+}
+
+.chat-header-input:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--color-accent), var(--focus-ring);
+}
+
+.chat-back {
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background-color var(--duration-instant) var(--ease-in-out);
+}
+
+.chat-back:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.chat-back:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.chat-header-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.chat-header-tags {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.chat-header-title {
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.chat-header-author {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+.chat-header-author[hidden] {
+  display: none;
+}
+
+.chat-header-author .row-author-name {
+  color: var(--color-text-muted);
+}
+
 .chat-messages {
   flex: 1;
   min-height: 0;
@@ -401,7 +591,6 @@ button, label, h1, h2 {
 .msg-row {
   display: flex;
   justify-content: flex-start;
-  animation: msg-in var(--duration-medium) var(--ease-out);
 }
 
 .msg-row.mine {
@@ -409,12 +598,15 @@ button, label, h1, h2 {
 }
 
 .msg-bubble {
+  position: relative;
   max-width: 78%;
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
   padding: var(--space-8) var(--space-12);
-  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-sm);
+  /* 18px, not a --radius-* token: a deliberate one-off for chat bubbles
+     specifically, rounder than the card/control radius scale. */
+  border-radius: 18px;
   font-size: var(--font-size-ui);
   line-height: var(--line-height-body);
   background: var(--color-bg);
@@ -424,19 +616,70 @@ button, label, h1, h2 {
   user-select: text;
 }
 
+/* A sent bubble: flat pale green (--msg-mine-* above), not the app's
+   --color-accent-* tokens - those are all too saturated to read as this
+   pastel look. Text switches to --color-text (dark) instead of
+   --color-text-on-accent (white): white doesn't have workable contrast
+   on a background this light. */
 .msg-bubble.mine {
-  background: var(--color-accent);
-  color: var(--color-text-on-accent);
-  border-radius: var(--radius-lg) var(--radius-lg) var(--radius-sm) var(--radius-lg);
-  box-shadow: none;
+  background: var(--msg-mine-bg);
+  color: var(--color-text);
+  box-shadow: inset 0 0 0 1px var(--msg-mine-border);
+}
+
+/* Who sent it (their bubbles only - "mine" is unambiguous) and, for a
+   sent message, a read receipt next to the time. */
+.msg-sender {
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-accent);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* A short message reads as one compact line - "text  12:34 ✓✓" - rather
+   than always stacking the timestamp on its own row underneath. .msg-text
+   is a normal block so .msg-meta can float inside it: text wraps around
+   the float, sitting alongside it while there's room on the line and
+   only dropping below once the text runs long enough to need it. When
+   there's no text (attachment-only message) .msg-meta is instead a
+   direct flex child of the column bubble, where float is ignored per
+   spec - align-self carries the same right alignment there instead. */
+.msg-text {
+  margin: 0;
+}
+
+.msg-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  float: right;
+  align-self: flex-end;
+  margin-top: 3px;
+  margin-left: var(--space-8);
 }
 
 .msg-time {
   font-size: 11px;
   opacity: 0.65;
-  text-align: right;
+  white-space: nowrap;
   -webkit-user-select: none;
   user-select: none;
+}
+
+.msg-read-icon {
+  flex: none;
+  opacity: 0.75;
+}
+
+/* Attachments a message was sent with, previewed inside its own bubble
+   (same chip look as the compose bar's preview) instead of a text-only
+   summary, so they don't just disappear once the message is sent. */
+.msg-attachments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  margin-bottom: var(--space-6);
 }
 
 .compose-bar {
@@ -445,6 +688,21 @@ button, label, h1, h2 {
   display: flex;
   align-items: flex-end;
   gap: var(--space-8);
+}
+
+/* Hidden on someone else's ticket - viewing is allowed, replying isn't. */
+.compose-bar[hidden],
+.compose-attachments[hidden] {
+  display: none;
+}
+
+.chat-readonly-hint {
+  flex: none;
+  padding: var(--space-12) var(--space-16);
+  text-align: center;
+  font-size: 12px;
+  color: var(--color-text-subtle);
+  border-top: 1px solid var(--color-border);
 }
 
 .compose-attach {
@@ -476,7 +734,8 @@ button, label, h1, h2 {
 .compose-input {
   flex: 1;
   resize: none;
-  height: 38px;
+  min-height: 38px;
+  overflow-y: hidden;
   padding: var(--space-8) var(--space-16);
   border: none;
   border-radius: var(--radius-lg);
@@ -490,6 +749,10 @@ button, label, h1, h2 {
   -webkit-user-select: text;
   user-select: text;
 }
+
+/* Height above 38px (one line) is set inline by interactions.js as the
+   textarea grows, capped at 3 lines - see autoGrowComposeInput(). Motion
+   spec forbids animating height, so growth is instant, not transitioned. */
 
 .compose-input::placeholder {
   color: var(--color-text-subtle);
@@ -536,6 +799,98 @@ button, label, h1, h2 {
   box-shadow: var(--focus-ring);
 }
 
+/* --- Compose attachments: image + file previews, same tile size --- */
+
+.compose-attachments {
+  display: none;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  padding: var(--space-8) var(--space-12) 0;
+}
+
+.compose-attachments.has-items {
+  display: flex;
+}
+
+.attachment-chip {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  flex: none;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-flat);
+  cursor: pointer;
+  animation: msg-in var(--duration-medium) var(--ease-out);
+}
+
+.attachment-thumb {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.attachment-file {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  color: var(--color-text-muted);
+}
+
+.attachment-filename {
+  max-width: 100%;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  text-align: center;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.attachment-remove {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 18px;
+  height: 18px;
+  flex: none;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-shadow: var(--shadow-raised);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background-color var(--duration-instant) var(--ease-in-out);
+}
+
+/* Opaque on hover, not --color-surface-hover: that token is a ~6%-alpha
+   tint meant for hovering an already-opaque surface. This button floats
+   over an arbitrary photo thumbnail, so a near-transparent hover fill
+   let the image show straight through it - the button visually vanished
+   right when the pointer found it. */
+.attachment-remove:hover {
+  background: var(--color-surface-sunken);
+}
+
+.attachment-remove:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-raised), var(--focus-ring);
+}
+
 /* --- Lists (recent / mine / all) --- */
 
 .recent-section {
@@ -554,8 +909,17 @@ button, label, h1, h2 {
   flex-direction: column;
 }
 
+/* Each row is its own CSS Grid, with every cell pinned to a named area
+   (assigned below on .row-cat-col / .row-body / etc.) rather than left
+   to source order. Named areas are what actually fix the column drift:
+   grid-template-columns alone still auto-places items in DOM order, so
+   a row missing the vote button (no grid item for it) just shifts every
+   later cell one track left - the same bug a flex row had, one level
+   down. Pinning by area means a missing cell just leaves its area empty. */
 .list-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 82px minmax(0, 1fr) 78px 50px 80px;
+  grid-template-areas: "cat body status vote time";
   align-items: center;
   gap: var(--space-12);
   padding: var(--space-8) var(--space-4);
@@ -576,11 +940,15 @@ button, label, h1, h2 {
 }
 
 .list-row-lg {
+  grid-template-columns: 82px minmax(0, 1fr) 78px 50px 88px;
+  grid-template-areas: "cat body status vote time";
   gap: var(--space-16);
   padding: var(--space-12) var(--space-4);
 }
 
 .list-row-wide {
+  grid-template-columns: 82px minmax(0, 1fr) 140px 78px 50px 80px;
+  grid-template-areas: "cat body author status vote time";
   gap: var(--space-16);
   padding: var(--space-8) var(--space-4);
 }
@@ -588,7 +956,7 @@ button, label, h1, h2 {
 /* Title + last-message preview, stacked. */
 
 .row-body {
-  flex: 1;
+  grid-area: body;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -623,20 +991,14 @@ button, label, h1, h2 {
 }
 
 .row-time {
-  flex: none;
-  width: 80px;
+  grid-area: time;
   text-align: right;
   font-size: 12px;
   color: var(--color-text-subtle);
 }
 
-.row-time-lg {
-  width: 88px;
-}
-
 .row-author-col {
-  width: 140px;
-  flex: none;
+  grid-area: author;
   display: flex;
   align-items: center;
   gap: var(--space-8);
@@ -665,42 +1027,73 @@ button, label, h1, h2 {
 }
 
 .row-cat-col {
-  width: 82px;
-  flex: none;
+  grid-area: cat;
 }
 
 .row-status-col {
-  width: 78px;
-  flex: none;
+  grid-area: status;
 }
 
-.search-field {
+.filter-bar {
   position: relative;
-  width: 280px;
+  width: 840px;
   margin-bottom: var(--space-16);
 }
 
+/* The field itself is the bordered pill now, at a fixed single-line
+   height - filter chips sit inside it, between the icon and the text
+   cursor, the way GitLab's filtered search bar works. Chips and the
+   input share one non-wrapping row (.search-field-scroll) that scrolls
+   sideways instead of growing the field taller as tokens stack up;
+   the icon stays put outside that scroll area. .search-input carries no
+   border of its own; it's a plain flex-filling text run alongside them. */
+.search-field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+  height: var(--field-height);
+  padding: 0 var(--space-12);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+  transition: box-shadow var(--duration-fast) var(--ease-in-out);
+}
+
+.search-field:focus-within {
+  box-shadow: inset 0 0 0 1px var(--color-accent), var(--focus-ring);
+}
+
 .search-icon {
-  position: absolute;
-  top: 50%;
-  left: 10px;
-  transform: translateY(-50%);
+  flex: none;
   color: var(--color-text-subtle);
   pointer-events: none;
 }
 
+.search-field-scroll {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  gap: var(--space-6);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.search-field-scroll::-webkit-scrollbar {
+  display: none;
+}
+
 .search-input {
-  width: 100%;
-  height: var(--field-height);
-  padding: 0 var(--space-12) 0 32px;
+  flex: 1 1 60px;
+  min-width: 60px;
+  height: 100%;
+  padding: 0;
   border: none;
-  border-radius: var(--radius-sm);
-  background: var(--color-bg);
-  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+  background: transparent;
   font-size: var(--font-size-ui);
   color: var(--color-text);
   font-family: inherit;
-  transition: box-shadow var(--duration-fast) var(--ease-in-out);
 }
 
 .search-input::placeholder {
@@ -709,7 +1102,133 @@ button, label, h1, h2 {
 
 .search-input:focus-visible {
   outline: none;
-  box-shadow: inset 0 0 0 1px var(--color-accent), var(--focus-ring);
+}
+
+/* --- Filter bar: GitLab-style token filters, inline inside the search
+   field itself (between the icon and the text cursor) --- */
+
+.filter-chips {
+  display: flex;
+  flex-wrap: nowrap;
+  flex: none;
+  gap: var(--space-6);
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  height: 24px;
+  padding: 0 var(--space-4) 0 var(--space-8);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent-wash);
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: var(--font-weight-medium);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.filter-chip-key {
+  color: var(--color-text-muted);
+  font-weight: var(--font-weight-regular);
+}
+
+.filter-chip-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  flex: none;
+  padding: 0;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background-color var(--duration-instant) var(--ease-in-out);
+}
+
+.filter-chip-remove:hover {
+  background: var(--color-surface-active);
+}
+
+.filter-chip-remove:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: calc(100% + var(--space-4));
+  left: 0;
+  width: 240px;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-overlay);
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 20;
+  animation: view-in var(--duration-fast) var(--ease-out);
+}
+
+.filter-dropdown-label {
+  padding: var(--space-6) var(--space-8) var(--space-4);
+  font-size: var(--font-size-overline);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-subtle);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.filter-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-8);
+  width: 100%;
+  padding: var(--space-6) var(--space-8);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  font-size: 13px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.filter-option-label {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  min-width: 0;
+}
+
+.filter-option:hover {
+  background: var(--color-surface-hover);
+}
+
+.filter-option:focus-visible {
+  outline: none;
+  background: var(--color-surface-hover);
+  box-shadow: var(--focus-ring);
+}
+
+.filter-option-back {
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-4);
+}
+
+.list-empty {
+  margin: var(--space-24) 0 0;
+  font-size: 13px;
+  color: var(--color-text-subtle);
+  text-align: center;
 }
 
 /* --- Tags (category / status) --- */
@@ -752,7 +1271,9 @@ button, label, h1, h2 {
 /* --- Like button --- */
 
 .like-btn {
+  grid-area: vote;
   flex: none;
+  justify-self: start;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -796,4 +1317,280 @@ button, label, h1, h2 {
 
 .like-btn.liked svg {
   fill: currentColor;
+}
+
+/* --- Messenger (My tickets / All tickets) ---
+   Opening a ticket turns the list into a narrow rail beside a
+   full-height chat pane (and, for someone else's ticket, a comments
+   pane to its right) instead of navigating away. Each pane scrolls on
+   its own; see .sidebar / .main-flush above for why the page itself
+   never scrolls here. */
+
+.messenger {
+  height: 100%;
+  display: flex;
+  /* The rail and comments pane are fixed-width; on a narrow window that
+     can leave too little room for the chat. Rather than crush it below
+     readable, the messenger scrolls horizontally as a fallback - the
+     page itself still never scrolls (see .main-flush). */
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.messenger-list {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-32) var(--space-32) 0;
+  border-right: 1px solid transparent;
+  transition: flex-basis var(--duration-medium) var(--ease-in-out),
+    padding var(--duration-medium) var(--ease-in-out);
+}
+
+.messenger-list-head {
+  flex: none;
+}
+
+.messenger-list-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-bottom: var(--space-24);
+}
+
+.messenger.is-open .messenger-list {
+  flex: 0 0 280px;
+  min-width: 280px;
+  padding: var(--space-24) var(--space-16) 0;
+  border-right-color: var(--color-border);
+}
+
+.messenger.is-open .messenger-list .page-title {
+  font-size: var(--font-size-subheading);
+}
+
+.messenger.is-open .messenger-list .page-sub-lg {
+  display: none;
+}
+
+.messenger.is-open .filter-bar {
+  width: 100%;
+}
+
+/* Rail rows drop every column that doesn't fit a narrow list - status,
+   author, and vote (voting isn't offered from the rail at all; the open
+   row's own vote button lives in the chat header instead - see
+   initMessenger()'s relocateVote()). Specificity (3 classes) beats
+   .list-row-lg / .list-row-wide's template regardless of source order. */
+.messenger.is-open .messenger-list .row-status-col,
+.messenger.is-open .messenger-list .row-author-col,
+.messenger.is-open .messenger-list .like-btn {
+  display: none;
+}
+
+.messenger.is-open .messenger-list .list-row {
+  grid-template-columns: 56px minmax(0, 1fr) 56px;
+  grid-template-areas: "cat body time";
+}
+
+.list-row.is-active {
+  background: var(--color-accent-wash);
+}
+
+.list-row.is-filtered-out {
+  display: none;
+}
+
+.filter-option-trailing {
+  flex: none;
+  display: flex;
+  color: var(--color-text-subtle);
+}
+
+.messenger-chat {
+  flex: 1 1 auto;
+  min-width: 360px;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  animation: view-in var(--duration-medium) var(--ease-out);
+}
+
+.messenger.is-open .messenger-chat {
+  display: flex;
+}
+
+.messenger-comments {
+  flex: 0 0 640px;
+  min-width: 480px;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  background: var(--color-surface-sunken);
+  border-left: 1px solid var(--color-border);
+  animation: view-in var(--duration-medium) var(--ease-out);
+}
+
+.messenger.is-open .messenger-comments {
+  display: flex;
+}
+
+/* --- Comments panel: visible to everyone, never joins the ticket chat --- */
+
+.comments-header {
+  flex: none;
+  padding: var(--space-12) var(--space-16);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.comments-title {
+  font-size: var(--font-size-ui);
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.comments-sub {
+  font-size: 12px;
+  color: var(--color-text-subtle);
+}
+
+.comments-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--space-12) var(--space-16);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-12);
+}
+
+.comments-empty {
+  font-size: 13px;
+  color: var(--color-text-subtle);
+}
+
+/* Name only, no avatar - a comment reads like plain text, not a chat
+   message with an identity icon. */
+.comment-item {
+  animation: msg-in var(--duration-medium) var(--ease-out);
+}
+
+.comment-body {
+  min-width: 0;
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.comment-meta {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-6);
+  margin-bottom: 2px;
+}
+
+.comment-author {
+  font-size: 12px;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text);
+}
+
+.comment-time {
+  font-size: 11px;
+  color: var(--color-text-subtle);
+}
+
+/* Name on its own line, comment text on the next, prefixed with a
+   reply-style connector icon (lucide corner-down-right, built in
+   interactions.js's buildComment - not hand-drawn) - a comment reads as
+   attached to its author's name, not a chat bubble. */
+.comment-text {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-6);
+  margin-top: 2px;
+  font-size: 13px;
+  line-height: var(--line-height-body);
+  color: var(--color-text);
+}
+
+.comment-text .icon {
+  flex: none;
+  margin-top: 3px;
+  color: var(--color-text-subtle);
+}
+
+.comments-compose {
+  flex: none;
+  padding: var(--space-8) var(--space-12);
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-8);
+  border-top: 1px solid var(--color-border);
+}
+
+.comments-input {
+  flex: 1;
+  resize: none;
+  min-height: 34px;
+  overflow-y: hidden;
+  padding: var(--space-6) var(--space-12);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  box-shadow: inset 0 0 0 1px var(--color-border-strong);
+  font-size: 13px;
+  line-height: var(--line-height-body);
+  color: var(--color-text);
+  font-family: inherit;
+  transition: box-shadow var(--duration-fast) var(--ease-in-out);
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+.comments-input::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.comments-input:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 1px var(--color-accent), var(--focus-ring);
+}
+
+.comments-send {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: var(--color-text-on-accent);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: background-color var(--duration-fast) var(--ease-in-out);
+}
+
+.comments-send:hover:not(:disabled) {
+  background: var(--color-accent-hover);
+}
+
+.comments-send:active:not(:disabled) {
+  background: var(--color-accent-active);
+}
+
+.comments-send:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.comments-send:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
