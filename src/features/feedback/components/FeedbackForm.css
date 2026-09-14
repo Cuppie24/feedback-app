@@ -4,8 +4,14 @@
   gap: var(--space-16);
   padding: var(--space-24);
   background: var(--color-bg);
-  border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+  /* --shadow-overlay (DESIGN_SYSTEM.md > Elevation) - --shadow-raised
+     read too subtle for a card that's the whole point of the page;
+     the overlay tier's wider spread gives it real lift. Already
+     carries a hairline ring, so it replaces the flat border rather
+     than stacking with it - a plain border on top would double up as
+     a harder second edge next to the shadow's own ring. */
+  box-shadow: var(--shadow-overlay);
 }
 
 .fb-pills {
