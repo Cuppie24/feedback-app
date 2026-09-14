@@ -34,6 +34,7 @@ export type Ticket = {
   author: string
   initials: string
   time: string
+  createdAt: number
   likes: number
   liked: boolean
   messages: Message[]

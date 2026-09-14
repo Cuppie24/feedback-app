@@ -1,9 +1,17 @@
+import { Bug, Lightbulb, MessageSquare, type LucideIcon } from 'lucide-react'
 import type { Category, Status, TagTone, Ticket } from './types'
 
 // Placeholder data: the feedback backend does not exist yet (see
 // CLAUDE.md). Seeds useFeedbackTickets() so the feature is fully
 // interactive - voting, submitting, browsing - within a session. Swap
 // for a real api.ts once the endpoints land.
+
+const HOUR_MS = 60 * 60 * 1000
+const DAY_MS = 24 * HOUR_MS
+// Snapshot once at module load: createdAt drives sort order, `time` is
+// the matching display string - both are static placeholders, same as
+// addTicket's 'только что'.
+const now = Date.now()
 
 export const CATEGORY_LABEL: Record<Category, string> = {
   bug: 'Ошибка',
@@ -19,8 +27,31 @@ export const STATUS_LABEL: Record<Status, string> = {
 
 export const CATEGORY_TONE: Record<Category, TagTone> = {
   bug: 'danger',
-  idea: 'info',
-  review: 'neutral',
+  idea: 'warning',
+  review: 'info',
+}
+
+export const CATEGORY_ICON: Record<Category, LucideIcon> = {
+  bug: Bug,
+  idea: Lightbulb,
+  review: MessageSquare,
+}
+
+export const CATEGORY_VOTABLE: Record<Category, boolean> = {
+  bug: true,
+  idea: true,
+  review: false,
+}
+
+// A non-votable ticket (review) always sorts after votable ones, even
+// though it may carry a stale `likes` count from before voting was
+// disabled for that category - see TicketList's fb-row-vote-empty.
+export function comparePopularity(a: Ticket, b: Ticket): number {
+  const aVotable = CATEGORY_VOTABLE[a.category]
+  const bVotable = CATEGORY_VOTABLE[b.category]
+  if (aVotable !== bVotable) return aVotable ? -1 : 1
+  if (aVotable) return b.likes - a.likes
+  return b.createdAt - a.createdAt
 }
 
 export const STATUS_TONE: Record<Status, TagTone> = {
@@ -39,6 +70,7 @@ export const INITIAL_TICKETS: Ticket[] = [
     author: 'Вы',
     initials: 'ВЫ',
     time: '2 ч назад',
+    createdAt: now - 2 * HOUR_MS,
     likes: 1,
     liked: false,
     messages: [
@@ -67,6 +99,7 @@ export const INITIAL_TICKETS: Ticket[] = [
     author: 'Вы',
     initials: 'ВЫ',
     time: '1 день назад',
+    createdAt: now - DAY_MS,
     likes: 4,
     liked: true,
     messages: [
@@ -88,6 +121,7 @@ export const INITIAL_TICKETS: Ticket[] = [
     author: 'Вы',
     initials: 'ВЫ',
     time: '3 дня назад',
+    createdAt: now - 3 * DAY_MS,
     likes: 7,
     liked: true,
     messages: [
@@ -116,6 +150,7 @@ export const INITIAL_TICKETS: Ticket[] = [
     author: 'Игорь Соколов',
     initials: 'ИС',
     time: '4 дня назад',
+    createdAt: now - 4 * DAY_MS,
     likes: 2,
     liked: false,
     messages: [
@@ -137,6 +172,7 @@ export const INITIAL_TICKETS: Ticket[] = [
     author: 'Мария Волкова',
     initials: 'МВ',
     time: '4 дня назад',
+    createdAt: now - 4 * DAY_MS - 6 * HOUR_MS,
     likes: 5,
     liked: false,
     messages: [
@@ -158,6 +194,7 @@ export const INITIAL_TICKETS: Ticket[] = [
     author: 'Дмитрий Орлов',
     initials: 'ДО',
     time: '6 дней назад',
+    createdAt: now - 6 * DAY_MS,
     likes: 0,
     liked: false,
     messages: [
@@ -179,6 +216,7 @@ export const INITIAL_TICKETS: Ticket[] = [
     author: 'Игорь Соколов',
     initials: 'ИС',
     time: '8 дней назад',
+    createdAt: now - 8 * DAY_MS,
     likes: 3,
     liked: false,
     messages: [

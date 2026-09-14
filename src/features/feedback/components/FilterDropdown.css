@@ -42,7 +42,6 @@
 
 .fb-filter-trigger:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring);
 }
 
 .fb-filter-trigger svg {
@@ -83,6 +82,15 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  transform-origin: top left;
+  animation: fb-menu-in var(--duration-medium) var(--ease-out);
+}
+
+@keyframes fb-menu-in {
+  from{
+    opacity: 0;
+    transform: translateY(-2px) scale(0.7);
+  }
 }
 
 .fb-filter-option {

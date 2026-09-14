@@ -1,12 +1,13 @@
 import { ArrowUpDown, Check, ChevronDown } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
+import { useDismissOnOutsideOrEscape } from '../hooks'
 import type { TicketSort } from './SearchFilterBar'
 import './FilterDropdown.css'
 
 const SORT_OPTIONS: { value: TicketSort; label: string }[] = [
   { value: 'newest', label: 'Сначала новые' },
   { value: 'oldest', label: 'Сначала старые' },
-  { value: 'popular', label: 'Популярные' },
+  { value: 'popular', label: 'Больше голосов' },
 ]
 
 type SortDropdownProps = {
@@ -19,23 +20,7 @@ export function SortDropdown({ value, onChange }: SortDropdownProps) {
   const rootRef = useRef<HTMLDivElement>(null)
   const selected = SORT_OPTIONS.find((option) => option.value === value) ?? SORT_OPTIONS[0]
 
-  useEffect(() => {
-    if (!open) return
-
-    function onPointerDown(event: MouseEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
-    }
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setOpen(false)
-    }
-
-    document.addEventListener('mousedown', onPointerDown)
-    document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown)
-      document.removeEventListener('keydown', onKeyDown)
-    }
-  }, [open])
+  useDismissOnOutsideOrEscape(open, rootRef, setOpen)
 
   return (
     <div className="fb-filter fb-sort-filter" ref={rootRef}>

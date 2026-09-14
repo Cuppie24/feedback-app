@@ -1,5 +1,6 @@
 import { Clock, TrendingUp } from 'lucide-react'
 import { useState } from 'react'
+import { comparePopularity } from '../data'
 import type { NewFeedbackInput, Ticket } from '../types'
 import { FeedbackForm } from './FeedbackForm'
 import { PageHeader } from './PageHeader'
@@ -25,7 +26,8 @@ type CreateFeedbackViewProps = {
 export function CreateFeedbackView({ tickets, onSubmit, onOpenTicket, onToggleLike }: CreateFeedbackViewProps) {
   const [sort, setSort] = useState<SortMode>('recent')
 
-  const sortedTickets = sort === 'trending' ? [...tickets].sort((a, b) => b.likes - a.likes) : tickets
+  const sortedTickets =
+    sort === 'trending' ? [...tickets].sort(comparePopularity) : [...tickets].sort((a, b) => b.createdAt - a.createdAt)
 
   return (
     <div className="fb-view">

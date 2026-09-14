@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Dispatch, RefObject, SetStateAction } from 'react'
 import { INITIAL_TICKETS } from './data'
 import type { Attachment, NewFeedbackInput, Ticket } from './types'
 import { extOf, formatFileSize } from './utils'
@@ -68,6 +69,7 @@ export function useFeedbackTickets() {
       author: 'Вы',
       initials: 'ВЫ',
       time: 'только что',
+      createdAt: Date.now(),
       likes: 0,
       liked: false,
       messages: [
@@ -124,4 +126,31 @@ export function useAttachments() {
   }, [])
 
   return { attachments, addFiles, removeAttachment, clearAttachments }
+}
+
+// Shared outside-click + Escape dismissal for the filter/sort dropdowns
+// (FilterDropdown, SortDropdown) - both need identical "close when the
+// user clicks elsewhere or presses Escape" behavior.
+export function useDismissOnOutsideOrEscape(
+  open: boolean,
+  rootRef: RefObject<HTMLElement | null>,
+  setOpen: Dispatch<SetStateAction<boolean>>,
+) {
+  useEffect(() => {
+    if (!open) return
+
+    function onPointerDown(event: MouseEvent) {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
+    }
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') setOpen(false)
+    }
+
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [open, rootRef, setOpen])
 }

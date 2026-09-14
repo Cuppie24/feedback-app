@@ -1,6 +1,7 @@
 .fb-tag {
   display: inline-flex;
   align-items: center;
+  gap: var(--space-4);
   padding: 2px var(--space-8);
   border-radius: var(--radius-md);
   font-size: var(--font-size-caption);

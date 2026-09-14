@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
+import { comparePopularity } from '../data'
 import type { Category, Status, Ticket } from '../types'
+import { pluralizeRu } from '../utils'
 import { PageHeader } from './PageHeader'
 import { SearchFilterBar, type TicketSort } from './SearchFilterBar'
 import { TicketList } from './TicketList'
@@ -25,15 +27,16 @@ export function AllTicketsView({ tickets, onOpenTicket, onToggleLike }: AllTicke
       if (!query) return true
       const snippet = ticket.messages.at(-1)?.text ?? ''
       return (
+        ticket.id.toLowerCase().includes(query) ||
         ticket.title.toLowerCase().includes(query) ||
         snippet.toLowerCase().includes(query) ||
         ticket.author.toLowerCase().includes(query)
       )
     })
 
-    if (sort === 'popular') return [...matches].sort((a, b) => b.likes - a.likes)
-    if (sort === 'oldest') return [...matches].reverse()
-    return matches
+    if (sort === 'popular') return [...matches].sort(comparePopularity)
+    if (sort === 'oldest') return [...matches].sort((a, b) => a.createdAt - b.createdAt)
+    return [...matches].sort((a, b) => b.createdAt - a.createdAt)
   }, [tickets, search, categories, statuses, sort])
 
   return (
@@ -41,6 +44,11 @@ export function AllTicketsView({ tickets, onOpenTicket, onToggleLike }: AllTicke
       <PageHeader
         title="Все обращения"
         subtitle="Обращения от всех сотрудников."
+        meta={
+          <span className="fb-page-count">
+            {filtered.length} {pluralizeRu(filtered.length, 'обращение', 'обращения', 'обращений')}
+          </span>
+        }
       />
 
       <SearchFilterBar
@@ -58,6 +66,8 @@ export function AllTicketsView({ tickets, onOpenTicket, onToggleLike }: AllTicke
         tickets={filtered}
         variant="wide"
         showAuthor
+        sort={sort}
+        onSortChange={setSort}
         onOpen={onOpenTicket}
         onToggleLike={onToggleLike}
         emptyMessage="Ничего не найдено."

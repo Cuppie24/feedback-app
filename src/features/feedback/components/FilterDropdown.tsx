@@ -1,10 +1,15 @@
 import { Check, ChevronDown, type LucideIcon } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
+import { useDismissOnOutsideOrEscape } from '../hooks'
+import type { TagTone } from '../types'
+import { Tag } from './Tag'
 import './FilterDropdown.css'
 
 export type FilterOption<T extends string> = {
   value: T
   label: string
+  tone?: TagTone
+  Icon?: LucideIcon
 }
 
 type FilterDropdownProps<T extends string> = {
@@ -23,23 +28,7 @@ export function FilterDropdown<T extends string>({ label, Icon, options, selecte
     .filter((optionLabel): optionLabel is string => Boolean(optionLabel))
     .join(', ')
 
-  useEffect(() => {
-    if (!open) return
-
-    function onPointerDown(event: MouseEvent) {
-      if (!rootRef.current?.contains(event.target as Node)) setOpen(false)
-    }
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') setOpen(false)
-    }
-
-    document.addEventListener('mousedown', onPointerDown)
-    document.addEventListener('keydown', onKeyDown)
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown)
-      document.removeEventListener('keydown', onKeyDown)
-    }
-  }, [open])
+  useDismissOnOutsideOrEscape(open, rootRef, setOpen)
 
   function toggleValue(value: T) {
     onChange(selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value])
@@ -52,7 +41,7 @@ export function FilterDropdown<T extends string>({ label, Icon, options, selecte
         className={`fb-filter-trigger${selected.length > 0 ? ' active' : ''}`}
         onClick={() => setOpen((value) => !value)}
         aria-expanded={open}
-        aria-haspopup="true"
+        aria-haspopup="listbox"
       >
         <Icon size={14} strokeWidth={3} />
         <span className="fb-filter-label">
@@ -78,7 +67,14 @@ export function FilterDropdown<T extends string>({ label, Icon, options, selecte
                 <span className={`fb-filter-check${checked ? ' checked' : ''}`}>
                   {checked && <Check size={12} strokeWidth={3} />}
                 </span>
-                {option.label}
+                {option.tone && option.Icon ? (
+                  <Tag tone={option.tone}>
+                    <option.Icon size={12} strokeWidth={2.5} />
+                    {option.label}
+                  </Tag>
+                ) : (
+                  option.label
+                )}
               </button>
             )
           })}

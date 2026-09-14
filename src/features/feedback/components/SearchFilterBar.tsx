@@ -1,5 +1,5 @@
 import { ListFilter, Search, Tag as TagIcon, X } from 'lucide-react'
-import { CATEGORY_LABEL, STATUS_LABEL } from '../data'
+import { CATEGORY_ICON, CATEGORY_LABEL, CATEGORY_TONE, STATUS_LABEL } from '../data'
 import type { Category, Status } from '../types'
 import { FilterDropdown } from './FilterDropdown'
 import { SortDropdown } from './SortDropdown'
@@ -8,6 +8,8 @@ import './SearchFilterBar.css'
 const CATEGORY_OPTIONS = (Object.entries(CATEGORY_LABEL) as [Category, string][]).map(([value, label]) => ({
   value,
   label,
+  tone: CATEGORY_TONE[value],
+  Icon: CATEGORY_ICON[value],
 }))
 
 const STATUS_OPTIONS = (Object.entries(STATUS_LABEL) as [Status, string][]).map(([value, label]) => ({

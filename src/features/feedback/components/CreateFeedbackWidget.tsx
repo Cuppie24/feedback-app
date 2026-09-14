@@ -29,14 +29,9 @@ export function CreateFeedbackWidget({
   return (
     <div className="fb-create-widget">
       {!open && (
-        <button
-          type="button"
-          className="fb-create-fab"
-          onClick={onOpen}
-          aria-label="Новое обращение"
-          title="Новое обращение"
-        >
+        <button type="button" className="fb-create-fab" onClick={onOpen}>
           <MessageSquarePlus size={22} />
+          Новое обращение
         </button>
       )}
 

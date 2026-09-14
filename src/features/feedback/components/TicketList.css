@@ -4,17 +4,58 @@
 }
 
 .fb-list-header {
+  position: relative;
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(120px, 160px) 112px 86px 64px 84px;
+  grid-template-columns: 28px minmax(260px, 1fr) minmax(120px, 160px) 86px 64px 84px;
   align-items: center;
   gap: var(--space-12);
   min-height: 34px;
   padding: 0 var(--space-4);
-  border-bottom: 1px solid var(--color-border);
   font-size: var(--font-size-caption);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-subtle);
   user-select: none;
+}
+
+/* Inset, not edge-to-edge, so it doesn't read as another hard-cornered
+   line above the now-rounded rows - kept off the grid box itself (a
+   pseudo-element instead of padding/margin) so header/row column
+   alignment isn't touched. */
+.fb-list-header::after {
+  content: '';
+  position: absolute;
+  left: var(--space-8);
+  right: var(--space-8);
+  bottom: 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.fb-list-header-sort {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  transition: color var(--duration-instant) var(--ease-in-out);
+}
+
+.fb-list-header-sort:hover {
+  color: var(--color-text);
+}
+
+.fb-list-header-sort:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+.fb-list-header-sort.active {
+  color: var(--color-text);
+  font-weight: var(--font-weight-semibold);
 }
 
 .fb-list-empty {
@@ -29,7 +70,7 @@
   gap: var(--space-12);
   padding: var(--space-8) var(--space-4);
   border-bottom: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   color: inherit;
   transition: background-color var(--duration-instant) var(--ease-in-out);
@@ -44,29 +85,50 @@
   box-shadow: var(--focus-ring);
 }
 
-.fb-row-comfortable,
-.fb-row-wide {
-  gap: var(--space-16);
-}
-
 .fb-row-wide {
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(120px, 160px) 112px 86px 64px 84px;
+  grid-template-columns: 28px minmax(260px, 1fr) minmax(120px, 160px) 86px 64px 84px;
   gap: var(--space-12);
   min-height: 52px;
   padding-left: var(--space-4);
   padding-right: var(--space-4);
 }
 
-.fb-row-comfortable {
-  padding: var(--space-12) var(--space-4);
+.fb-list-header.fb-cols-no-author,
+.fb-row-wide.fb-cols-no-author {
+  grid-template-columns: 28px minmax(260px, 1fr) 86px 64px 84px;
 }
 
-/* Category tag column: fixed so a longer label (e.g. "Предложение") can
-   never push into the title column instead of just widening its own box. */
 .fb-row-cat {
   flex: none;
-  width: 104px;
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.fb-row-cat-icon {
+  flex: none;
+}
+
+.fb-row-cat-icon-neutral {
+  color: var(--color-tag-gray-icon);
+}
+
+.fb-row-cat-icon-info {
+  color: var(--color-tag-blue-icon);
+}
+
+.fb-row-cat-icon-success {
+  color: var(--color-tag-green-icon);
+}
+
+.fb-row-cat-icon-danger {
+  color: var(--color-tag-red-icon);
+}
+
+.fb-row-cat-icon-warning {
+  color: var(--color-tag-yellow-icon);
 }
 
 .fb-row-status {
@@ -90,18 +152,6 @@
   user-select: text;
 }
 
-.fb-row-title-line {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: var(--space-6);
-}
-
-.fb-row-page-icon {
-  flex: none;
-  color: var(--color-text-subtle);
-}
-
 .fb-row-title {
   display: block;
   min-width: 0;
@@ -121,12 +171,10 @@
   white-space: nowrap;
 }
 
-.fb-row-comfortable .fb-row-title,
 .fb-row-wide .fb-row-title {
   font-size: var(--font-size-ui);
 }
 
-.fb-row-comfortable .fb-row-snippet,
 .fb-row-wide .fb-row-snippet {
   font-size: 13px;
 }
@@ -166,6 +214,18 @@
   color: var(--color-accent);
 }
 
+/* Stands in for VoteButton on tickets that don't support voting (review
+   category) - matches its height so the column doesn't jump between rows. */
+.fb-row-vote-empty {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px;
+  font-size: 12px;
+  color: var(--color-text-subtle);
+}
+
 .fb-row-time {
   flex: none;
   width: 80px;
@@ -174,25 +234,26 @@
   color: var(--color-text-subtle);
 }
 
-.fb-row-comfortable .fb-row-time {
-  width: 88px;
-}
-
 @media (max-width: 1080px) {
   .fb-list-header,
   .fb-row-wide {
-    grid-template-columns: minmax(220px, 1fr) minmax(100px, 130px) 104px 80px 58px 74px;
+    grid-template-columns: 28px minmax(220px, 1fr) minmax(100px, 130px) 80px 58px 74px;
     gap: var(--space-8);
+  }
+
+  .fb-list-header.fb-cols-no-author,
+  .fb-row-wide.fb-cols-no-author {
+    grid-template-columns: 28px minmax(220px, 1fr) 80px 58px 74px;
   }
 }
 
 @media (max-width: 900px) {
   .fb-list-header,
   .fb-row-wide {
-    grid-template-columns: minmax(220px, 1fr) 104px 80px 58px 74px;
+    grid-template-columns: 28px minmax(220px, 1fr) 80px 58px 74px;
   }
 
-  .fb-list-header > :nth-child(2),
+  .fb-list-header-author,
   .fb-row-wide .fb-row-author {
     display: none;
   }
@@ -232,22 +293,6 @@
   .fb-row-wide .fb-row-time {
     grid-area: time;
     justify-self: end;
-  }
-
-  .fb-row-comfortable {
-    display: grid;
-    grid-template-columns: auto auto minmax(0, 1fr) auto;
-  }
-
-  .fb-row-comfortable .fb-row-body {
-    grid-column: 1 / -1;
-    grid-row: 1;
-  }
-
-  .fb-row-comfortable .fb-row-cat,
-  .fb-row-comfortable .fb-row-status,
-  .fb-row-comfortable .fb-row-time {
-    width: auto;
   }
 }
 
