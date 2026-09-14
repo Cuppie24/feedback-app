@@ -1,13 +1,12 @@
-import { ChevronDown, type LucideIcon } from 'lucide-react'
+import { ChevronDown, X, type LucideIcon } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useDismissOnOutsideOrEscape } from '../hooks'
 import type { TagTone } from '../types'
-import { SelectionMenu } from './SelectionMenu'
+import { Tag } from './Tag'
+import { SelectionMenu, type SelectionMenuOption } from './SelectionMenu'
 import './FilterDropdown.css'
 
-export type FilterOption<T extends string> = {
-  value: T
-  label: string
+export type FilterOption<T extends string> = SelectionMenuOption<T> & {
   tone?: TagTone
   Icon?: LucideIcon
 }
@@ -24,6 +23,7 @@ type FilterDropdownProps<T extends string> = {
 export function FilterDropdown<T extends string>({ label, Icon, options, selected, onChange, wide = false }: FilterDropdownProps<T>) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLButtonElement>(null)
   const selectedLabels = selected
     .map((value) => options.find((option) => option.value === value)?.label)
     .filter((optionLabel): optionLabel is string => Boolean(optionLabel))
@@ -31,9 +31,15 @@ export function FilterDropdown<T extends string>({ label, Icon, options, selecte
 
   useDismissOnOutsideOrEscape(open, rootRef, setOpen)
 
+  function closeMenu() {
+    setOpen(false)
+    requestAnimationFrame(() => triggerRef.current?.focus())
+  }
+
   return (
     <div className={`fb-filter${wide ? ' fb-filter-wide' : ''}`} ref={rootRef}>
       <button
+        ref={triggerRef}
         type="button"
         className={`fb-filter-trigger${selected.length > 0 ? ' active' : ''}`}
         onClick={() => setOpen((value) => !value)}
@@ -56,7 +62,32 @@ export function FilterDropdown<T extends string>({ label, Icon, options, selecte
           selected={selected}
           multiple
           onChange={onChange}
-          noWrapSelected={wide}
+          onRequestClose={closeMenu}
+          selectedLayout={wide ? 'nowrap' : 'wrap'}
+          renderOption={(option) =>
+            option.tone ? (
+              <Tag tone={option.tone}>
+                {option.Icon && <option.Icon size={12} strokeWidth={2.5} />}
+                {option.label}
+              </Tag>
+            ) : (
+              option.label
+            )
+          }
+          renderSelectedValue={(option, { removable }) =>
+            option.tone ? (
+              <Tag tone={option.tone}>
+                {option.Icon && <option.Icon size={12} strokeWidth={2.5} />}
+                {option.label}
+                {removable && <X size={12} strokeWidth={2.5} />}
+              </Tag>
+            ) : (
+              <span className="fb-selection-menu-chip-text">
+                {option.label}
+                {removable && <X size={12} strokeWidth={2.5} />}
+              </span>
+            )
+          }
         />
       )}
     </div>

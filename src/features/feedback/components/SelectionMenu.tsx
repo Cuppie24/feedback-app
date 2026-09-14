@@ -1,101 +1,124 @@
-import { MoreHorizontal, X, type LucideIcon } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import type { TagTone } from '../types'
-import { Tag } from './Tag'
+import { X } from 'lucide-react'
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import './SelectionMenu.css'
 
 export type SelectionMenuOption<T extends string> = {
   value: T
   label: string
-  tone?: TagTone
-  Icon?: LucideIcon
 }
 
-type SelectionMenuProps<T extends string> = {
+export type SelectionMenuSelectedValueContext = {
+  removable: boolean
+}
+
+type SelectionMenuProps<T extends string, Option extends SelectionMenuOption<T>> = {
   label: string
-  options: SelectionMenuOption<T>[]
+  options: Option[]
   selected: T[]
   multiple: boolean
   required?: boolean
   onChange: (selected: T[]) => void
-  onSingleSelect?: () => void
-  noWrapSelected?: boolean
-  className: string
+  closeOnSelect?: boolean
+  onRequestClose?: () => void
+  selectedLayout?: 'wrap' | 'nowrap'
+  className?: string
+  searchPlaceholder?: string
+  emptyMessage?: string
+  allSelectedMessage?: string
+  renderOption?: (option: Option) => ReactNode
+  renderSelectedValue?: (option: Option, context: SelectionMenuSelectedValueContext) => ReactNode
 }
 
-export function SelectionMenu<T extends string>({
+export function SelectionMenu<T extends string, Option extends SelectionMenuOption<T>>({
   label,
   options,
   selected,
   multiple,
   required = false,
   onChange,
-  onSingleSelect,
-  noWrapSelected = false,
-  className,
-}: SelectionMenuProps<T>) {
+  closeOnSelect = false,
+  onRequestClose,
+  selectedLayout = 'wrap',
+  className = '',
+  searchPlaceholder = 'Поиск...',
+  emptyMessage = 'Ничего не найдено.',
+  allSelectedMessage = 'Все варианты выбраны.',
+  renderOption,
+  renderSelectedValue,
+}: SelectionMenuProps<T, Option>) {
   const [query, setQuery] = useState('')
   const [activeIndex, setActiveIndex] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
-  const selectedOptions = selected
-    .map((value) => options.find((option) => option.value === value))
-    .filter((option): option is SelectionMenuOption<T> => Boolean(option))
+  const activeOptionRef = useRef<HTMLDivElement>(null)
+  const listboxId = useId()
+  const optionByValue = new Map<T, Option>()
+  const selectedValueSet = new Set<T>()
+  const selectedOptions: Option[] = []
 
-  function toggleValue(value: T) {
-    if (multiple) {
-      onChange(selected.includes(value) ? selected.filter((item) => item !== value) : [...selected, value])
-      setQuery('')
-      setActiveIndex(0)
-      inputRef.current?.focus()
-      return
+  options.forEach((option) => optionByValue.set(option.value, option))
+  selected.forEach((value) => {
+    const option = optionByValue.get(value)
+    if (option && !selectedValueSet.has(value)) {
+      selectedValueSet.add(value)
+      selectedOptions.push(option)
     }
+  })
 
-    onChange(selected[0] === value ? selected : [value])
-    setQuery('')
-    setActiveIndex(0)
-    onSingleSelect?.()
-  }
-
-  function removeValue(value: T) {
-    if (required && selected.length === 1) return
-    onChange(selected.filter((item) => item !== value))
-  }
-
-  const normalizedQuery = query.trim().toLowerCase()
+  const normalizedQuery = query.trim().toLocaleLowerCase()
   const availableOptions = options.filter(
-    (option) => !selected.includes(option.value) && option.label.toLowerCase().includes(normalizedQuery),
+    (option) => !selectedValueSet.has(option.value) && option.label.toLocaleLowerCase().includes(normalizedQuery),
   )
   const activeOptionIndex = Math.min(activeIndex, Math.max(availableOptions.length - 1, 0))
   const activeOption = availableOptions[activeOptionIndex]
+  const activeOptionId = activeOption ? `${listboxId}-${activeOption.value}` : undefined
 
   useEffect(() => {
     inputRef.current?.focus()
   }, [])
 
-  return (
-    <div
-      className={`fb-selection-menu ${className}${selectedOptions.length > 0 ? ' has-selection' : ''}`}
-      role="listbox"
-      aria-label={label}
-      aria-multiselectable={multiple || undefined}
-    >
-      <div className={`fb-selection-menu-selected${noWrapSelected ? ' no-wrap' : ''}`} aria-label={`Выбрано: ${label}`}>
-        {selectedOptions.map((option) => {
-          const canRemove = !required || selectedOptions.length > 1
-          const chip = option.tone ? (
-            <Tag tone={option.tone}>
-              {option.Icon && <option.Icon size={12} strokeWidth={2.5} />}
-              {option.label}
-              {canRemove && <X size={12} strokeWidth={2.5} />}
-            </Tag>
-          ) : (
-            <span className="fb-selection-menu-chip-text">
-              {option.label}
-              {canRemove && <X size={12} strokeWidth={2.5} />}
-            </span>
-          )
+  useEffect(() => {
+    activeOptionRef.current?.scrollIntoView({ block: 'nearest' })
+  }, [activeOption])
 
-          return canRemove ? (
+  function resetSearch() {
+    setQuery('')
+    setActiveIndex(0)
+  }
+
+  function toggleValue(value: T) {
+    if (multiple) {
+      const next = selectedValueSet.has(value)
+        ? selectedOptions.map((option) => option.value).filter((item) => item !== value)
+        : [...selectedOptions.map((option) => option.value), value]
+      onChange(next)
+      resetSearch()
+      inputRef.current?.focus()
+      return
+    }
+
+    onChange([value])
+    resetSearch()
+    if (closeOnSelect) onRequestClose?.()
+  }
+
+  function removeValue(value: T) {
+    if (required && selectedOptions.length === 1) return
+    onChange(selectedOptions.map((option) => option.value).filter((item) => item !== value))
+    setActiveIndex(0)
+    inputRef.current?.focus()
+  }
+
+  function moveActive(direction: 1 | -1) {
+    setActiveIndex((current) => Math.max(0, Math.min(current + direction, availableOptions.length - 1)))
+  }
+
+  return (
+    <div className={`fb-selection-menu ${className}${selectedOptions.length > 0 ? ' has-selection' : ''}`}>
+      <div className={`fb-selection-menu-selected${selectedLayout === 'nowrap' ? ' no-wrap' : ''}`} role="group" aria-label={`Выбрано: ${label}`}>
+        {selectedOptions.map((option) => {
+          const removable = !required || selectedOptions.length > 1
+
+          return removable ? (
             <button
               key={option.value}
               type="button"
@@ -103,11 +126,18 @@ export function SelectionMenu<T extends string>({
               onClick={() => removeValue(option.value)}
               aria-label={`Удалить: ${option.label}`}
             >
-              {chip}
+              {renderSelectedValue ? (
+                renderSelectedValue(option, { removable })
+              ) : (
+                <span className="fb-selection-menu-chip-text">
+                  {option.label}
+                  <X size={12} strokeWidth={2.5} />
+                </span>
+              )}
             </button>
           ) : (
             <span key={option.value} className="fb-selection-menu-chip static">
-              {chip}
+              {renderSelectedValue ? renderSelectedValue(option, { removable }) : <span className="fb-selection-menu-chip-text">{option.label}</span>}
             </span>
           )
         })}
@@ -115,8 +145,13 @@ export function SelectionMenu<T extends string>({
           ref={inputRef}
           type="search"
           className="fb-selection-menu-input"
+          role="combobox"
           aria-label={`Поиск: ${label}`}
-          placeholder="Поиск..."
+          aria-autocomplete="list"
+          aria-controls={listboxId}
+          aria-activedescendant={activeOptionId}
+          aria-expanded="true"
+          placeholder={searchPlaceholder}
           value={query}
           onChange={(event) => {
             setQuery(event.target.value)
@@ -125,19 +160,38 @@ export function SelectionMenu<T extends string>({
           onKeyDown={(event) => {
             if (event.key === 'ArrowDown') {
               event.preventDefault()
-              setActiveIndex((current) => Math.min(current + 1, Math.max(availableOptions.length - 1, 0)))
+              moveActive(1)
               return
             }
 
             if (event.key === 'ArrowUp') {
               event.preventDefault()
-              setActiveIndex((current) => Math.max(current - 1, 0))
+              moveActive(-1)
+              return
+            }
+
+            if (event.key === 'Home') {
+              event.preventDefault()
+              setActiveIndex(0)
+              return
+            }
+
+            if (event.key === 'End') {
+              event.preventDefault()
+              setActiveIndex(Math.max(availableOptions.length - 1, 0))
               return
             }
 
             if (event.key === 'Enter' && activeOption) {
               event.preventDefault()
               toggleValue(activeOption.value)
+              return
+            }
+
+            if (event.key === 'Escape') {
+              event.preventDefault()
+              event.stopPropagation()
+              onRequestClose?.()
             }
           }}
         />
@@ -146,37 +200,26 @@ export function SelectionMenu<T extends string>({
 
       <p className="fb-selection-menu-hint">Выберите вариант</p>
 
-      <div className="fb-selection-menu-options">
-        {availableOptions.map((option, index) => {
-          return (
-            <div key={option.value} className={`fb-selection-menu-row${index === activeOptionIndex ? ' active' : ''}`}>
-              <button
-                type="button"
-                className="fb-selection-menu-option"
-                role="option"
-                aria-selected={false}
-                onClick={() => toggleValue(option.value)}
-              >
-                {option.tone ? (
-                  <Tag tone={option.tone}>
-                    {option.Icon && <option.Icon size={12} strokeWidth={2.5} />}
-                    {option.label}
-                  </Tag>
-                ) : (
-                  option.label
-                )}
-              </button>
-              <button
-                type="button"
-                className="fb-selection-menu-more"
-                aria-label={`Дополнительные действия: ${option.label}`}
-              >
-                <MoreHorizontal size={16} />
-              </button>
-            </div>
-          )
-        })}
-        {availableOptions.length === 0 && <p className="fb-selection-menu-empty">Ничего не найдено.</p>}
+      <div id={listboxId} className="fb-selection-menu-options" role="listbox" aria-label={`Варианты: ${label}`}>
+        {availableOptions.map((option, index) => (
+          <div
+            key={option.value}
+            ref={index === activeOptionIndex ? activeOptionRef : undefined}
+            id={`${listboxId}-${option.value}`}
+            className={`fb-selection-menu-option${index === activeOptionIndex ? ' active' : ''}`}
+            role="option"
+            aria-selected={false}
+            onMouseDown={(event) => event.preventDefault()}
+            onClick={() => toggleValue(option.value)}
+          >
+            {renderOption ? renderOption(option) : option.label}
+          </div>
+        ))}
+        {availableOptions.length === 0 && (
+          <p className="fb-selection-menu-empty" role="status">
+            {selectedOptions.length === options.length ? allSelectedMessage : emptyMessage}
+          </p>
+        )}
       </div>
     </div>
   )

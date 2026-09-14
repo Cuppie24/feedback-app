@@ -1,3 +1,4 @@
+import { X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useDismissOnOutsideOrEscape } from '../hooks'
 import type { TagTone } from '../types'
@@ -26,6 +27,11 @@ export function TicketCellSelect<T extends string>({
 
   useDismissOnOutsideOrEscape(open, rootRef, setOpen)
 
+  function closeMenu() {
+    setOpen(false)
+    requestAnimationFrame(() => triggerRef.current?.focus())
+  }
+
   return (
     <div
       className="fb-ticket-cell-select"
@@ -34,8 +40,7 @@ export function TicketCellSelect<T extends string>({
       onKeyDown={(event) => {
         event.stopPropagation()
         if (event.key === 'Escape') {
-          setOpen(false)
-          triggerRef.current?.focus()
+          closeMenu()
         }
       }}
     >
@@ -60,7 +65,15 @@ export function TicketCellSelect<T extends string>({
           multiple={false}
           required
           onChange={(next) => onChange(next[0] ?? null)}
-          onSingleSelect={() => setOpen(false)}
+          closeOnSelect
+          onRequestClose={closeMenu}
+          renderOption={(option) => <Tag tone={option.tone}>{option.label}</Tag>}
+          renderSelectedValue={(option, { removable }) => (
+            <Tag tone={option.tone}>
+              {option.label}
+              {removable && <X size={12} strokeWidth={2.5} />}
+            </Tag>
+          )}
         />
       )}
     </div>
