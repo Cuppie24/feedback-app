@@ -58,6 +58,10 @@
   font-weight: var(--font-weight-semibold);
 }
 
+.fb-list-header-votes {
+  justify-self: center;
+}
+
 .fb-list-empty {
   margin: var(--space-24) 0;
   font-size: var(--font-size-ui);
@@ -94,9 +98,29 @@
   padding-right: var(--space-4);
 }
 
+.fb-row-compact {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 100px 78px 36px 48px 80px;
+}
+
+.fb-row-compact .fb-vote-btn,
+.fb-row-compact .fb-row-vote-empty {
+  justify-self: center;
+}
+
 .fb-list-header.fb-cols-no-author,
 .fb-row-wide.fb-cols-no-author {
   grid-template-columns: 28px minmax(260px, 1fr) 100px 86px 36px 64px 84px;
+}
+
+.fb-list-header.fb-cols-no-category,
+.fb-row-wide.fb-cols-no-category {
+  grid-template-columns: minmax(260px, 1fr) minmax(120px, 160px) 100px 86px 36px 64px 84px;
+}
+
+.fb-list-header.fb-cols-no-author.fb-cols-no-category,
+.fb-row-wide.fb-cols-no-author.fb-cols-no-category {
+  grid-template-columns: minmax(260px, 1fr) 100px 86px 36px 64px 84px;
 }
 
 .fb-row-cat {
@@ -209,13 +233,6 @@
   justify-content: center;
 }
 
-.fb-row-author-name {
-  font-size: 13px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 .fb-row-wide .fb-row-avatar {
   background: var(--color-accent-wash);
   color: var(--color-accent);
@@ -262,6 +279,15 @@
     transform var(--duration-instant) var(--ease-in-out);
 }
 
+.fb-row-assignee-avatar.with-name {
+  box-sizing: border-box;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 0;
+  padding-left: 9px;
+  gap: var(--space-8);
+}
+
 .fb-row-assignee-avatar::before {
   content: '';
   position: absolute;
@@ -271,9 +297,29 @@
   transition: background-color var(--duration-instant) var(--ease-in-out);
 }
 
+.fb-row-assignee-avatar.with-name::before {
+  inset: 9px auto 9px 9px;
+  width: 26px;
+}
+
 .fb-row-assignee-initials {
   position: relative;
   z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+}
+
+.fb-user-popover-name {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
 }
 
 .fb-row-assignee-avatar:hover::before {
@@ -305,6 +351,11 @@
   align-items: center;
 }
 
+.fb-assignee-popover-root.with-name {
+  width: 100%;
+  min-width: 0;
+}
+
 .fb-ticket-cell-select {
   width: 100%;
 }
@@ -327,7 +378,6 @@
 
 .fb-ticket-cell-trigger .fb-tag {
   max-width: 100%;
-  padding-right: var(--space-4);
 }
 
 .fb-ticket-cell-placeholder {
@@ -518,12 +568,27 @@
   .fb-row-wide.fb-cols-no-author {
     grid-template-columns: 28px minmax(220px, 1fr) 90px 80px 32px 58px 74px;
   }
+
+  .fb-list-header.fb-cols-no-category,
+  .fb-row-wide.fb-cols-no-category {
+    grid-template-columns: minmax(220px, 1fr) minmax(100px, 130px) 90px 80px 32px 58px 74px;
+  }
+
+  .fb-list-header.fb-cols-no-author.fb-cols-no-category,
+  .fb-row-wide.fb-cols-no-author.fb-cols-no-category {
+    grid-template-columns: minmax(220px, 1fr) 90px 80px 32px 58px 74px;
+  }
 }
 
 @media (max-width: 900px) {
   .fb-list-header,
   .fb-row-wide {
     grid-template-columns: 28px minmax(220px, 1fr) 90px 80px 32px 58px 74px;
+  }
+
+  .fb-list-header.fb-cols-no-category,
+  .fb-row-wide.fb-cols-no-category {
+    grid-template-columns: minmax(220px, 1fr) 90px 80px 32px 58px 74px;
   }
 
   .fb-list-header-author,
@@ -551,8 +616,19 @@
     display: none;
   }
 
+  .fb-row-wide.fb-cols-no-category {
+    grid-template-columns: auto auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      'body body body body'
+      'status assignee time vote';
+  }
+
   .fb-row-compact .fb-row-system {
     display: none;
+  }
+
+  .fb-row-compact {
+    grid-template-columns: 28px minmax(0, 1fr) 78px 36px 48px 80px;
   }
 
   .fb-row-wide .fb-row-body {
@@ -592,8 +668,18 @@
   .fb-row-wide .fb-row-time {
     display: none;
   }
+  .fb-row-wide.fb-cols-no-category {
+    grid-template-columns: auto auto minmax(0, 1fr);
+    grid-template-areas:
+      'body body body'
+      'status assignee vote';
+  }
 
   .fb-row-compact .fb-row-time {
     display: none;
+  }
+
+  .fb-row-compact {
+    grid-template-columns: 28px minmax(0, 1fr) 78px 36px 48px;
   }
 }

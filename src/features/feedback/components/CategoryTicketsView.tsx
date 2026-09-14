@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { comparePopularity } from '../data'
+import { CATEGORY_ICON, CATEGORY_LABEL, CATEGORY_TONE, comparePopularity } from '../data'
 import type { Category, Status, System, Ticket } from '../types'
 import { pluralizeRu } from '../utils'
 import { PageHeader } from './PageHeader'
@@ -7,29 +7,31 @@ import { SearchFilterBar, type TicketSort } from './SearchFilterBar'
 import { TicketList } from './TicketList'
 import './ViewLayout.css'
 
-type AllTicketsViewProps = {
+type CategoryTicketsViewProps = {
+  category: Category
   tickets: Ticket[]
   onToggleLike: (id: string) => void
   onSystemChange: (id: string, system: System | null) => void
   onStatusChange: (id: string, status: Status | null) => void
 }
 
-export function AllTicketsView({
+export function CategoryTicketsView({
+  category,
   tickets,
   onToggleLike,
   onSystemChange,
   onStatusChange,
-}: AllTicketsViewProps) {
+}: CategoryTicketsViewProps) {
   const [search, setSearch] = useState('')
-  const [categories, setCategories] = useState<Category[]>([])
   const [statuses, setStatuses] = useState<Status[]>([])
   const [systems, setSystems] = useState<System[]>([])
   const [sort, setSort] = useState<TicketSort>('newest')
+  const CategoryIcon = CATEGORY_ICON[category]
 
   const filtered = useMemo(() => {
     const query = search.trim().toLowerCase()
     const matches = tickets.filter((ticket) => {
-      if (categories.length > 0 && !categories.includes(ticket.category)) return false
+      if (ticket.category !== category) return false
       if (statuses.length > 0 && (ticket.status === null || !statuses.includes(ticket.status))) return false
       if (systems.length > 0 && (ticket.system === null || !systems.includes(ticket.system))) return false
       if (!query) return true
@@ -46,13 +48,19 @@ export function AllTicketsView({
     if (sort === 'popular') return [...matches].sort(comparePopularity)
     if (sort === 'oldest') return [...matches].sort((a, b) => a.createdAt - b.createdAt)
     return [...matches].sort((a, b) => b.createdAt - a.createdAt)
-  }, [tickets, search, categories, statuses, systems, sort])
+  }, [tickets, category, search, statuses, systems, sort])
 
   return (
     <div className="fb-view-wide">
       <PageHeader
-        title="Все обращения"
-        subtitle="Обращения от всех сотрудников."
+        title={CATEGORY_LABEL[category]}
+        icon={
+          <CategoryIcon
+            className={`fb-page-title-icon fb-page-title-icon-${CATEGORY_TONE[category]}`}
+            size={28}
+          />
+        }
+        subtitle="Обращения выбранной категории."
         meta={
           <span className="fb-page-count">
             {filtered.length} {pluralizeRu(filtered.length, 'обращение', 'обращения', 'обращений')}
@@ -63,8 +71,6 @@ export function AllTicketsView({
       <SearchFilterBar
         search={search}
         onSearchChange={setSearch}
-        categories={categories}
-        onCategoriesChange={setCategories}
         statuses={statuses}
         onStatusesChange={setStatuses}
         systems={systems}
@@ -77,6 +83,7 @@ export function AllTicketsView({
         tickets={filtered}
         variant="wide"
         showAuthor
+        showCategory={false}
         sort={sort}
         onSortChange={setSort}
         onToggleLike={onToggleLike}

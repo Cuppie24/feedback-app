@@ -29,12 +29,12 @@
   --color-text-subtle: rgba(55, 53, 47, 0.45);
   --color-text-on-accent: #ffffff;
 
-  /* --- Accent (sage green) --- */
-  --color-accent: #5f7355;
-  --color-accent-hover: #53664a;
-  --color-accent-active: #46543e;
-  --color-accent-wash: #ebeee4;
-  --color-accent-ring: rgba(95, 115, 85, 0.28);
+  /* --- Accent (indigo) --- */
+  --color-accent: #5b6ee1;
+  --color-accent-hover: #4a5bc9;
+  --color-accent-active: #3d4bab;
+  --color-accent-wash: #eef0fc;
+  --color-accent-ring: rgba(91, 110, 225, 0.28);
 
   /* --- Status --- */
   --color-danger: #e03e3e;
@@ -171,11 +171,11 @@
     --color-text-subtle: rgba(255, 255, 255, 0.28);
     --color-text-on-accent: #ffffff;
 
-    --color-accent: #8ba579;
-    --color-accent-hover: #9bb489;
-    --color-accent-active: #7a9268;
-    --color-accent-wash: #2b3327;
-    --color-accent-ring: rgba(139, 165, 121, 0.32);
+    --color-accent: #8b98ea;
+    --color-accent-hover: #a0abee;
+    --color-accent-active: #7180d1;
+    --color-accent-wash: #262a3d;
+    --color-accent-ring: rgba(139, 152, 234, 0.32);
 
     --color-danger: #ff7369;
     --color-danger-wash: #4b2b2b;
@@ -246,11 +246,11 @@
   --color-text-subtle: rgba(255, 255, 255, 0.28);
   --color-text-on-accent: #ffffff;
 
-  --color-accent: #8ba579;
-  --color-accent-hover: #9bb489;
-  --color-accent-active: #7a9268;
-  --color-accent-wash: #2b3327;
-  --color-accent-ring: rgba(139, 165, 121, 0.32);
+  --color-accent: #8b98ea;
+  --color-accent-hover: #a0abee;
+  --color-accent-active: #7180d1;
+  --color-accent-wash: #262a3d;
+  --color-accent-ring: rgba(139, 152, 234, 0.32);
 
   --color-danger: #ff7369;
   --color-danger-wash: #4b2b2b;

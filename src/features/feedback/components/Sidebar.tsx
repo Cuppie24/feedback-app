@@ -1,7 +1,9 @@
-import { Inbox, LayoutList, PanelLeftClose, PanelLeftOpen, type LucideIcon } from 'lucide-react'
+import { LayoutList, PanelLeftClose, PanelLeftOpen, type LucideIcon } from 'lucide-react'
+import { CATEGORY_ICON } from '../data'
+import type { Category } from '../types'
 import './Sidebar.css'
 
-export type SidebarView = 'mine' | 'all'
+export type SidebarView = Category | 'all'
 
 type SidebarProps = {
   active: SidebarView
@@ -11,7 +13,9 @@ type SidebarProps = {
 }
 
 const NAV_ITEMS: { view: SidebarView; label: string; Icon: LucideIcon }[] = [
-  { view: 'mine', label: 'Мои обращения', Icon: Inbox },
+  { view: 'bug', label: 'Ошибки', Icon: CATEGORY_ICON.bug },
+  { view: 'idea', label: 'Предложения', Icon: CATEGORY_ICON.idea },
+  { view: 'review', label: 'Отзывы', Icon: CATEGORY_ICON.review },
   { view: 'all', label: 'Все обращения', Icon: LayoutList },
 ]
 

@@ -6,9 +6,10 @@ import type { User } from '../types'
 type UserPopoverProps = {
   user: User | null
   label: string
+  showName?: boolean
 }
 
-export function UserPopover({ user, label }: UserPopoverProps) {
+export function UserPopover({ user, label, showName = false }: UserPopoverProps) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -25,7 +26,7 @@ export function UserPopover({ user, label }: UserPopoverProps) {
 
   return (
     <div
-      className="fb-assignee-popover-root"
+      className={`fb-assignee-popover-root${showName ? ' with-name' : ''}`}
       ref={rootRef}
       onClick={(event) => event.stopPropagation()}
       onKeyDown={(event) => {
@@ -39,13 +40,14 @@ export function UserPopover({ user, label }: UserPopoverProps) {
       <button
         ref={triggerRef}
         type="button"
-        className="fb-row-assignee-avatar"
+        className={`fb-row-assignee-avatar${showName ? ' with-name' : ''}`}
         aria-label={`${label}: ${user.name}`}
         aria-expanded={open}
         aria-haspopup="dialog"
         onClick={() => setOpen((current) => !current)}
       >
         <span className="fb-row-assignee-initials">{user.initials}</span>
+        {showName && <span className="fb-user-popover-name">{user.name}</span>}
       </button>
 
       {open && (

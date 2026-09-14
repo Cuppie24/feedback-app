@@ -27,8 +27,8 @@ const SYSTEM_OPTIONS = (Object.entries(SYSTEM_LABEL) as [System, string][]).map(
 export type SearchFilterBarProps = {
   search: string
   onSearchChange: (value: string) => void
-  categories: Category[]
-  onCategoriesChange: (value: Category[]) => void
+  categories?: Category[]
+  onCategoriesChange?: (value: Category[]) => void
   statuses: Status[]
   onStatusesChange: (value: Status[]) => void
   systems: System[]
@@ -42,7 +42,7 @@ export type TicketSort = 'newest' | 'oldest' | 'popular'
 export function SearchFilterBar({
   search,
   onSearchChange,
-  categories,
+  categories = [],
   onCategoriesChange,
   statuses,
   onStatusesChange,
@@ -56,7 +56,7 @@ export function SearchFilterBar({
 
   function clearAll() {
     onSearchChange('')
-    onCategoriesChange([])
+    onCategoriesChange?.([])
     onStatusesChange([])
     onSystemsChange([])
   }
@@ -76,14 +76,16 @@ export function SearchFilterBar({
           />
         </div>
 
-        <FilterDropdown
-          label="Категория"
-          Icon={TagIcon}
-          options={CATEGORY_OPTIONS}
-          selected={categories}
-          onChange={onCategoriesChange}
-          wide
-        />
+        {onCategoriesChange && (
+          <FilterDropdown
+            label="Категория"
+            Icon={TagIcon}
+            options={CATEGORY_OPTIONS}
+            selected={categories}
+            onChange={onCategoriesChange}
+            wide
+          />
+        )}
 
         <FilterDropdown
           label="Статус"

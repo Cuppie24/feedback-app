@@ -33,6 +33,40 @@ export function useSidebarCollapsed() {
   return { collapsed, toggleCollapsed }
 }
 
+const MODE_STORAGE_KEY = 'feedback-app-mode'
+
+// 'agent' is the full app (sidebar, every view) for support staff; 'user'
+// is the two-tab create/my-tickets shell for a regular employee - see
+// FeedbackApp.tsx and ModeSwitch.
+export type AppMode = 'agent' | 'user'
+
+function readStoredMode(): AppMode {
+  try {
+    return localStorage.getItem(MODE_STORAGE_KEY) === 'user' ? 'user' : 'agent'
+  } catch {
+    // localStorage can be unavailable (private mode, blocked cookies).
+    return 'agent'
+  }
+}
+
+// Remembers the agent/user mode across reloads - same try/catch-localStorage
+// shape as useSidebarCollapsed/useTheme.
+export function useAppMode() {
+  const [mode, setMode] = useState<AppMode>(readStoredMode)
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(MODE_STORAGE_KEY, mode)
+    } catch {
+      // Persisting is best-effort.
+    }
+  }, [mode])
+
+  const toggleMode = useCallback(() => setMode((prev) => (prev === 'agent' ? 'user' : 'agent')), [])
+
+  return { mode, toggleMode }
+}
+
 function highestTicketNumber(tickets: Ticket[]): number {
   return tickets.reduce((max, ticket) => {
     const num = Number(ticket.id.replace(/\D/g, ''))

@@ -1,6 +1,6 @@
 # Feedback App - Design System
 
-Notion-inspired: warm-neutral surfaces, one sage-green accent,
+Notion-inspired: warm-neutral surfaces, one indigo accent,
 restrained status hues, small radii, quiet shadows. Every token has a
 light and a dark value.
 
@@ -62,11 +62,11 @@ hex.
 | `--color-text-muted` | `rgba(55,53,47,.65)` | `rgba(255,255,255,.46)` | Secondary text, labels |
 | `--color-text-subtle` | `rgba(55,53,47,.45)` | `rgba(255,255,255,.28)` | Captions, placeholder |
 | `--color-text-on-accent` | `#ffffff` | `#ffffff` | Text on the accent fill |
-| `--color-accent` | `#5f7355` | `#8ba579` | Primary action, links, focus |
-| `--color-accent-hover` | `#53664a` | `#9bb489` | Accent hover |
-| `--color-accent-active` | `#46543e` | `#7a9268` | Accent pressed |
-| `--color-accent-wash` | `#ebeee4` | `#2b3327` | Selected state, brand rail, info tag |
-| `--color-accent-ring` | `rgba(95,115,85,.28)` | `rgba(139,165,121,.32)` | Focus ring |
+| `--color-accent` | `#5b6ee1` | `#8b98ea` | Primary action, links, focus |
+| `--color-accent-hover` | `#4a5bc9` | `#a0abee` | Accent hover |
+| `--color-accent-active` | `#3d4bab` | `#7180d1` | Accent pressed |
+| `--color-accent-wash` | `#eef0fc` | `#262a3d` | Selected state, brand rail, info tag |
+| `--color-accent-ring` | `rgba(91,110,225,.28)` | `rgba(139,152,234,.32)` | Focus ring |
 | `--color-danger` | `#e03e3e` | `#ff7369` | Errors, destructive |
 | `--color-danger-wash` | `#fdebec` | `#4b2b2b` | Error field / tag bg |
 | `--color-danger-ring` | `rgba(224,62,62,.16)` | `rgba(255,115,105,.24)` | Error focus ring |

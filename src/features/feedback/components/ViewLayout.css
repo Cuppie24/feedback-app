@@ -36,31 +36,3 @@
     transform: translateY(4px);
   }
 }
-
-/* Top-left corner control (back / close) that precedes a view's own
-   content - used by TicketDetailView's "Назад" and
-   CreateFeedbackView's "Закрыть". */
-.fb-back-link {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-6);
-  background: none;
-  border: none;
-  padding: 0;
-  margin-bottom: var(--space-16);
-  font-size: 13px;
-  font-weight: var(--font-weight-medium);
-  color: var(--color-text-muted);
-  cursor: pointer;
-  transition: color var(--duration-instant) var(--ease-in-out);
-}
-
-.fb-back-link:hover {
-  color: var(--color-text);
-}
-
-.fb-back-link:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-  border-radius: var(--radius-sm);
-}

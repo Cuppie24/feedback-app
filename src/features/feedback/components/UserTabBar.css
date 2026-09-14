@@ -1,0 +1,131 @@
+/* Minimal user-mode header: no bar, no border, no brand - just the tab
+   switcher, centered, with room to breathe above it. Entrance matches
+   DESIGN_SYSTEM.md > Motion (fade + small translateY, ease-out,
+   duration-medium) - the one animation this gets that isn't a direct
+   response to a click. */
+.fb-user-header {
+  display: flex;
+  flex: none;
+  justify-content: center;
+  padding: var(--space-48) var(--space-24) var(--space-24);
+  -webkit-user-select: none;
+  user-select: none;
+  animation: fb-user-header-in var(--duration-medium) var(--ease-out);
+}
+
+@keyframes fb-user-header-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+
+/* Big pill segmented control - same sliding-thumb technique as
+   SegmentedControl.css, scaled up to read as the primary navigation for
+   user mode rather than a secondary sort toggle. Tabs are equal-width
+   (flex: 1, not sized to their own label) so the thumb's percentage
+   width/transform math stays exact regardless of how many tabs there
+   are or how long their labels run - see TAB_ITEMS in UserTabBar.tsx. */
+.fb-user-tabs {
+  position: relative;
+  display: flex;
+  width: 100%;
+  max-width: 560px;
+  padding: var(--space-4);
+  background: var(--color-surface-sunken);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-flat);
+}
+
+.fb-user-tabs-thumb {
+  position: absolute;
+  top: var(--space-4);
+  bottom: var(--space-4);
+  left: var(--space-4);
+  width: calc((100% - 2 * var(--space-4)) / 3);
+  background: var(--color-bg);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-raised);
+  transition: transform var(--duration-fast) var(--ease-in-out);
+}
+
+.fb-user-tabs[data-active='1'] .fb-user-tabs-thumb {
+  transform: translateX(100%);
+}
+
+.fb-user-tabs[data-active='2'] .fb-user-tabs-thumb {
+  transform: translateX(200%);
+}
+
+.fb-user-tab {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex: 1 1 0;
+  min-width: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-8);
+  height: 52px;
+  padding: 0 var(--space-16);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  font-family: inherit;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  transition: color var(--duration-fast) var(--ease-in-out),
+    transform var(--duration-instant) var(--ease-in-out);
+}
+
+.fb-user-tab svg {
+  flex: none;
+  color: var(--color-text-subtle);
+  transition: color var(--duration-fast) var(--ease-in-out);
+}
+
+.fb-user-tab:hover {
+  color: var(--color-text);
+}
+
+.fb-user-tab:active {
+  transform: scale(0.97);
+}
+
+.fb-user-tab:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.fb-user-tab.active {
+  color: var(--color-text);
+}
+
+.fb-user-tab.active svg {
+  color: var(--color-accent);
+}
+
+/* Three labels in the same pill need more room per tab than two did -
+   scale type/padding down before labels start ellipsizing. */
+@media (max-width: 640px) {
+  .fb-user-header {
+    padding: var(--space-32) var(--space-16) var(--space-16);
+  }
+
+  .fb-user-tab {
+    height: 44px;
+    padding: 0 var(--space-12);
+    font-size: var(--font-size-ui);
+    gap: var(--space-6);
+  }
+
+  .fb-user-tab svg {
+    width: 18px;
+    height: 18px;
+  }
+}

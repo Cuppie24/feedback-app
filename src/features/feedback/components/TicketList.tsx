@@ -22,8 +22,8 @@ type TicketListProps = {
   tickets: Ticket[]
   variant?: TicketListVariant
   showAuthor?: boolean
+  showCategory?: boolean
   emptyMessage?: string
-  onOpen: (id: string) => void
   onToggleLike: (id: string) => void
   onSystemChange: (id: string, system: System | null) => void
   onStatusChange: (id: string, status: Status | null) => void
@@ -43,8 +43,8 @@ export function TicketList({
   tickets,
   variant = 'compact',
   showAuthor = false,
+  showCategory = true,
   emptyMessage = 'Ничего не найдено.',
-  onOpen,
   onToggleLike,
   onSystemChange,
   onStatusChange,
@@ -58,8 +58,10 @@ export function TicketList({
   return (
     <div className="fb-list">
       {variant === 'wide' && (
-        <div className={`fb-list-header${showAuthor ? '' : ' fb-cols-no-author'}`}>
-          <span aria-hidden="true" />
+        <div
+          className={`fb-list-header${showAuthor ? '' : ' fb-cols-no-author'}${showCategory ? '' : ' fb-cols-no-category'}`}
+        >
+          {showCategory && <span aria-hidden="true" />}
           <span>Обращение</span>
           {showAuthor && <span className="fb-list-header-author">Автор</span>}
           <span className="fb-list-header-system">Система</span>
@@ -70,13 +72,13 @@ export function TicketList({
           {onSortChange ? (
             <button
               type="button"
-              className={`fb-list-header-sort${sort === 'popular' ? ' active' : ''}`}
+              className={`fb-list-header-sort fb-list-header-votes${sort === 'popular' ? ' active' : ''}`}
               onClick={() => onSortChange('popular')}
             >
               Голоса
             </button>
           ) : (
-            <span>Голоса</span>
+            <span className="fb-list-header-votes">Голоса</span>
           )}
           {onSortChange ? (
             <button
@@ -103,21 +105,13 @@ export function TicketList({
         return (
           <div
             key={ticket.id}
-            className={`fb-row fb-row-${variant}${showAuthor ? '' : ' fb-cols-no-author'}`}
-            role="button"
-            tabIndex={0}
-            onClick={() => onOpen(ticket.id)}
-            onKeyDown={(event) => {
-              if (event.target !== event.currentTarget) return
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault()
-                onOpen(ticket.id)
-              }
-            }}
+            className={`fb-row fb-row-${variant}${showAuthor ? '' : ' fb-cols-no-author'}${showCategory ? '' : ' fb-cols-no-category'}`}
           >
-            <span className="fb-row-cat" title={categoryLabel} aria-label={categoryLabel}>
-              <Icon className={`fb-row-cat-icon fb-row-cat-icon-${categoryTone}`} size={16} />
-            </span>
+            {showCategory && (
+              <span className="fb-row-cat" title={categoryLabel} aria-label={categoryLabel}>
+                <Icon className={`fb-row-cat-icon fb-row-cat-icon-${categoryTone}`} size={16} />
+              </span>
+            )}
 
             <span className="fb-row-body">
               <span className="fb-row-title">{ticket.title}</span>
@@ -126,8 +120,7 @@ export function TicketList({
 
             {showAuthor && (
               <div className="fb-row-author">
-                <UserPopover user={ticket.author} label="Автор" />
-                <span className="fb-row-author-name">{ticket.author.name}</span>
+                <UserPopover user={ticket.author} label="Автор" showName />
               </div>
             )}
 

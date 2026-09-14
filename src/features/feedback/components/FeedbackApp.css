@@ -18,5 +18,30 @@
   min-width: 0;
   height: 100%;
   overflow-y: auto;
+  scrollbar-gutter: stable;
+  background: var(--color-bg);
+}
+
+/* User-mode shell: deliberately its own classes, not a modifier on
+   .fb-app/.fb-main - the agent layout (sidebar + row) and the user
+   layout (header + column) don't share markup or rules, so either can
+   change shape without touching the other. */
+.fb-user-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-ui);
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+.fb-user-content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-gutter: stable;
   background: var(--color-bg);
 }

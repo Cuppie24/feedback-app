@@ -1,0 +1,55 @@
+/* Fixed to the viewport (not .fb-app) so it stays put regardless of
+   which layout branch is mounted, and above every other overlay in the
+   feature - including the create-feedback widget's fab (z-index 40) and
+   its full-screen reveal panel (z-index 20) - so mode is always
+   reachable. */
+.fb-mode-switch {
+  position: fixed;
+  top: var(--space-16);
+  right: var(--space-16);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+  height: var(--control-height);
+  padding: 0 var(--space-12);
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-family: inherit;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  box-shadow: var(--shadow-raised);
+  cursor: pointer;
+  user-select: none;
+  transition: color var(--duration-instant) var(--ease-in-out),
+    background-color var(--duration-instant) var(--ease-in-out);
+}
+
+.fb-mode-switch:hover {
+  color: var(--color-text);
+  background: var(--color-surface-hover);
+}
+
+.fb-mode-switch:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-raised), var(--focus-ring);
+}
+
+.fb-mode-switch svg {
+  flex: none;
+}
+
+@media (max-width: 640px) {
+  .fb-mode-switch {
+    width: 32px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .fb-mode-switch-label {
+    display: none;
+  }
+}

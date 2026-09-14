@@ -9,7 +9,6 @@ import './ViewLayout.css'
 
 type MyTicketsViewProps = {
   tickets: Ticket[]
-  onOpenTicket: (id: string) => void
   onToggleLike: (id: string) => void
   onSystemChange: (id: string, system: System | null) => void
   onStatusChange: (id: string, status: Status | null) => void
@@ -17,7 +16,6 @@ type MyTicketsViewProps = {
 
 export function MyTicketsView({
   tickets,
-  onOpenTicket,
   onToggleLike,
   onSystemChange,
   onStatusChange,
@@ -82,7 +80,6 @@ export function MyTicketsView({
         variant="wide"
         sort={sort}
         onSortChange={setSort}
-        onOpen={onOpenTicket}
         onToggleLike={onToggleLike}
         onSystemChange={onSystemChange}
         onStatusChange={onStatusChange}

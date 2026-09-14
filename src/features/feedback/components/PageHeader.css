@@ -3,6 +3,9 @@
 }
 
 .fb-page-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
   margin: 0;
   font-size: var(--font-size-display);
   font-weight: var(--font-weight-bold);
@@ -10,6 +13,23 @@
   line-height: 1.12;
   color: var(--color-text);
   user-select: none;
+}
+
+.fb-page-title-icon {
+  flex: none;
+  transform: translateY(2px);
+}
+
+.fb-page-title-icon-danger {
+  color: var(--color-tag-red-icon);
+}
+
+.fb-page-title-icon-warning {
+  color: var(--color-tag-yellow-icon);
+}
+
+.fb-page-title-icon-info {
+  color: var(--color-tag-blue-icon);
 }
 
 .fb-page-meta-row {
