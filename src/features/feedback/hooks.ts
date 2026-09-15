@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import type { Dispatch, RefObject, SetStateAction } from 'react'
+import type { ClipboardEvent, Dispatch, FormEvent, KeyboardEvent as ReactKeyboardEvent, RefObject, SetStateAction } from 'react'
 import { INITIAL_TICKETS, USERS } from './data'
-import type { Attachment, NewFeedbackInput, Status, System, Ticket } from './types'
-import { extOf, formatFileSize } from './utils'
+import type { Attachment, Message, NewFeedbackInput, Status, System, Ticket } from './types'
+import { buildCommentTree, extOf, formatFileSize, type CommentNode } from './utils'
 
 const SIDEBAR_STORAGE_KEY = 'feedback-app-sidebar-collapsed'
 
@@ -219,6 +219,265 @@ export function useAttachments() {
 
   return { attachments, addFiles, removeAttachment, clearAttachments }
 }
+
+type UseCommentThreadOptions = {
+  comments: Message[]
+  onAddComment: (text: string, replyToId?: string, attachments?: Attachment[]) => string
+  onEditComment: (commentId: string, text: string) => void
+  onDeleteComment: (commentId: string) => void
+}
+
+// Backing state for a threaded comment section: composer (text, reply
+// target, attachments), inline editing, collapse/expand animation, and
+// scroll-to-highlight on submit. Takes a flat comment list and three
+// callbacks so it has no dependency on where the comments live (a ticket
+// or anything else) - see CommentSection/CommentThread/CommentComposer.
+export function useCommentThread({ comments, onAddComment, onEditComment, onDeleteComment }: UseCommentThreadOptions) {
+  const commentTree = buildCommentTree(comments)
+  const [commentText, setCommentText] = useState('')
+  const [replyToId, setReplyToId] = useState<string | null>(null)
+  const [commentError, setCommentError] = useState('')
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
+  const [editText, setEditText] = useState('')
+  const [editError, setEditError] = useState('')
+  const commentInputRef = useRef<HTMLTextAreaElement>(null)
+  const commentRefs = useRef(new Map<string, HTMLElement>())
+  const highlightTimerRef = useRef<number | null>(null)
+  const highlightFrameRef = useRef<number | null>(null)
+  const submittedScrollFrameRef = useRef<number | null>(null)
+  const [highlightedCommentId, setHighlightedCommentId] = useState<string | null>(null)
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set())
+  const [openingIds, setOpeningIds] = useState<Set<string>>(new Set())
+  const [closingIds, setClosingIds] = useState<Set<string>>(new Set())
+  const { attachments, addFiles, removeAttachment, clearAttachments } = useAttachments()
+
+  function toggleReplies(commentId: string) {
+    if (closingIds.has(commentId)) {
+      setClosingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(commentId)
+        return next
+      })
+      return
+    }
+
+    if (collapsedIds.has(commentId)) {
+      setCollapsedIds((prev) => {
+        const next = new Set(prev)
+        next.delete(commentId)
+        return next
+      })
+      setOpeningIds((prev) => new Set(prev).add(commentId))
+      return
+    }
+
+    setOpeningIds((prev) => {
+      if (!prev.has(commentId)) return prev
+      const next = new Set(prev)
+      next.delete(commentId)
+      return next
+    })
+    setClosingIds((prev) => new Set(prev).add(commentId))
+  }
+
+  function finishRepliesAnimation(commentId: string, isClosing: boolean) {
+    if (isClosing) {
+      setCollapsedIds((prev) => new Set(prev).add(commentId))
+      setClosingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(commentId)
+        return next
+      })
+      return
+    }
+
+    setOpeningIds((prev) => {
+      const next = new Set(prev)
+      next.delete(commentId)
+      return next
+    })
+  }
+
+  function expandReplies(commentId: string) {
+    setClosingIds((prev) => {
+      if (!prev.has(commentId)) return prev
+      const next = new Set(prev)
+      next.delete(commentId)
+      return next
+    })
+    setCollapsedIds((prev) => {
+      if (!prev.has(commentId)) return prev
+      const next = new Set(prev)
+      next.delete(commentId)
+      return next
+    })
+  }
+
+  useEffect(() => {
+    const input = commentInputRef.current
+    if (!input) return
+    input.style.height = 'auto'
+    input.style.height = `${Math.min(input.scrollHeight, 160)}px`
+  }, [commentText])
+
+  useEffect(() => {
+    if (replyToId) commentInputRef.current?.focus()
+  }, [replyToId])
+
+  useEffect(() => () => {
+    if (highlightTimerRef.current !== null) window.clearTimeout(highlightTimerRef.current)
+    if (highlightFrameRef.current !== null) window.cancelAnimationFrame(highlightFrameRef.current)
+    if (submittedScrollFrameRef.current !== null) window.cancelAnimationFrame(submittedScrollFrameRef.current)
+  }, [])
+
+  function scrollToComment(commentId: string) {
+    const target = commentRefs.current.get(commentId)
+    if (!target) return
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    target.focus({ preventScroll: true })
+    if (highlightTimerRef.current !== null) window.clearTimeout(highlightTimerRef.current)
+    if (highlightFrameRef.current !== null) window.cancelAnimationFrame(highlightFrameRef.current)
+    setHighlightedCommentId(null)
+    highlightFrameRef.current = window.requestAnimationFrame(() => {
+      setHighlightedCommentId(commentId)
+      highlightTimerRef.current = window.setTimeout(() => {
+        setHighlightedCommentId(null)
+        highlightTimerRef.current = null
+      }, 2000)
+      highlightFrameRef.current = null
+    })
+  }
+
+  function submitComment(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const text = commentText.trim()
+    if (!text && attachments.length === 0) {
+      setCommentError('Введите текст комментария или прикрепите файл.')
+      return
+    }
+    const commentId = onAddComment(text, replyToId ?? undefined, attachments)
+    if (replyToId) expandReplies(replyToId)
+    setCommentText('')
+    setReplyToId(null)
+    setCommentError('')
+    clearAttachments()
+    if (submittedScrollFrameRef.current !== null) window.cancelAnimationFrame(submittedScrollFrameRef.current)
+    submittedScrollFrameRef.current = window.requestAnimationFrame(() => {
+      scrollToComment(commentId)
+      submittedScrollFrameRef.current = null
+    })
+  }
+
+  function pasteImages(event: ClipboardEvent<HTMLTextAreaElement>) {
+    const images: File[] = []
+    for (const item of event.clipboardData.items) {
+      if (item.kind !== 'file' || !item.type.startsWith('image/')) continue
+      const file = item.getAsFile()
+      if (file) images.push(file)
+    }
+    if (images.length > 0) {
+      event.preventDefault()
+      addFiles(images)
+    }
+  }
+
+  function submitOnEnter(event: ReactKeyboardEvent<HTMLTextAreaElement>) {
+    if (event.key !== 'Enter' || event.shiftKey || event.ctrlKey) return
+    event.preventDefault()
+    event.currentTarget.form?.requestSubmit()
+  }
+
+  function startEditing(comment: CommentNode) {
+    setEditingCommentId(comment.id)
+    setEditText(comment.text)
+    setEditError('')
+  }
+
+  function cancelEditing() {
+    setEditingCommentId(null)
+    setEditText('')
+    setEditError('')
+  }
+
+  function submitEdit(event: FormEvent<HTMLFormElement>, comment: CommentNode) {
+    event.preventDefault()
+    const text = editText.trim()
+    if (!text && comment.attachments.length === 0) {
+      setEditError('Введите текст комментария.')
+      return
+    }
+    onEditComment(comment.id, text)
+    cancelEditing()
+  }
+
+  function deleteComment(comment: CommentNode) {
+    const confirmed = window.confirm('Удалить комментарий? Ответы на него будут сохранены.')
+    if (!confirmed) return
+    if (editingCommentId === comment.id) cancelEditing()
+    onDeleteComment(comment.id)
+  }
+
+  function startReply(commentId: string) {
+    setReplyToId(commentId)
+  }
+
+  function cancelReply() {
+    setReplyToId(null)
+    commentInputRef.current?.focus()
+  }
+
+  function updateCommentText(value: string) {
+    setCommentText(value)
+    setCommentError('')
+  }
+
+  function updateEditText(value: string) {
+    setEditText(value)
+    setEditError('')
+  }
+
+  function registerCommentRef(commentId: string, element: HTMLElement | null) {
+    if (element) commentRefs.current.set(commentId, element)
+    else commentRefs.current.delete(commentId)
+  }
+
+  const replyTarget = replyToId ? comments.find((comment) => comment.id === replyToId) : undefined
+
+  return {
+    commentTree,
+    commentText,
+    updateCommentText,
+    commentError,
+    replyTarget,
+    startReply,
+    cancelReply,
+    commentInputRef,
+    attachments,
+    addFiles,
+    removeAttachment,
+    submitComment,
+    pasteImages,
+    submitOnEnter,
+    editingCommentId,
+    editText,
+    updateEditText,
+    editError,
+    startEditing,
+    cancelEditing,
+    submitEdit,
+    deleteComment,
+    collapsedIds,
+    openingIds,
+    closingIds,
+    toggleReplies,
+    finishRepliesAnimation,
+    highlightedCommentId,
+    registerCommentRef,
+    scrollToComment,
+  }
+}
+
+export type CommentThreadState = ReturnType<typeof useCommentThread>
 
 // Shared outside-click + Escape dismissal for the filter/sort dropdowns
 // (FilterDropdown, SortDropdown) - both need identical "close when the

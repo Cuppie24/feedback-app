@@ -1,0 +1,20 @@
+.fb-detail-comments { padding: var(--space-32) 0 var(--space-48); }
+.fb-detail-section-heading { display: flex; align-items: center; gap: var(--space-8); color: var(--color-text-muted); user-select: none; }
+.fb-detail-section-heading h2 { margin: 0; color: var(--color-text); font-size: var(--font-size-subheading); }
+.fb-detail-section-heading > span { min-width: 20px; padding: 1px var(--space-6); border-radius: var(--radius-pill); background: var(--color-neutral-wash); color: var(--color-text-muted); font-size: var(--font-size-caption); text-align: center; }
+.fb-detail-comment-list { display: flex; flex-direction: column; gap: var(--space-24); margin-top: var(--space-24); }
+.fb-detail-comment-list > .fb-detail-comment-thread { position: relative; }
+/* Root comments use isolated segments with breathing room around both
+   avatars. When replies are expanded, their rail continues this segment
+   instead so the two connector systems never paint the same pixels. */
+.fb-detail-comment-list > .fb-detail-comment-thread.is-root.has-next-sibling:not(.has-expanded-replies)::after {
+  position: absolute;
+  top: 32px;
+  bottom: calc(var(--space-4) - var(--space-24));
+  left: 13px;
+  width: 1px;
+  background: var(--color-border);
+  content: '';
+  pointer-events: none;
+}
+.fb-detail-empty { margin: var(--space-24) 0; color: var(--color-text-muted); }
