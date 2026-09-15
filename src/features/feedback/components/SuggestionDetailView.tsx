@@ -1,8 +1,9 @@
-import { ArrowLeft, CornerUpLeft, FileText, Image, MessageCircle, Paperclip, Send, X } from 'lucide-react'
+import { ArrowLeft, ChevronRight, CornerUpLeft, FileText, Image, MessageCircle, Paperclip, Send, X } from 'lucide-react'
 import { useEffect, useRef, useState, type ClipboardEvent, type FocusEvent, type FormEvent, type KeyboardEvent } from 'react'
 import { STATUS_LABEL, STATUS_TONE, USERS } from '../data'
 import { useAttachments } from '../hooks'
-import type { Attachment, Message, Status, Ticket } from '../types'
+import type { Attachment, Status, Ticket } from '../types'
+import { buildCommentTree, pluralizeRu, type CommentNode } from '../utils'
 import { TicketCellSelect, type TicketCellOption } from './TicketCellSelect'
 import { UserPopover } from './UserPopover'
 import { VoteButton } from './VoteButton'
@@ -20,9 +21,15 @@ const STATUS_OPTIONS = (Object.entries(STATUS_LABEL) as [Status, string][]).map(
   ([value, label]): TicketCellOption<Status> => ({ value, label, tone: STATUS_TONE[value] }),
 )
 
+// Beyond this nesting level, further replies stop indenting further and
+// stack flush with it instead - keeps a long reply-to-a-reply chain from
+// eating the whole content column on a narrow viewport.
+const MAX_REPLY_INDENT_DEPTH = 3
+
 export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusChange, onAddComment }: SuggestionDetailViewProps) {
   const proposal = ticket.messages[0]
   const comments = ticket.messages.slice(1)
+  const commentTree = buildCommentTree(comments)
   const [commentText, setCommentText] = useState('')
   const [replyToId, setReplyToId] = useState<string | null>(null)
   const [commentError, setCommentError] = useState('')
@@ -34,7 +41,72 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
   const highlightFrameRef = useRef<number | null>(null)
   const submittedScrollFrameRef = useRef<number | null>(null)
   const [highlightedCommentId, setHighlightedCommentId] = useState<string | null>(null)
+  const [collapsedIds, setCollapsedIds] = useState<Set<string>>(new Set())
+  const [openingIds, setOpeningIds] = useState<Set<string>>(new Set())
+  const [closingIds, setClosingIds] = useState<Set<string>>(new Set())
   const { attachments, addFiles, removeAttachment, clearAttachments } = useAttachments()
+
+  function toggleReplies(commentId: string) {
+    if (closingIds.has(commentId)) {
+      setClosingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(commentId)
+        return next
+      })
+      return
+    }
+
+    if (collapsedIds.has(commentId)) {
+      setCollapsedIds((prev) => {
+        const next = new Set(prev)
+        next.delete(commentId)
+        return next
+      })
+      setOpeningIds((prev) => new Set(prev).add(commentId))
+      return
+    }
+
+    setOpeningIds((prev) => {
+      if (!prev.has(commentId)) return prev
+      const next = new Set(prev)
+      next.delete(commentId)
+      return next
+    })
+    setClosingIds((prev) => new Set(prev).add(commentId))
+  }
+
+  function finishRepliesAnimation(commentId: string, isClosing: boolean) {
+    if (isClosing) {
+      setCollapsedIds((prev) => new Set(prev).add(commentId))
+      setClosingIds((prev) => {
+        const next = new Set(prev)
+        next.delete(commentId)
+        return next
+      })
+      return
+    }
+
+    setOpeningIds((prev) => {
+      const next = new Set(prev)
+      next.delete(commentId)
+      return next
+    })
+  }
+
+  function expandReplies(commentId: string) {
+    setClosingIds((prev) => {
+      if (!prev.has(commentId)) return prev
+      const next = new Set(prev)
+      next.delete(commentId)
+      return next
+    })
+    setCollapsedIds((prev) => {
+      if (!prev.has(commentId)) return prev
+      const next = new Set(prev)
+      next.delete(commentId)
+      return next
+    })
+  }
 
   useEffect(() => {
     const input = commentInputRef.current
@@ -61,6 +133,7 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
       return
     }
     const commentId = onAddComment(text, replyToId ?? undefined, attachments)
+    if (replyToId) expandReplies(replyToId)
     setCommentText('')
     setReplyToId(null)
     setCommentError('')
@@ -208,69 +281,100 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
     )
   }
 
-  function renderComment(comment: Message) {
+  function renderComment(comment: CommentNode, depth: number, hasNextSibling: boolean) {
     const author = comment.sender === 'agent' ? ticket.assignee : USERS.me
     const isAgent = comment.sender === 'agent'
-    const repliedTo = comment.replyToId ? comments.find((item) => item.id === comment.replyToId) : undefined
-    const repliedToName = repliedTo?.sender === 'agent' ? ticket.assignee?.name ?? 'Команда продукта' : USERS.me.name
+    const hasReplies = comment.children.length > 0
+    const isCollapsed = collapsedIds.has(comment.id)
+    const isOpening = openingIds.has(comment.id)
+    const isClosing = closingIds.has(comment.id)
+    const showReplyButton = replyToId !== comment.id
+    const childDepth = Math.min(depth, MAX_REPLY_INDENT_DEPTH)
+    // A comment's own rail only leads to its replies. Connections between
+    // siblings stay on their shared parent's rail and are drawn by the reply
+    // group, so a later sibling never appears to descend from the one above.
+    const showConnector = hasReplies && (!isCollapsed || isClosing)
 
     return (
-      <article
+      <div
         key={comment.id}
-        ref={(element) => {
-          if (element) commentRefs.current.set(comment.id, element)
-          else commentRefs.current.delete(comment.id)
-        }}
-        className={`fb-detail-comment${isAgent ? ' agent' : ''}${highlightedCommentId === comment.id ? ' is-highlighted' : ''}`}
-        tabIndex={-1}
+        className={`fb-detail-comment-thread${depth === 0 ? ' is-root' : ''}${hasNextSibling ? ' has-next-sibling' : ''}${showConnector ? ' has-expanded-replies' : ''}`}
       >
-        <div className="fb-detail-comment-body">
-          <div className="fb-detail-comment-meta">
-            <UserPopover user={author} label={isAgent ? 'Автор ответа' : 'Автор комментария'} showName />
-            {isAgent && <span className="fb-detail-agent-label">Агент</span>}
-            {repliedTo && (
-              <button
-                type="button"
-                className="fb-detail-reply-to"
-                onClick={() => scrollToComment(repliedTo.id)}
-                aria-label={`Перейти к комментарию ${repliedToName}`}
-              >
-                <CornerUpLeft size={14} aria-hidden="true" />
-                <span>{repliedToName}</span>
-              </button>
-            )}
-            <time>{comment.time}</time>
-          </div>
-          <div className="fb-detail-comment-content">
-            {comment.text && <p>{comment.text}</p>}
-            {comment.attachments.length > 0 && (
-              <div className="fb-detail-comment-attachments" aria-label="Вложения комментария">
-                {comment.attachments.map((attachment) => (
-                  <a key={attachment.id} className="fb-detail-attachment" href={attachment.url} target="_blank" rel="noreferrer">
-                    {attachment.kind === 'image' ? <Image size={16} /> : <FileText size={16} />}
-                    <span>{attachment.name}</span>
-                  </a>
-                ))}
+        <article
+          ref={(element) => {
+            if (element) commentRefs.current.set(comment.id, element)
+            else commentRefs.current.delete(comment.id)
+          }}
+          className={`fb-detail-comment${isAgent ? ' agent' : ''}${highlightedCommentId === comment.id ? ' is-highlighted' : ''}${showConnector ? ' is-linked' : ''}`}
+          tabIndex={-1}
+        >
+          <div className="fb-detail-comment-body">
+            <div className="fb-detail-comment-meta">
+              <UserPopover user={author} label={isAgent ? 'Автор ответа' : 'Автор комментария'} showName />
+              {isAgent && <span className="fb-detail-agent-label">Агент</span>}
+              <time>{comment.time}</time>
+            </div>
+            <div className="fb-detail-comment-content">
+              {comment.text && <p>{comment.text}</p>}
+              {comment.attachments.length > 0 && (
+                <div className="fb-detail-comment-attachments" aria-label="Вложения комментария">
+                  {comment.attachments.map((attachment) => (
+                    <a key={attachment.id} className="fb-detail-attachment" href={attachment.url} target="_blank" rel="noreferrer">
+                      {attachment.kind === 'image' ? <Image size={16} /> : <FileText size={16} />}
+                      <span>{attachment.name}</span>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+            {(hasReplies || showReplyButton) && (
+              <div className="fb-detail-comment-actions">
+                {hasReplies && (
+                  <button
+                    type="button"
+                    className="fb-detail-toggle-replies"
+                    onClick={() => toggleReplies(comment.id)}
+                    aria-expanded={!isCollapsed && !isClosing}
+                  >
+                    <ChevronRight size={13} className={`fb-detail-toggle-chevron${isCollapsed || isClosing ? '' : ' is-expanded'}`} aria-hidden="true" />
+                    {comment.children.length} {pluralizeRu(comment.children.length, 'ответ', 'ответа', 'ответов')}
+                  </button>
+                )}
+                {showReplyButton && (
+                  <button
+                    type="button"
+                    className="fb-detail-reply-button"
+                    onPointerDown={() => { isSwitchingReplyRef.current = true }}
+                    onPointerCancel={() => { isSwitchingReplyRef.current = false }}
+                    onClick={() => {
+                      isSwitchingReplyRef.current = false
+                      setReplyToId(comment.id)
+                    }}
+                  >
+                    <CornerUpLeft size={14} aria-hidden="true" />
+                    Ответить
+                  </button>
+                )}
               </div>
             )}
           </div>
-          {replyToId !== comment.id && (
-            <button
-              type="button"
-              className="fb-detail-reply-button"
-              onPointerDown={() => { isSwitchingReplyRef.current = true }}
-              onPointerCancel={() => { isSwitchingReplyRef.current = false }}
-              onClick={() => {
-                isSwitchingReplyRef.current = false
-                setReplyToId(comment.id)
-              }}
-            >
-              <CornerUpLeft size={14} aria-hidden="true" />
-              Ответить
-            </button>
-          )}
-        </div>
-      </article>
+        </article>
+        {hasReplies && (!isCollapsed || isClosing) && (
+          <div
+            className={`fb-detail-comment-replies depth-${childDepth}${depth === 0 && hasNextSibling ? ' continues-root' : ''}${isOpening ? ' is-opening' : ''}${isClosing ? ' is-closing' : ''}`}
+            aria-hidden={isClosing || undefined}
+            onAnimationEnd={(event) => {
+              if (event.target === event.currentTarget) finishRepliesAnimation(comment.id, isClosing)
+            }}
+          >
+            <div className="fb-detail-comment-replies-clip">
+              <div className="fb-detail-comment-replies-list">
+                {comment.children.map((child, index) => renderComment(child, depth + 1, index < comment.children.length - 1))}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     )
   }
 
@@ -324,9 +428,9 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
           <h2 id="comments-title">Обсуждение</h2>
           <span>{comments.length}</span>
         </div>
-        {comments.length > 0 ? (
+        {commentTree.length > 0 ? (
           <div className="fb-detail-comment-list">
-            {comments.map(renderComment)}
+            {commentTree.map((comment, index) => renderComment(comment, 0, index < commentTree.length - 1))}
           </div>
         ) : (
           <p className="fb-detail-empty">Пока нет комментариев. Начните обсуждение этого предложения.</p>

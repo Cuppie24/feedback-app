@@ -1,3 +1,25 @@
+import type { Message } from './types'
+
+export type CommentNode = Message & { children: CommentNode[] }
+
+// Turns the flat, replyToId-linked message list into a tree for threaded
+// rendering. A comment whose replyToId doesn't resolve to another comment
+// in the list becomes a root instead of being dropped.
+export function buildCommentTree(comments: Message[]): CommentNode[] {
+  const nodeById = new Map<string, CommentNode>()
+  for (const comment of comments) nodeById.set(comment.id, { ...comment, children: [] })
+
+  const roots: CommentNode[] = []
+  for (const comment of comments) {
+    const node = nodeById.get(comment.id)
+    if (!node) continue
+    const parent = comment.replyToId ? nodeById.get(comment.replyToId) : undefined
+    if (parent) parent.children.push(node)
+    else roots.push(node)
+  }
+  return roots
+}
+
 export function extOf(name: string): string {
   const parts = name.split('.')
   return parts.length > 1 ? parts[parts.length - 1].toUpperCase().slice(0, 4) : 'FILE'

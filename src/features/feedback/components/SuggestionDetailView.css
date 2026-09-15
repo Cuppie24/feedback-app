@@ -56,8 +56,22 @@
 .fb-detail-section-heading h2 { margin: 0; color: var(--color-text); font-size: var(--font-size-subheading); }
 .fb-detail-section-heading > span { min-width: 20px; padding: 1px var(--space-6); border-radius: var(--radius-pill); background: var(--color-neutral-wash); color: var(--color-text-muted); font-size: var(--font-size-caption); text-align: center; }
 .fb-detail-comment-list { display: flex; flex-direction: column; gap: var(--space-24); margin-top: var(--space-24); }
+.fb-detail-comment-list > .fb-detail-comment-thread { position: relative; }
+/* Root comments use isolated segments with breathing room around both
+   avatars. When replies are expanded, their rail continues this segment
+   instead so the two connector systems never paint the same pixels. */
+.fb-detail-comment-list > .fb-detail-comment-thread.is-root.has-next-sibling:not(.has-expanded-replies)::after {
+  position: absolute;
+  top: 32px;
+  bottom: calc(var(--space-4) - var(--space-24));
+  left: 13px;
+  width: 1px;
+  background: var(--color-border);
+  content: '';
+  pointer-events: none;
+}
 .fb-detail-comment { position: relative; }
-.fb-detail-comment:not(:last-child)::before { position: absolute; top: 36px; bottom: calc(-1 * var(--space-16)); left: 13px; width: 1px; background: var(--color-border); content: ''; }
+.fb-detail-comment.is-linked::before { position: absolute; top: 32px; bottom: 0; left: 13px; width: 1px; background: var(--color-border); content: ''; }
 .fb-detail-comment.is-highlighted { border-radius: var(--radius-md); animation: fb-detail-comment-pulse 2s var(--ease-in-out); }
 @keyframes fb-detail-comment-pulse {
   0%, 100% { background-color: transparent; }
@@ -71,14 +85,87 @@
 .fb-detail-comment-content:empty { display: none; }
 .fb-detail-comment p { margin: 0; color: var(--color-text); line-height: var(--line-height-body); white-space: pre-wrap; }
 .fb-detail-comment-attachments { display: flex; flex-wrap: wrap; gap: var(--space-6); margin-top: var(--space-8); }
-.fb-detail-reply-button { display: inline-flex; align-items: center; gap: var(--space-4); margin: var(--space-8) 0 0 36px; padding: var(--space-4) var(--space-8); border-radius: var(--radius-sm); background: transparent; color: var(--color-accent); font-size: var(--font-size-caption); font-weight: var(--font-weight-semibold); opacity: 0; cursor: pointer; transition: opacity var(--duration-instant) var(--ease-in-out), background-color var(--duration-instant) var(--ease-in-out), color var(--duration-instant) var(--ease-in-out); }
+.fb-detail-comment-actions { display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-12); margin: var(--space-8) 0 0 36px; min-height: var(--space-24); }
+.fb-detail-reply-button { display: inline-flex; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-8); border-radius: var(--radius-sm); background: transparent; color: var(--color-accent); font-size: var(--font-size-caption); font-weight: var(--font-weight-semibold); opacity: 0; cursor: pointer; transition: opacity var(--duration-instant) var(--ease-in-out), background-color var(--duration-instant) var(--ease-in-out), color var(--duration-instant) var(--ease-in-out); }
 .fb-detail-comment:hover .fb-detail-reply-button { opacity: 1; }
 .fb-detail-reply-button:hover { background: var(--color-accent-wash); color: var(--color-accent-hover); }
 .fb-detail-reply-button:focus-visible { opacity: 1; outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
 
-.fb-detail-reply-to { display: inline-flex; align-items: center; gap: var(--space-4); padding: 0; background: transparent; color: var(--color-text-muted); font-size: var(--font-size-caption); cursor: pointer; }
-.fb-detail-reply-to:hover { color: var(--color-accent); text-decoration: underline; }
-.fb-detail-reply-to:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
+.fb-detail-toggle-replies { display: inline-flex; align-items: center; gap: var(--space-4); padding: 0; background: transparent; color: var(--color-text-muted); font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); cursor: pointer; }
+.fb-detail-toggle-replies:hover { color: var(--color-accent); }
+.fb-detail-toggle-replies:focus-visible { outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
+.fb-detail-toggle-chevron { flex: none; transition: transform var(--duration-fast) var(--ease-in-out); }
+.fb-detail-toggle-chevron.is-expanded { transform: rotate(90deg); }
+
+.fb-detail-comment-replies { position: relative; display: grid; grid-template-rows: 1fr; }
+.fb-detail-comment-replies-clip { min-height: 0; }
+.fb-detail-comment-replies-list { position: relative; display: flex; flex-direction: column; gap: var(--space-16); padding-top: var(--space-16); }
+.fb-detail-comment-replies.is-opening { animation: fb-detail-replies-open var(--duration-medium) var(--ease-out) both; }
+.fb-detail-comment-replies.is-closing { animation: fb-detail-replies-close var(--duration-fast) var(--ease-in-out) both; }
+.fb-detail-comment-replies.is-opening > .fb-detail-comment-replies-clip,
+.fb-detail-comment-replies.is-closing > .fb-detail-comment-replies-clip { overflow: hidden; }
+@keyframes fb-detail-replies-open {
+  from { grid-template-rows: 0fr; opacity: 0; transform: translateY(calc(-1 * var(--space-4))); }
+  to { grid-template-rows: 1fr; opacity: 1; transform: translateY(0); }
+}
+@keyframes fb-detail-replies-close {
+  from { grid-template-rows: 1fr; opacity: 1; transform: translateY(0); }
+  to { grid-template-rows: 0fr; opacity: 0; transform: translateY(calc(-1 * var(--space-4))); }
+}
+.fb-detail-comment-replies.depth-0,
+.fb-detail-comment-replies.depth-1,
+.fb-detail-comment-replies.depth-2 { margin-left: 36px; }
+/* Every direct reply branches from the shared parent rail. The straight rail
+   and curved arm are separate strokes: they touch at one endpoint but never
+   occupy the same run of pixels, which keeps the junction color uniform. */
+.fb-detail-comment-replies.depth-0 > .fb-detail-comment-replies-clip > .fb-detail-comment-replies-list > .fb-detail-comment-thread,
+.fb-detail-comment-replies.depth-1 > .fb-detail-comment-replies-clip > .fb-detail-comment-replies-list > .fb-detail-comment-thread,
+.fb-detail-comment-replies.depth-2 > .fb-detail-comment-replies-clip > .fb-detail-comment-replies-list > .fb-detail-comment-thread { position: relative; }
+.fb-detail-comment-replies.depth-0 > .fb-detail-comment-replies-clip > .fb-detail-comment-replies-list > .fb-detail-comment-thread::before,
+.fb-detail-comment-replies.depth-1 > .fb-detail-comment-replies-clip > .fb-detail-comment-replies-list > .fb-detail-comment-thread::before,
+.fb-detail-comment-replies.depth-2 > .fb-detail-comment-replies-clip > .fb-detail-comment-replies-list > .fb-detail-comment-thread::before {
+  position: absolute;
+  top: 0;
+  left: -23px;
+  width: 36px;
+  height: 14px;
+  border: 0 solid var(--color-border);
+  border-bottom-width: 1px;
+  border-bottom-left-radius: 14px;
+  content: '';
+  pointer-events: none;
+}
+.fb-detail-comment-replies.depth-0 > .fb-detail-comment-replies-clip > .fb-detail-comment-replies-list > .fb-detail-comment-thread::after,
+.fb-detail-comment-replies.depth-1 > .fb-detail-comment-replies-clip > .fb-detail-comment-replies-list > .fb-detail-comment-thread::after,
+.fb-detail-comment-replies.depth-2 > .fb-detail-comment-replies-clip > .fb-detail-comment-replies-list > .fb-detail-comment-thread::after {
+  position: absolute;
+  top: calc(-1 * var(--space-16));
+  bottom: 0;
+  left: -23px;
+  width: 1px;
+  background: var(--color-border);
+  content: '';
+  pointer-events: none;
+}
+.fb-detail-comment-replies.depth-0 > .fb-detail-comment-replies-clip > .fb-detail-comment-replies-list > .fb-detail-comment-thread:last-child::after,
+.fb-detail-comment-replies.depth-1 > .fb-detail-comment-replies-clip > .fb-detail-comment-replies-list > .fb-detail-comment-thread:last-child::after,
+.fb-detail-comment-replies.depth-2 > .fb-detail-comment-replies-clip > .fb-detail-comment-replies-list > .fb-detail-comment-thread:last-child::after {
+  bottom: auto;
+  height: var(--space-16);
+}
+/* If another root follows, the last direct reply carries the root rail out
+   of the expanded tree and stops with the same avatar padding as a plain
+   root-to-root connector. */
+.fb-detail-comment-replies.depth-0.continues-root > .fb-detail-comment-replies-clip > .fb-detail-comment-replies-list > .fb-detail-comment-thread:last-child::after {
+  bottom: calc(var(--space-4) - var(--space-24));
+  height: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fb-detail-comment-replies.is-opening,
+  .fb-detail-comment-replies.is-closing { animation-duration: 1ms; }
+}
+
 .fb-detail-comment:focus { outline: none; }
 
 @media (hover: none) {
@@ -129,4 +216,7 @@
   .fb-detail-header h1 { font-size: var(--font-size-heading); }
   .fb-detail-actions { align-self: flex-start; }
   .fb-detail-proposal-text, .fb-detail-attachments { margin-left: 0; }
+  .fb-detail-comment-replies.depth-0,
+  .fb-detail-comment-replies.depth-1,
+  .fb-detail-comment-replies.depth-2 { margin-left: 20px; }
 }
