@@ -115,6 +115,38 @@ export function useFeedbackTickets() {
     return commentId
   }, [])
 
+  const editComment = useCallback((ticketId: string, commentId: string, text: string) => {
+    setTickets((prev) => prev.map((ticket) => (
+      ticket.id === ticketId
+        ? {
+            ...ticket,
+            messages: ticket.messages.map((message) => (
+              message.id === commentId ? { ...message, text, time: 'изменено только что' } : message
+            )),
+          }
+        : ticket
+    )))
+  }, [])
+
+  const deleteComment = useCallback((ticketId: string, commentId: string) => {
+    setTickets((prev) => prev.map((ticket) => {
+      if (ticket.id !== ticketId) return ticket
+      const deleted = ticket.messages.find((message) => message.id === commentId)
+      if (!deleted) return ticket
+
+      return {
+        ...ticket,
+        messages: ticket.messages
+          .filter((message) => message.id !== commentId)
+          .map((message) => (
+            message.replyToId === commentId
+              ? { ...message, replyToId: deleted.replyToId }
+              : message
+          )),
+      }
+    }))
+  }, [])
+
   const addTicket = useCallback((input: NewFeedbackInput): string => {
     nextNumber.current += 1
     const id = `ОБ-${nextNumber.current}`
@@ -146,7 +178,7 @@ export function useFeedbackTickets() {
     return id
   }, [])
 
-  return { tickets, toggleLike, updateSystem, updateStatus, addComment, addTicket }
+  return { tickets, toggleLike, updateSystem, updateStatus, addComment, editComment, deleteComment, addTicket }
 }
 
 // Backing state for the attachments widget: turns picked/dropped Files

@@ -1,4 +1,4 @@
-import { ArrowLeft, ChevronRight, CornerUpLeft, FileText, Image, MessageCircle, Paperclip, Send, X } from 'lucide-react'
+import { ArrowLeft, Check, ChevronRight, CornerUpLeft, FileText, Image, MessageCircle, Paperclip, Pencil, Send, Trash2, X } from 'lucide-react'
 import { useEffect, useRef, useState, type ClipboardEvent, type FocusEvent, type FormEvent, type KeyboardEvent } from 'react'
 import { STATUS_LABEL, STATUS_TONE, USERS } from '../data'
 import { useAttachments } from '../hooks'
@@ -15,6 +15,8 @@ type SuggestionDetailViewProps = {
   onToggleLike: () => void
   onStatusChange: (status: Status | null) => void
   onAddComment: (text: string, replyToId?: string, attachments?: Attachment[]) => string
+  onEditComment: (commentId: string, text: string) => void
+  onDeleteComment: (commentId: string) => void
 }
 
 const STATUS_OPTIONS = (Object.entries(STATUS_LABEL) as [Status, string][]).map(
@@ -26,13 +28,16 @@ const STATUS_OPTIONS = (Object.entries(STATUS_LABEL) as [Status, string][]).map(
 // eating the whole content column on a narrow viewport.
 const MAX_REPLY_INDENT_DEPTH = 3
 
-export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusChange, onAddComment }: SuggestionDetailViewProps) {
+export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusChange, onAddComment, onEditComment, onDeleteComment }: SuggestionDetailViewProps) {
   const proposal = ticket.messages[0]
   const comments = ticket.messages.slice(1)
   const commentTree = buildCommentTree(comments)
   const [commentText, setCommentText] = useState('')
   const [replyToId, setReplyToId] = useState<string | null>(null)
   const [commentError, setCommentError] = useState('')
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
+  const [editText, setEditText] = useState('')
+  const [editError, setEditError] = useState('')
   const commentInputRef = useRef<HTMLTextAreaElement>(null)
   const commentRefs = useRef(new Map<string, HTMLElement>())
   const isSwitchingReplyRef = useRef(false)
@@ -164,6 +169,36 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
     event.currentTarget.form?.requestSubmit()
   }
 
+  function startEditing(comment: CommentNode) {
+    setEditingCommentId(comment.id)
+    setEditText(comment.text)
+    setEditError('')
+  }
+
+  function cancelEditing() {
+    setEditingCommentId(null)
+    setEditText('')
+    setEditError('')
+  }
+
+  function submitEdit(event: FormEvent<HTMLFormElement>, comment: CommentNode) {
+    event.preventDefault()
+    const text = editText.trim()
+    if (!text && comment.attachments.length === 0) {
+      setEditError('Введите текст комментария.')
+      return
+    }
+    onEditComment(comment.id, text)
+    cancelEditing()
+  }
+
+  function deleteComment(comment: CommentNode) {
+    const confirmed = window.confirm('Удалить комментарий? Ответы на него будут сохранены.')
+    if (!confirmed) return
+    if (editingCommentId === comment.id) cancelEditing()
+    onDeleteComment(comment.id)
+  }
+
   function scrollToComment(commentId: string) {
     const target = commentRefs.current.get(commentId)
     if (!target) return
@@ -288,6 +323,7 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
     const isCollapsed = collapsedIds.has(comment.id)
     const isOpening = openingIds.has(comment.id)
     const isClosing = closingIds.has(comment.id)
+    const isEditing = editingCommentId === comment.id
     const showReplyButton = replyToId !== comment.id
     const childDepth = Math.min(depth, MAX_REPLY_INDENT_DEPTH)
     // A comment's own rail only leads to its replies. Connections between
@@ -315,7 +351,29 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
               <time>{comment.time}</time>
             </div>
             <div className="fb-detail-comment-content">
-              {comment.text && <p>{comment.text}</p>}
+              {isEditing ? (
+                <form className="fb-detail-comment-edit" noValidate onSubmit={(event) => submitEdit(event, comment)}>
+                  <textarea
+                    autoFocus
+                    value={editText}
+                    onChange={(event) => {
+                      setEditText(event.target.value)
+                      if (editError) setEditError('')
+                    }}
+                    onKeyDown={(event) => {
+                      if (event.key === 'Escape') cancelEditing()
+                      if (event.key === 'Enter' && (event.ctrlKey || event.metaKey)) event.currentTarget.form?.requestSubmit()
+                    }}
+                    aria-label="Текст комментария"
+                    rows={3}
+                  />
+                  {editError && <p className="fb-detail-comment-edit-error" role="alert">{editError}</p>}
+                  <div className="fb-detail-comment-edit-actions">
+                    <button type="submit" className="fb-detail-comment-edit-save"><Check size={14} />Сохранить</button>
+                    <button type="button" className="fb-detail-comment-edit-cancel" onClick={cancelEditing}><X size={14} />Отмена</button>
+                  </div>
+                </form>
+              ) : comment.text ? <p>{comment.text}</p> : null}
               {comment.attachments.length > 0 && (
                 <div className="fb-detail-comment-attachments" aria-label="Вложения комментария">
                   {comment.attachments.map((attachment) => (
@@ -327,7 +385,7 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
                 </div>
               )}
             </div>
-            {(hasReplies || showReplyButton) && (
+            {!isEditing && (hasReplies || showReplyButton || !isAgent) && (
               <div className="fb-detail-comment-actions">
                 {hasReplies && (
                   <button
@@ -343,7 +401,7 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
                 {showReplyButton && (
                   <button
                     type="button"
-                    className="fb-detail-reply-button"
+                    className="fb-detail-comment-action-button"
                     onPointerDown={() => { isSwitchingReplyRef.current = true }}
                     onPointerCancel={() => { isSwitchingReplyRef.current = false }}
                     onClick={() => {
@@ -354,6 +412,18 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
                     <CornerUpLeft size={14} aria-hidden="true" />
                     Ответить
                   </button>
+                )}
+                {!isAgent && (
+                  <>
+                    <button type="button" className="fb-detail-comment-action-button" onClick={() => startEditing(comment)}>
+                      <Pencil size={14} aria-hidden="true" />
+                      Редактировать
+                    </button>
+                    <button type="button" className="fb-detail-comment-action-button" onClick={() => deleteComment(comment)}>
+                      <Trash2 size={14} aria-hidden="true" />
+                      Удалить
+                    </button>
+                  </>
                 )}
               </div>
             )}

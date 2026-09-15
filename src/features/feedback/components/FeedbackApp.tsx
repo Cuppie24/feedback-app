@@ -33,7 +33,7 @@ const THEME_META = {
 // duplicated in agent mode. Rendered as its own early-return branch
 // rather than threaded through the agent layout's view state.
 export function FeedbackApp() {
-  const { tickets, toggleLike, updateSystem, updateStatus, addComment, addTicket } = useFeedbackTickets()
+  const { tickets, toggleLike, updateSystem, updateStatus, addComment, editComment, deleteComment, addTicket } = useFeedbackTickets()
   const { collapsed, toggleCollapsed } = useSidebarCollapsed()
   const { mode, toggleMode } = useAppMode()
   const { preference, cycleTheme } = useTheme()
@@ -74,6 +74,8 @@ export function FeedbackApp() {
               onToggleLike={() => toggleLike(selectedTicket.id)}
               onStatusChange={(status) => updateStatus(selectedTicket.id, status)}
               onAddComment={(text, replyToId, attachments) => addComment(selectedTicket.id, text, replyToId, attachments)}
+              onEditComment={(commentId, text) => editComment(selectedTicket.id, commentId, text)}
+              onDeleteComment={(commentId) => deleteComment(selectedTicket.id, commentId)}
             />
           )}
           {!selectedTicket && userView === 'create' && (
@@ -113,6 +115,8 @@ export function FeedbackApp() {
             onToggleLike={() => toggleLike(selectedTicket.id)}
             onStatusChange={(status) => updateStatus(selectedTicket.id, status)}
             onAddComment={(text, replyToId, attachments) => addComment(selectedTicket.id, text, replyToId, attachments)}
+            onEditComment={(commentId, text) => editComment(selectedTicket.id, commentId, text)}
+            onDeleteComment={(commentId) => deleteComment(selectedTicket.id, commentId)}
           />
         )}
         {!selectedTicket && view === 'all' && (
