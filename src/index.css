@@ -25,6 +25,19 @@ body,
   min-height: 100%;
 }
 
+html,
+body {
+  /* The app shell (.fb-app / .fb-user-shell) is always sized to the
+     viewport and manages its own internal scrolling - nothing here is
+     meant to scroll at the document level. Without this, an element that
+     escapes the shell's own overflow:hidden (e.g. a portaled overlay)
+     has nothing left to contain it, and its layout box can still make
+     the document scrollable even while fully off-screen visually (a
+     transform that hides it doesn't change the layout-time box this is
+     computed from) - see ErrorDetailView's comments panel. */
+  overflow: hidden;
+}
+
 #root {
   min-height: 100svh;
   display: flex;
