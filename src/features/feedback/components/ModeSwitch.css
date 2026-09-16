@@ -1,8 +1,11 @@
-/* Fixed to the viewport (not .fb-app) so it stays put regardless of
-   which layout branch is mounted, and above every other overlay in the
-   feature - including the create-feedback widget's fab (z-index 40) and
-   its full-screen reveal panel (z-index 20) - so mode is always
-   reachable. */
+/* Default (floating) variant: fixed to the viewport, above every other
+   overlay in the feature - including the create-feedback widget's fab
+   (z-index 40) and its full-screen reveal panel (z-index 20) - so mode is
+   always reachable from the user-mode shell, which has no sidebar. The
+   agent sidebar uses the .inline variant below instead, and ErrorDetailView's
+   comments panel deliberately goes above this z-index while open (see
+   ErrorDetailView.css) - a floating panel choosing to take over the screen
+   is a different, later decision than this control's own default. */
 .fb-mode-switch {
   position: fixed;
   top: var(--space-16);
@@ -42,14 +45,41 @@
   flex: none;
 }
 
+/* 'inline' docks in the agent sidebar's footer (Sidebar.css) instead of
+   floating over the viewport - no fixed positioning or elevation, grows
+   to fill the row next to the theme toggle. User mode has no sidebar, so
+   it keeps the floating default there. */
+.fb-mode-switch.inline {
+  position: static;
+  z-index: auto;
+  flex: 1;
+  min-width: 0;
+  box-shadow: none;
+}
+
+.fb-mode-switch.inline .fb-mode-switch-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collapsed .fb-mode-switch.inline {
+  width: 100%;
+  justify-content: center;
+  padding: 0;
+}
+
+.collapsed .fb-mode-switch.inline .fb-mode-switch-label {
+  display: none;
+}
+
 @media (max-width: 640px) {
-  .fb-mode-switch {
+  .fb-mode-switch:not(.inline) {
     width: 32px;
     padding: 0;
     justify-content: center;
   }
 
-  .fb-mode-switch-label {
+  .fb-mode-switch:not(.inline) .fb-mode-switch-label {
     display: none;
   }
 }

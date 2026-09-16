@@ -1,25 +1,20 @@
 import { useState } from 'react'
-import { Monitor, Moon, Sun } from 'lucide-react'
 import { useAppMode, useFeedbackTickets, useSidebarCollapsed } from '../hooks'
 import { useTheme } from '../../../shared/useTheme'
 import { AgentsView } from './AgentsView'
 import { AllTicketsView } from './AllTicketsView'
 import { CategoryTicketsView } from './CategoryTicketsView'
 import { CreateFeedbackView } from './CreateFeedbackView'
+import { ErrorDetailView } from './ErrorDetailView'
 import { ModeSwitch } from './ModeSwitch'
 import { MyTicketsView } from './MyTicketsView'
 import { PopularTicketsView } from './PopularTicketsView'
 import { Sidebar, type SidebarView } from './Sidebar'
 import { SystemsView } from './SystemsView'
 import { SuggestionDetailView } from './SuggestionDetailView'
+import { ThemeToggle } from './ThemeToggle'
 import { UserTabBar, type UserView } from './UserTabBar'
 import './FeedbackApp.css'
-
-const THEME_META = {
-  system: { label: 'Системная тема', Icon: Monitor },
-  light: { label: 'Светлая тема', Icon: Sun },
-  dark: { label: 'Тёмная тема', Icon: Moon },
-} as const
 
 // No router yet (see CLAUDE.md) - navigation between the feedback screens
 // is local view state, same pattern App.tsx already uses for
@@ -41,28 +36,15 @@ export function FeedbackApp() {
   const [userView, setUserView] = useState<UserView>('create')
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null)
   const selectedTicket = tickets.find((ticket) => ticket.id === selectedTicketId)
-  const { label: themeLabel, Icon: ThemeIcon } = THEME_META[preference]
-
-  const themeToggle = (
-    <button
-      type="button"
-      className="fb-theme-toggle"
-      onClick={cycleTheme}
-      aria-label={`${themeLabel}. Нажмите, чтобы сменить`}
-      title={themeLabel}
-    >
-      <ThemeIcon size={16} aria-hidden="true" />
-    </button>
-  )
 
   const openTicket = (ticket: (typeof tickets)[number]) => {
-    if (ticket.category === 'idea') setSelectedTicketId(ticket.id)
+    if (ticket.category === 'idea' || ticket.category === 'bug') setSelectedTicketId(ticket.id)
   }
 
   if (mode === 'user') {
     return (
       <div className="fb-user-shell">
-        {themeToggle}
+        <ThemeToggle preference={preference} onCycle={cycleTheme} />
         <ModeSwitch mode={mode} onToggle={toggleMode} />
         <UserTabBar active={userView} onNavigate={setUserView} />
 
@@ -76,6 +58,15 @@ export function FeedbackApp() {
               onAddComment={(text, replyToId, attachments) => addComment(selectedTicket.id, text, replyToId, attachments)}
               onEditComment={(commentId, text) => editComment(selectedTicket.id, commentId, text)}
               onDeleteComment={(commentId) => deleteComment(selectedTicket.id, commentId)}
+            />
+          )}
+          {selectedTicket?.category === 'bug' && (
+            <ErrorDetailView
+              ticket={selectedTicket}
+              onBack={() => setSelectedTicketId(null)}
+              onToggleLike={() => toggleLike(selectedTicket.id)}
+              onStatusChange={(status) => updateStatus(selectedTicket.id, status)}
+              onSendMessage={(text, attachments) => addComment(selectedTicket.id, text, undefined, attachments)}
             />
           )}
           {!selectedTicket && userView === 'create' && (
@@ -103,9 +94,18 @@ export function FeedbackApp() {
 
   return (
     <div className="fb-app">
-      {themeToggle}
-      <ModeSwitch mode={mode} onToggle={toggleMode} />
-      <Sidebar active={view} onNavigate={setView} collapsed={collapsed} onToggleCollapsed={toggleCollapsed} />
+      <Sidebar
+        active={view}
+        onNavigate={setView}
+        collapsed={collapsed}
+        onToggleCollapsed={toggleCollapsed}
+        footer={
+          <>
+            <ModeSwitch mode={mode} onToggle={toggleMode} variant="inline" />
+            <ThemeToggle preference={preference} onCycle={cycleTheme} variant="inline" />
+          </>
+        }
+      />
 
       <main className="fb-main">
         {selectedTicket?.category === 'idea' && (
@@ -117,6 +117,15 @@ export function FeedbackApp() {
             onAddComment={(text, replyToId, attachments) => addComment(selectedTicket.id, text, replyToId, attachments)}
             onEditComment={(commentId, text) => editComment(selectedTicket.id, commentId, text)}
             onDeleteComment={(commentId) => deleteComment(selectedTicket.id, commentId)}
+          />
+        )}
+        {selectedTicket?.category === 'bug' && (
+          <ErrorDetailView
+            ticket={selectedTicket}
+            onBack={() => setSelectedTicketId(null)}
+            onToggleLike={() => toggleLike(selectedTicket.id)}
+            onStatusChange={(status) => updateStatus(selectedTicket.id, status)}
+            onSendMessage={(text, attachments) => addComment(selectedTicket.id, text, undefined, attachments)}
           />
         )}
         {!selectedTicket && view === 'all' && (

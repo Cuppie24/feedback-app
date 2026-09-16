@@ -1,4 +1,4 @@
-.fb-detail-comment { position: relative; isolation: isolate; border-radius: var(--radius-md); }
+.fb-detail-comment { container-type: inline-size; position: relative; isolation: isolate; border-radius: var(--radius-md); }
 .fb-detail-comment:has(.fb-assignee-popover) { z-index: 31; }
 .fb-detail-comment::after { position: absolute; z-index: -1; inset: calc(-1 * var(--space-8)); border-radius: var(--radius-md); background-color: transparent; content: ''; transition: background-color var(--duration-fast) var(--ease-in-out); }
 .fb-detail-comment.is-linked::before { position: absolute; top: 32px; bottom: 0; left: 13px; width: 1px; background: var(--color-border); content: ''; }
@@ -43,6 +43,13 @@
 .fb-detail-comment:hover .fb-detail-comment-action-button { opacity: 1; }
 .fb-detail-comment-action-button:hover { background: var(--color-surface-hover); color: var(--color-text); }
 .fb-detail-comment-action-button:focus-visible { opacity: 1; outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
+
+/* Keyed to this comment's own rendered width, not the viewport - a comment
+   can be cramped from a narrow side panel (ErrorDetailView's fixed 460px
+   discussion column) or reply nesting indent even while the window is wide. */
+@container (max-width: 480px) {
+  .fb-detail-comment-action-label { display: none; }
+}
 
 .fb-detail-toggle-replies { display: inline-flex; align-items: center; gap: var(--space-4); padding: 0; background: transparent; color: var(--color-text-muted); font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); cursor: pointer; }
 .fb-detail-toggle-replies:hover { color: var(--color-accent); }

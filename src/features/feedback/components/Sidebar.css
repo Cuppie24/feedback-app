@@ -230,6 +230,14 @@
   color: var(--color-tag-blue-icon);
 }
 
+/* Pinned to the bottom of the sidebar (margin-top: auto in the flex-column
+   .fb-sidebar-content) - houses the inline mode switch + theme toggle, see
+   FeedbackApp.tsx. Collapsed stacks them instead of squeezing both into a
+   64px-wide row. */
+.fb-sidebar-footer { display: flex; align-items: center; gap: var(--space-8); margin-top: auto; padding-top: var(--space-12); border-top: 1px solid var(--color-border); }
+
+.collapsed .fb-sidebar-footer { flex-direction: column; }
+
 @media (max-width: 900px) {
   .fb-sidebar,
   .fb-sidebar.collapsed {
@@ -251,6 +259,23 @@
 
   .fb-sidebar-brand-text,
   .fb-nav-label {
+    display: none;
+  }
+
+  .fb-sidebar-footer,
+  .collapsed .fb-sidebar-footer {
+    flex-direction: column;
+  }
+
+  .fb-mode-switch.inline,
+  .collapsed .fb-mode-switch.inline {
+    width: 100%;
+    justify-content: center;
+    padding: 0;
+  }
+
+  .fb-mode-switch.inline .fb-mode-switch-label,
+  .collapsed .fb-mode-switch.inline .fb-mode-switch-label {
     display: none;
   }
 

@@ -1,4 +1,5 @@
 import { Boxes, LayoutList, PanelLeftClose, PanelLeftOpen, Users, type LucideIcon } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { CATEGORY_ICON, CATEGORY_TONE } from '../data'
 import type { Category, TagTone } from '../types'
 import './Sidebar.css'
@@ -10,6 +11,7 @@ type SidebarProps = {
   onNavigate: (view: SidebarView) => void
   collapsed: boolean
   onToggleCollapsed: () => void
+  footer?: ReactNode
 }
 
 type NavItem = { view: SidebarView; label: string; Icon: LucideIcon; tone?: TagTone }
@@ -52,7 +54,7 @@ function NavButton({ view, label, Icon, tone, active, onNavigate }: NavButtonPro
   )
 }
 
-export function Sidebar({ active, onNavigate, collapsed, onToggleCollapsed }: SidebarProps) {
+export function Sidebar({ active, onNavigate, collapsed, onToggleCollapsed, footer }: SidebarProps) {
   return (
     <aside className={`fb-sidebar${collapsed ? ' collapsed' : ''}`}>
       <div className="fb-sidebar-content">
@@ -88,6 +90,8 @@ export function Sidebar({ active, onNavigate, collapsed, onToggleCollapsed }: Si
             ))}
           </div>
         </nav>
+
+        {footer && <div className="fb-sidebar-footer">{footer}</div>}
       </div>
     </aside>
   )

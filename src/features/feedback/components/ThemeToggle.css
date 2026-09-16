@@ -1,0 +1,43 @@
+.fb-theme-toggle {
+  position: fixed;
+  top: var(--space-16);
+  right: var(--space-24);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--control-height);
+  height: var(--control-height);
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-raised);
+  cursor: pointer;
+  transition: color var(--duration-instant) var(--ease-in-out),
+    background-color var(--duration-instant) var(--ease-in-out);
+}
+
+.fb-theme-toggle:hover {
+  color: var(--color-text);
+  background: var(--color-surface-hover);
+}
+
+.fb-theme-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-raised), var(--focus-ring);
+}
+
+/* Docked in the sidebar footer (Sidebar.css) instead of floating over the
+   viewport - no fixed positioning or elevation, sized to sit next to the
+   inline mode switch. */
+.fb-theme-toggle.inline {
+  position: static;
+  z-index: auto;
+  flex: none;
+  box-shadow: none;
+}
+
+.collapsed .fb-theme-toggle.inline {
+  width: 100%;
+}

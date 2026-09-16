@@ -103,13 +103,25 @@ export function CommentThread({ comment, depth, hasNextSibling, thread, resolveA
               </button>
               {!isAgent && (
                 <>
-                  <button type="button" className="fb-detail-comment-action-button" onClick={() => thread.startEditing(comment)}>
+                  <button
+                    type="button"
+                    className="fb-detail-comment-action-button"
+                    onClick={() => thread.startEditing(comment)}
+                    aria-label="Редактировать"
+                    title="Редактировать"
+                  >
                     <Pencil size={14} aria-hidden="true" />
-                    Редактировать
+                    <span className="fb-detail-comment-action-label">Редактировать</span>
                   </button>
-                  <button type="button" className="fb-detail-comment-action-button" onClick={() => thread.deleteComment(comment)}>
+                  <button
+                    type="button"
+                    className="fb-detail-comment-action-button"
+                    onClick={() => thread.deleteComment(comment)}
+                    aria-label="Удалить"
+                    title="Удалить"
+                  >
                     <Trash2 size={14} aria-hidden="true" />
-                    Удалить
+                    <span className="fb-detail-comment-action-label">Удалить</span>
                   </button>
                 </>
               )}

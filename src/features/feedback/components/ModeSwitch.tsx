@@ -5,6 +5,7 @@ import './ModeSwitch.css'
 type ModeSwitchProps = {
   mode: AppMode
   onToggle: () => void
+  variant?: 'floating' | 'inline'
 }
 
 const MODE_META: Record<AppMode, { label: string; switchTo: string; Icon: LucideIcon }> = {
@@ -12,19 +13,20 @@ const MODE_META: Record<AppMode, { label: string; switchTo: string; Icon: Lucide
   user: { label: 'Режим пользователя', switchTo: 'Переключиться в режим агента', Icon: User },
 }
 
-// Floating corner control that flips FeedbackApp between the full
-// sidebar/all-views agent layout and the two-tab user layout - see
-// FeedbackApp.tsx and useAppMode. Positioned like LoginPage's theme
-// toggle (fixed corner overlay), but carries a label since which mode
-// is active - and what clicking does - isn't inferable from a single
-// icon the way the theme toggle's sun/moon/monitor is.
-export function ModeSwitch({ mode, onToggle }: ModeSwitchProps) {
+// Flips FeedbackApp between the full sidebar/all-views agent layout and
+// the two-tab user layout - see FeedbackApp.tsx and useAppMode. 'floating'
+// (default) is a fixed corner overlay, like LoginPage's theme toggle, used
+// in the user-mode shell (which has no sidebar to dock into). 'inline'
+// docks in the agent sidebar's footer instead - see Sidebar.tsx. Carries a
+// label either way since which mode is active - and what clicking does -
+// isn't inferable from a single icon the way the theme toggle's is.
+export function ModeSwitch({ mode, onToggle, variant = 'floating' }: ModeSwitchProps) {
   const { label, switchTo, Icon } = MODE_META[mode]
 
   return (
     <button
       type="button"
-      className="fb-mode-switch"
+      className={`fb-mode-switch${variant === 'inline' ? ' inline' : ''}`}
       onClick={onToggle}
       aria-label={`${label}. ${switchTo}`}
       title={switchTo}
