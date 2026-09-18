@@ -17,13 +17,17 @@ type ErrorDetailViewProps = {
   onToggleLike: () => void
   onStatusChange: (status: Status | null) => void
   onSendMessage: (text: string, attachments: Attachment[]) => void
+  // User mode wants the discussion as a corner-docked floating card shown
+  // alongside the main panel (no backdrop, not modal); agent mode keeps
+  // the right-side sliding panel.
+  floatingComments?: boolean
 }
 
 const STATUS_OPTIONS = (Object.entries(STATUS_LABEL) as [Status, string][]).map(
   ([value, label]): TicketCellOption<Status> => ({ value, label, tone: STATUS_TONE[value] }),
 )
 
-export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, onSendMessage }: ErrorDetailViewProps) {
+export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, onSendMessage, floatingComments = false }: ErrorDetailViewProps) {
   // Comments are kept separate from the chat log (ticket.messages) - this
   // panel is for open discussion, the chat above it is the 1:1 thread with
   // the assignee. Local state for now: there's no seed/backend shape yet
@@ -71,7 +75,7 @@ export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, 
   const thread = useCommentThread({ comments, onAddComment: addComment, onEditComment: editComment, onDeleteComment: deleteComment })
 
   return (
-    <article className={`fb-error-detail${commentsOpen ? ' comments-open' : ''}`}>
+    <article className={`fb-error-detail${commentsOpen && !floatingComments ? ' comments-open' : ''}`}>
       <div className="fb-detail-content">
         <button type="button" className="fb-detail-back" onClick={onBack}>
           <ArrowLeft size={16} />
@@ -110,7 +114,11 @@ export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, 
             </button>
           )}
 
-          <aside className={`fb-error-comments-panel${commentsOpen ? ' open' : ''}`} aria-label="Обсуждение" aria-hidden={!commentsOpen}>
+          <aside
+            className={`fb-error-comments-panel${floatingComments ? ' floating' : ''}${commentsOpen ? ' open' : ''}`}
+            aria-label="Обсуждение"
+            aria-hidden={!commentsOpen}
+          >
             <div className="fb-error-comments-panel-bar">
               <button type="button" className="fb-error-comments-panel-close" onClick={() => setCommentsOpen(false)} aria-label="Закрыть обсуждение">
                 <X size={18} />

@@ -91,6 +91,31 @@
 }
 .fb-error-comments-panel.open { transform: translateX(0); pointer-events: auto; }
 
+/* User mode variant: a corner-docked floating card, not a modal - it sits
+   over the bottom-right corner (where its own trigger FAB lives) rather
+   than centering over and dimming the ticket behind it, so the main panel
+   stays fully visible and interactive while the card is open. No backdrop:
+   dismissed only by its own close button or Escape, same as the docked
+   sidebar variant. Scales/lifts in from that corner. `top` matches
+   .fb-user-header's rendered height (space-48 + 52px tab height +
+   space-24, see UserTabBar.css) so the card starts level with the ticket's
+   back button/title and spans down to the same bottom margin - update
+   both if that header's padding or tab height ever changes. */
+.fb-error-comments-panel.floating {
+  top: calc(var(--space-48) + 52px + var(--space-24));
+  left: auto;
+  right: var(--space-24);
+  bottom: var(--space-24);
+  width: 400px;
+  max-width: min(400px, 92vw);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transform: translateY(12px) scale(0.98);
+  opacity: 0;
+  transition: transform var(--duration-medium) var(--ease-out), opacity var(--duration-medium) var(--ease-out);
+}
+.fb-error-comments-panel.floating.open { transform: translateY(0) scale(1); opacity: 1; }
+
 .fb-error-comments-panel-bar { flex: none; display: flex; justify-content: flex-end; padding: var(--space-12); }
 .fb-error-comments-panel-close { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: var(--radius-md); background: transparent; color: var(--color-text-muted); cursor: pointer; }
 .fb-error-comments-panel-close:hover { background: var(--color-surface-hover); color: var(--color-text); }
@@ -107,4 +132,9 @@
   .fb-detail-header h1 { font-size: var(--font-size-heading); }
   .fb-detail-actions { align-self: flex-start; }
   .fb-error-comments-fab { right: var(--space-16); bottom: var(--space-16); }
+  .fb-error-comments-panel.floating {
+    top: calc(var(--space-32) + 44px + var(--space-16));
+    right: var(--space-16);
+    bottom: var(--space-16);
+  }
 }

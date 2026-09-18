@@ -67,6 +67,7 @@ export function FeedbackApp() {
               onToggleLike={() => toggleLike(selectedTicket.id)}
               onStatusChange={(status) => updateStatus(selectedTicket.id, status)}
               onSendMessage={(text, attachments) => addComment(selectedTicket.id, text, undefined, attachments)}
+              floatingComments
             />
           )}
           {!selectedTicket && userView === 'create' && (
