@@ -15,7 +15,7 @@ type TicketChatProps = {
 type MessageGroup = { sender: MessageSender; messages: Message[] }
 
 // Consecutive messages from the same sender render as one avatar/name with
-// stacked bubbles underneath, instead of repeating the meta row per message.
+// stacked message lines underneath, instead of repeating the meta row per message.
 function groupMessages(messages: Message[]): MessageGroup[] {
   const groups: MessageGroup[] = []
   for (const message of messages) {
@@ -66,29 +66,29 @@ export function TicketChat({ ticket, onSendMessage }: TicketChatProps) {
           const author = resolveAuthor(group.sender)
           return (
             <div key={index} className={`fb-chat-group${isOwn ? ' own' : ''}`}>
-              {!isOwn && (
-                <div className="fb-chat-group-meta">
-                  <UserPopover user={author} label="Исполнитель" showName />
-                  <span className="fb-chat-agent-label">Агент</span>
+              <UserPopover user={author} label={isOwn ? 'Вы' : 'Исполнитель'} />
+              <div className="fb-chat-content">
+                <div className="fb-chat-meta">
+                  <span className="fb-chat-name">{author ? author.name : isOwn ? 'Вы' : 'Исполнитель'}</span>
+                  <time className="fb-chat-time">{group.messages[0].time}</time>
                 </div>
-              )}
-              <div className="fb-chat-bubbles">
-                {group.messages.map((message, messageIndex) => (
-                  <div key={message.id} className="fb-chat-bubble">
-                    {message.text && <p>{message.text}</p>}
-                    {message.attachments.length > 0 && (
-                      <div className="fb-chat-attachments">
-                        {message.attachments.map((attachment) => (
-                          <a key={attachment.id} className="fb-chat-attachment" href={attachment.url} target="_blank" rel="noreferrer">
-                            {attachment.kind === 'image' ? <Image size={16} /> : <FileText size={16} />}
-                            <span>{attachment.name}</span>
-                          </a>
-                        ))}
-                      </div>
-                    )}
-                    {messageIndex === group.messages.length - 1 && <time>{message.time}</time>}
-                  </div>
-                ))}
+                <div className="fb-chat-messages">
+                  {group.messages.map((message) => (
+                    <div key={message.id} className="fb-chat-message">
+                      {message.text && <p>{message.text}</p>}
+                      {message.attachments.length > 0 && (
+                        <div className="fb-chat-attachments">
+                          {message.attachments.map((attachment) => (
+                            <a key={attachment.id} className="fb-chat-attachment" href={attachment.url} target="_blank" rel="noreferrer">
+                              {attachment.kind === 'image' ? <Image size={16} /> : <FileText size={16} />}
+                              <span>{attachment.name}</span>
+                            </a>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           )
