@@ -2,7 +2,6 @@ import { ArrowDown, ArrowUp } from 'lucide-react'
 import {
   CATEGORY_ICON,
   CATEGORY_LABEL,
-  CATEGORY_TONE,
   CATEGORY_VOTABLE,
   STATUS_LABEL,
   STATUS_TONE,
@@ -102,7 +101,6 @@ export function TicketList({
         const snippet = ticket.messages.at(-1)?.text ?? ticket.title
         const Icon = CATEGORY_ICON[ticket.category]
         const categoryLabel = CATEGORY_LABEL[ticket.category]
-        const categoryTone = CATEGORY_TONE[ticket.category]
 
         return (
           <div
@@ -120,7 +118,7 @@ export function TicketList({
           >
             {showCategory && (
               <span className="fb-row-cat" title={categoryLabel} aria-label={categoryLabel}>
-                <Icon className={`fb-row-cat-icon fb-row-cat-icon-${categoryTone}`} size={16} />
+                <Icon className="fb-row-cat-icon" size={16} />
               </span>
             )}
 

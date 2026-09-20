@@ -133,31 +133,20 @@
 
 .fb-row-cat-icon {
   flex: none;
-}
-
-.fb-row-cat-icon-neutral {
-  color: var(--color-tag-gray-icon);
-}
-
-.fb-row-cat-icon-info {
-  color: var(--color-tag-blue-icon);
-}
-
-.fb-row-cat-icon-success {
-  color: var(--color-tag-green-icon);
-}
-
-.fb-row-cat-icon-danger {
-  color: var(--color-tag-red-icon);
-}
-
-.fb-row-cat-icon-warning {
-  color: var(--color-tag-yellow-icon);
+  color: var(--color-text-subtle);
 }
 
 .fb-row-system {
   flex: none;
   width: 100px;
+}
+
+/* The system tag's hue (data.ts SYSTEM_TONE) stays meaningful in the
+   dropdown menu options, but flattened to neutral on the closed grid
+   cell - status is the only color-coded signal in the row. */
+.fb-row-system .fb-ticket-cell-trigger .fb-tag {
+  background: var(--color-neutral-wash);
+  color: var(--color-text);
 }
 
 .fb-row-status {
@@ -305,6 +294,7 @@
 .fb-row-assignee-initials {
   position: relative;
   z-index: 1;
+  flex: none;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -337,6 +327,19 @@
 
 .fb-row-assignee-avatar:hover::before {
   background: var(--color-surface-active);
+}
+
+/* Grid-only: the author/assignee avatar is UserPopover's shared trigger,
+   also used in chat/comment views where it should stay accent-colored -
+   scope the neutral override to the grid's own row containers. */
+.fb-row-author .fb-row-assignee-avatar,
+.fb-row-assignee .fb-row-assignee-avatar {
+  color: var(--color-text-muted);
+}
+
+.fb-row-author .fb-row-assignee-avatar::before,
+.fb-row-assignee .fb-row-assignee-avatar::before {
+  background: var(--color-neutral-wash);
 }
 
 .fb-row-assignee-avatar:active {
