@@ -5,8 +5,9 @@
 .fb-chat-group { display: flex; align-items: flex-start; gap: var(--space-12); }
 .fb-chat-group.own { flex-direction: row-reverse; }
 
-.fb-chat-group .fb-row-assignee-avatar { flex: none; width: 32px; height: 32px; }
-.fb-chat-group .fb-row-assignee-avatar::before { inset: 3px; }
+.fb-chat-group .fb-row-assignee-avatar { flex: none; width: 36px; height: 36px; font-size: 12px; }
+.fb-chat-group .fb-row-assignee-avatar::before { inset: 2px; }
+.fb-chat-group .fb-row-assignee-initials { width: 32px; height: 32px; }
 
 .fb-chat-content { flex: 0 1 auto; width: fit-content; min-width: 0; max-width: 72%; }
 
