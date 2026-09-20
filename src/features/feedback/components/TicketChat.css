@@ -12,17 +12,21 @@
 
 .fb-chat-meta { display: flex; align-items: baseline; gap: var(--space-8); }
 .fb-chat-group.own .fb-chat-meta { justify-content: flex-end; }
-.fb-chat-name { color: var(--color-text-muted); font-size: var(--font-size-ui); font-weight: var(--font-weight-medium); user-select: none; }
+.fb-chat-name { color: var(--color-text); font-size: var(--font-size-ui); font-weight: var(--font-weight-semibold); user-select: none; }
 .fb-chat-time { color: var(--color-text-subtle); font-size: var(--font-size-caption); user-select: none; }
 
-.fb-chat-messages { display: flex; flex-direction: column; gap: var(--space-12); margin-top: var(--space-8); }
-.fb-chat-message p { margin: 0; color: var(--color-text); line-height: var(--line-height-body); white-space: pre-wrap; }
-.fb-chat-group.own .fb-chat-message p { text-align: right; }
+.fb-chat-messages { display: flex; flex-direction: column; gap: var(--space-16); margin-top: var(--space-8); }
+.fb-chat-message { padding: var(--space-12) var(--space-16); border-radius: 16px; }
+.fb-chat-message p { margin: 0; color: var(--color-text); line-height: var(--line-height-body); white-space: pre-wrap; text-align: left; }
 
-.fb-chat-attachments { display: flex; flex-wrap: wrap; gap: var(--space-6); margin-top: var(--space-8); }
-.fb-chat-group.own .fb-chat-attachments { justify-content: flex-end; }
+.fb-chat-group:not(.own) .fb-chat-message { border: 1px solid var(--color-border-strong); background: var(--color-surface-sunken); }
+.fb-chat-group.own .fb-chat-message { background: var(--color-accent-wash); }
+
+.fb-chat-attachments { display: flex; flex-wrap: wrap; gap: var(--space-6); }
+.fb-chat-message p + .fb-chat-attachments { margin-top: var(--space-8); }
 .fb-chat-attachment { display: inline-flex; align-items: center; gap: var(--space-6); max-width: 100%; padding: var(--space-6) var(--space-8); border-radius: var(--radius-md); background: var(--color-surface-sunken); color: var(--color-text-muted); font-size: var(--font-size-caption); text-decoration: none; }
 .fb-chat-attachment:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.fb-chat-group.own .fb-chat-attachment { background: var(--color-bg); }
 
 .fb-chat-composer { width: 100%; margin-top: var(--space-24); padding: var(--space-8); border: 1px solid var(--color-border); border-radius: var(--radius-lg); background: var(--color-bg); transition: border-color var(--duration-fast) var(--ease-in-out); }
 .fb-chat-composer:focus-within { border-color: var(--color-accent); box-shadow: var(--focus-ring); }

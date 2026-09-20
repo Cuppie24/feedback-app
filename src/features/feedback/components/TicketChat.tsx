@@ -69,8 +69,17 @@ export function TicketChat({ ticket, onSendMessage }: TicketChatProps) {
               <UserPopover user={author} label={isOwn ? 'Вы' : 'Исполнитель'} />
               <div className="fb-chat-content">
                 <div className="fb-chat-meta">
-                  <span className="fb-chat-name">{author ? author.name : isOwn ? 'Вы' : 'Исполнитель'}</span>
-                  <time className="fb-chat-time">{group.messages[0].time}</time>
+                  {isOwn ? (
+                    <>
+                      <time className="fb-chat-time">{group.messages[0].time}</time>
+                      <span className="fb-chat-name">{author ? author.name : 'Вы'}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="fb-chat-name">{author ? author.name : 'Исполнитель'}</span>
+                      <time className="fb-chat-time">{group.messages[0].time}</time>
+                    </>
+                  )}
                 </div>
                 <div className="fb-chat-messages">
                   {group.messages.map((message) => (
