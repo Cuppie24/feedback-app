@@ -1,5 +1,9 @@
 .fb-error-detail {
+  display: flex;
+  flex-direction: column;
   width: 100%;
+  height: 100%;
+  overflow: hidden;
   animation: fb-view-in var(--duration-medium) var(--ease-out);
   transition: padding-right var(--duration-medium) var(--ease-out);
 }
@@ -9,7 +13,15 @@
    left over instead of sitting behind the panel. */
 .fb-error-detail.comments-open { padding-right: min(400px, 92vw); }
 
-.fb-detail-content { width: 100%; max-width: 820px; margin: 0 auto; padding: var(--space-32) var(--space-32) var(--space-48); }
+/* Only this scrolls - the composer dock below is a fixed footer outside
+   it, same split as SuggestionDetailView's .fb-detail-scroll +
+   .fb-detail-composer-dock. */
+.fb-detail-scroll { flex: 1; min-height: 0; overflow-y: auto; }
+.fb-detail-content { width: 100%; max-width: 820px; margin: 0 auto; padding: var(--space-32) var(--space-32) 0; }
+
+.fb-detail-composer-dock { position: relative; z-index: 2; flex: none; padding: var(--space-12) var(--space-32) var(--space-16); border-top: 1px solid var(--color-border); background: var(--color-bg); }
+.fb-detail-composer-panel { width: 100%; max-width: 756px; margin: 0 auto; }
+.fb-detail-composer-dock .fb-composer { margin: 0; }
 
 .fb-detail-back {
   display: inline-flex;
@@ -38,11 +50,16 @@
 /* Floating trigger, bottom-right (theme toggle + mode switch already own
    the top-right corner). Hidden while the panel is open - its own close
    button in the bar takes over, so there's never two ways to do the same
-   thing on screen at once. */
+   thing on screen at once. Sits above the composer dock rather than
+   overlapping it - the dock can grow (reply bar, pending attachments, a
+   wrapped textarea), so ErrorDetailView measures it with a ResizeObserver
+   and overrides `bottom` inline; 80px below is just the initial/fallback
+   value, matching the dock's collapsed height (padding + a single-line
+   composer, see .fb-detail-composer-dock/.fb-composer). */
 .fb-error-comments-fab {
   position: fixed;
   right: var(--space-24);
-  bottom: var(--space-24);
+  bottom: calc(80px + var(--space-16));
   z-index: 40;
   display: inline-flex;
   align-items: center;
@@ -125,13 +142,15 @@
 .fb-error-comments-panel-body .fb-detail-comments { padding: 0 0 var(--space-24); }
 
 .fb-error-comments-panel-composer { flex: none; padding: var(--space-12) var(--space-24) var(--space-16); border-top: 1px solid var(--color-border); }
-.fb-error-comments-panel-composer .fb-detail-comment-composer { margin-top: 0; }
+.fb-error-comments-panel-composer .fb-composer { margin-top: 0; }
 
 @media (max-width: 640px) {
-  .fb-detail-content { padding: var(--space-24) var(--space-16) var(--space-32); }
+  .fb-detail-content { padding: var(--space-24) var(--space-16) 0; }
+  .fb-detail-composer-dock { padding: var(--space-12) var(--space-16) var(--space-16); }
   .fb-detail-header h1 { font-size: var(--font-size-heading); }
   .fb-detail-actions { align-self: flex-start; }
-  .fb-error-comments-fab { right: var(--space-16); bottom: var(--space-16); }
+  /* bottom stays JS-driven (inline style) at every width - only right needs a mobile override. */
+  .fb-error-comments-fab { right: var(--space-16); }
   .fb-error-comments-panel.floating {
     top: calc(var(--space-32) + 44px + var(--space-16));
     right: var(--space-16);

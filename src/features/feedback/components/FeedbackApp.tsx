@@ -66,7 +66,9 @@ export function FeedbackApp() {
               onBack={() => setSelectedTicketId(null)}
               onToggleLike={() => toggleLike(selectedTicket.id)}
               onStatusChange={(status) => updateStatus(selectedTicket.id, status)}
-              onSendMessage={(text, attachments) => addComment(selectedTicket.id, text, undefined, attachments)}
+              onSendMessage={(text, attachments, replyToId) => addComment(selectedTicket.id, text, replyToId, attachments)}
+              onEditMessage={(messageId, text) => editComment(selectedTicket.id, messageId, text)}
+              onDeleteMessage={(messageId) => deleteComment(selectedTicket.id, messageId)}
               floatingComments
             />
           )}
@@ -126,7 +128,9 @@ export function FeedbackApp() {
             onBack={() => setSelectedTicketId(null)}
             onToggleLike={() => toggleLike(selectedTicket.id)}
             onStatusChange={(status) => updateStatus(selectedTicket.id, status)}
-            onSendMessage={(text, attachments) => addComment(selectedTicket.id, text, undefined, attachments)}
+            onSendMessage={(text, attachments, replyToId) => addComment(selectedTicket.id, text, replyToId, attachments)}
+            onEditMessage={(messageId, text) => editComment(selectedTicket.id, messageId, text)}
+            onDeleteMessage={(messageId) => deleteComment(selectedTicket.id, messageId)}
           />
         )}
         {!selectedTicket && view === 'all' && (

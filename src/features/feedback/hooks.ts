@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { ClipboardEvent, Dispatch, FormEvent, KeyboardEvent as ReactKeyboardEvent, RefObject, SetStateAction } from 'react'
 import { INITIAL_TICKETS, USERS } from './data'
-import type { Attachment, Message, NewFeedbackInput, Status, System, Ticket } from './types'
+import type { Attachment, Message, MessageSender, NewFeedbackInput, Status, System, Ticket } from './types'
 import { buildCommentTree, extOf, formatFileSize, type CommentNode } from './utils'
 
 const SIDEBAR_STORAGE_KEY = 'feedback-app-sidebar-collapsed'
@@ -220,6 +220,172 @@ export function useAttachments() {
   return { attachments, addFiles, removeAttachment, clearAttachments }
 }
 
+type MessageGroup = { sender: MessageSender; messages: Message[] }
+
+// Consecutive messages from the same sender render as one avatar/name with
+// stacked message lines underneath, instead of repeating the meta row per message.
+function groupMessages(messages: Message[]): MessageGroup[] {
+  const groups: MessageGroup[] = []
+  for (const message of messages) {
+    const lastGroup = groups[groups.length - 1]
+    if (lastGroup && lastGroup.sender === message.sender) lastGroup.messages.push(message)
+    else groups.push({ sender: message.sender, messages: [message] })
+  }
+  return groups
+}
+
+type UseTicketChatOptions = {
+  ticket: Ticket
+  onSendMessage: (text: string, attachments: Attachment[], replyToId?: string) => void
+  onEditMessage: (messageId: string, text: string) => void
+  onDeleteMessage: (messageId: string) => void
+}
+
+// Backing state for the ticket chat log + composer: reply target, inline
+// editing, scroll-to-message refs, and the composer's own text/attachments -
+// same state-hook-plus-renderer split as useCommentThread (TicketChatLog and
+// MessageComposer both read off this one object), but for the ticket's flat
+// 1:1 message log instead of a threaded comment tree.
+export function useTicketChat({ ticket, onSendMessage, onEditMessage, onDeleteMessage }: UseTicketChatOptions) {
+  const [text, setText] = useState('')
+  const [replyTo, setReplyTo] = useState<Message | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editText, setEditText] = useState('')
+  const [editError, setEditError] = useState('')
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const messageRefs = useRef(new Map<string, HTMLElement>())
+  const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null)
+  const highlightTimerRef = useRef<number | null>(null)
+  const highlightFrameRef = useRef<number | null>(null)
+  const { attachments, addFiles, removeAttachment, clearAttachments } = useAttachments()
+  const groups = groupMessages(ticket.messages)
+
+  useEffect(() => {
+    if (replyTo) inputRef.current?.focus()
+  }, [replyTo])
+
+  useEffect(() => () => {
+    if (highlightTimerRef.current !== null) window.clearTimeout(highlightTimerRef.current)
+    if (highlightFrameRef.current !== null) window.cancelAnimationFrame(highlightFrameRef.current)
+  }, [])
+
+  function resolveAuthor(sender: MessageSender) {
+    return sender === 'agent' ? ticket.assignee : USERS.me
+  }
+
+  function registerMessageRef(messageId: string, element: HTMLElement | null) {
+    if (element) messageRefs.current.set(messageId, element)
+    else messageRefs.current.delete(messageId)
+  }
+
+  // Same scroll-then-pulse as useCommentThread's scrollToComment: clear any
+  // in-flight highlight first and re-add it a frame later, so retriggering
+  // on the same message (click "reply" reference twice) restarts the pulse
+  // instead of no-op'ing because the class never left.
+  function scrollToMessage(messageId: string) {
+    const target = messageRefs.current.get(messageId)
+    if (!target) return
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    target.focus({ preventScroll: true })
+    if (highlightTimerRef.current !== null) window.clearTimeout(highlightTimerRef.current)
+    if (highlightFrameRef.current !== null) window.cancelAnimationFrame(highlightFrameRef.current)
+    setHighlightedMessageId(null)
+    highlightFrameRef.current = window.requestAnimationFrame(() => {
+      setHighlightedMessageId(messageId)
+      highlightTimerRef.current = window.setTimeout(() => {
+        setHighlightedMessageId(null)
+        highlightTimerRef.current = null
+      }, 2600) // matches fb-chat-message-pulse's animation-duration in TicketChatLog.css
+      highlightFrameRef.current = null
+    })
+  }
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    const value = text.trim()
+    if (!value && attachments.length === 0) return
+    onSendMessage(value, attachments, replyTo?.id)
+    setText('')
+    setReplyTo(null)
+    clearAttachments()
+  }
+
+  function startReply(message: Message) {
+    setReplyTo(message)
+  }
+
+  function cancelReply() {
+    setReplyTo(null)
+  }
+
+  function startEditing(message: Message) {
+    setEditingId(message.id)
+    setEditText(message.text)
+    setEditError('')
+  }
+
+  function cancelEditing() {
+    setEditingId(null)
+    setEditText('')
+    setEditError('')
+  }
+
+  function updateEditText(value: string) {
+    setEditText(value)
+    setEditError('')
+  }
+
+  function submitEdit(event: FormEvent<HTMLFormElement>, message: Message) {
+    event.preventDefault()
+    const value = editText.trim()
+    if (!value && message.attachments.length === 0) {
+      setEditError('Введите текст сообщения.')
+      return
+    }
+    onEditMessage(message.id, value)
+    cancelEditing()
+  }
+
+  function deleteMessage(message: Message) {
+    if (!window.confirm('Удалить сообщение?')) return
+    if (editingId === message.id) cancelEditing()
+    if (replyTo?.id === message.id) setReplyTo(null)
+    onDeleteMessage(message.id)
+  }
+
+  const replyToAuthor = replyTo ? resolveAuthor(replyTo.sender) : undefined
+  const replyToName = replyTo ? (replyTo.sender === 'me' ? 'себя' : replyToAuthor?.name ?? 'Исполнителя') : ''
+
+  return {
+    groups,
+    resolveAuthor,
+    registerMessageRef,
+    scrollToMessage,
+    highlightedMessageId,
+    text,
+    setText,
+    submit,
+    inputRef,
+    replyTo,
+    replyToName,
+    startReply,
+    cancelReply,
+    attachments,
+    addFiles,
+    removeAttachment,
+    editingId,
+    editText,
+    updateEditText,
+    editError,
+    startEditing,
+    cancelEditing,
+    submitEdit,
+    deleteMessage,
+  }
+}
+
+export type TicketChatState = ReturnType<typeof useTicketChat>
+
 type UseCommentThreadOptions = {
   comments: Message[]
   onAddComment: (text: string, replyToId?: string, attachments?: Attachment[]) => string
@@ -236,7 +402,6 @@ export function useCommentThread({ comments, onAddComment, onEditComment, onDele
   const commentTree = buildCommentTree(comments)
   const [commentText, setCommentText] = useState('')
   const [replyToId, setReplyToId] = useState<string | null>(null)
-  const [commentError, setCommentError] = useState('')
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
   const [editError, setEditError] = useState('')
@@ -314,13 +479,6 @@ export function useCommentThread({ comments, onAddComment, onEditComment, onDele
   }
 
   useEffect(() => {
-    const input = commentInputRef.current
-    if (!input) return
-    input.style.height = 'auto'
-    input.style.height = `${Math.min(input.scrollHeight, 160)}px`
-  }, [commentText])
-
-  useEffect(() => {
     if (replyToId) commentInputRef.current?.focus()
   }, [replyToId])
 
@@ -351,19 +509,16 @@ export function useCommentThread({ comments, onAddComment, onEditComment, onDele
   function submitComment(event: FormEvent<HTMLFormElement>) {
     event.preventDefault()
     const text = commentText.trim()
-    if (!text && attachments.length === 0) {
-      setCommentError('Введите текст комментария или прикрепите файл.')
-      return
-    }
+    if (!text && attachments.length === 0) return
     const commentId = onAddComment(text, replyToId ?? undefined, attachments)
     if (replyToId) expandReplies(replyToId)
     setCommentText('')
     setReplyToId(null)
-    setCommentError('')
     clearAttachments()
     if (submittedScrollFrameRef.current !== null) window.cancelAnimationFrame(submittedScrollFrameRef.current)
     submittedScrollFrameRef.current = window.requestAnimationFrame(() => {
       scrollToComment(commentId)
+      commentInputRef.current?.focus({ preventScroll: true })
       submittedScrollFrameRef.current = null
     })
   }
@@ -428,7 +583,6 @@ export function useCommentThread({ comments, onAddComment, onEditComment, onDele
 
   function updateCommentText(value: string) {
     setCommentText(value)
-    setCommentError('')
   }
 
   function updateEditText(value: string) {
@@ -447,7 +601,6 @@ export function useCommentThread({ comments, onAddComment, onEditComment, onDele
     commentTree,
     commentText,
     updateCommentText,
-    commentError,
     replyTarget,
     startReply,
     cancelReply,

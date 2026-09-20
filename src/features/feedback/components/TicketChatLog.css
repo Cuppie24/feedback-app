@@ -1,0 +1,85 @@
+.fb-chat { padding: var(--space-32) 0 var(--space-24); }
+
+.fb-chat-log { display: flex; flex-direction: column; gap: var(--space-16); }
+
+.fb-chat-group { display: flex; align-items: flex-start; gap: var(--space-12); }
+.fb-chat-group.own { flex-direction: row-reverse; }
+
+.fb-chat-group .fb-row-assignee-avatar { flex: none; width: 36px; height: 36px; font-size: 12px; }
+.fb-chat-group .fb-row-assignee-avatar::before { inset: 2px; }
+.fb-chat-group .fb-row-assignee-initials { width: 32px; height: 32px; }
+
+.fb-chat-content { flex: 0 1 auto; width: fit-content; max-width: 72%; }
+
+.fb-chat-meta { display: flex; align-items: baseline; gap: var(--space-8); }
+.fb-chat-group.own .fb-chat-meta { justify-content: flex-end; }
+.fb-chat-name { color: var(--color-text); font-size: var(--font-size-ui); font-weight: var(--font-weight-semibold); user-select: none; }
+.fb-chat-time { color: var(--color-text-subtle); font-size: var(--font-size-caption); user-select: none; }
+
+.fb-chat-messages { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-32); margin-top: var(--space-8); }
+.fb-chat-group.own .fb-chat-messages { align-items: flex-end; }
+.fb-chat-message { position: relative; }
+.fb-chat-bubble { padding: var(--space-12) var(--space-16); border-radius: 16px; }
+.fb-chat-bubble p { margin: 0; color: var(--color-text); line-height: var(--line-height-body); white-space: pre-wrap; text-align: left; }
+
+.fb-chat-group:not(.own) .fb-chat-bubble { background: var(--color-surface-sunken); }
+.fb-chat-group.own .fb-chat-bubble { background: var(--color-accent-wash); }
+
+/* Same jump-to-message pulse as CommentThread's is-highlighted, but as a
+   ring rather than a background swap - bubbles already carry their own
+   fill (surface-sunken / accent-wash), so pulsing the background wouldn't
+   read consistently on both. */
+.fb-chat-bubble:focus-visible { outline: none; }
+.fb-chat-bubble.is-highlighted { animation: fb-chat-message-pulse 2.6s var(--ease-in-out); }
+@keyframes fb-chat-message-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 transparent; }
+  20%, 70% { box-shadow: 0 0 0 4px var(--color-accent); }
+}
+
+.fb-chat-quote { display: flex; flex-direction: column; gap: 2px; width: 100%; margin-bottom: var(--space-8); padding: var(--space-4) var(--space-8); border: 0; border-left: 2px solid var(--color-accent); border-radius: var(--radius-sm); background: var(--color-surface-hover); text-align: left; cursor: pointer; }
+.fb-chat-quote:hover { background: var(--color-surface-active); }
+.fb-chat-quote:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.fb-chat-quote-author { color: var(--color-accent); font-size: var(--font-size-caption); font-weight: var(--font-weight-semibold); }
+.fb-chat-quote-text { overflow: hidden; color: var(--color-text-muted); font-size: var(--font-size-caption); text-overflow: ellipsis; white-space: nowrap; }
+
+.fb-chat-edit textarea { display: block; width: 100%; min-height: 60px; resize: vertical; padding: var(--space-8) var(--space-10); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg); color: var(--color-text); font: inherit; line-height: var(--line-height-body); }
+.fb-chat-edit textarea:focus { outline: none; border-color: var(--color-accent); box-shadow: var(--focus-ring); }
+.fb-chat-edit-error { margin-top: var(--space-6); color: var(--color-danger); font-size: var(--font-size-caption); }
+.fb-chat-edit-actions { display: flex; align-items: center; gap: var(--space-6); margin-top: var(--space-8); }
+.fb-chat-edit-save,
+.fb-chat-edit-cancel { display: inline-flex; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-8); border-radius: var(--radius-sm); font-size: var(--font-size-caption); font-weight: var(--font-weight-semibold); cursor: pointer; }
+.fb-chat-edit-save { background: var(--color-accent); color: var(--color-text-on-accent); }
+.fb-chat-edit-save:hover { background: var(--color-accent-hover); }
+.fb-chat-edit-cancel { background: transparent; color: var(--color-text-muted); }
+.fb-chat-edit-cancel:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.fb-chat-edit-save:focus-visible,
+.fb-chat-edit-cancel:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+
+/* Absolutely positioned (out of normal flow) rather than a plain in-flow
+   row: a block's shrink-to-fit width is the max of ALL its children's
+   widths, so with labels like "Редактировать" this row - despite being
+   invisible until hover - was forcing every bubble to its width instead of
+   the bubble's own text width. .fb-chat-messages' gap now reserves the
+   vertical space this used to take up in flow. */
+/* width: max-content, not auto - an absolutely positioned auto-width box
+   with only one inset side set (left here, or right for .own below) still
+   shrink-to-fits *clamped by the containing block's width*, which is now
+   the narrow bubble-sized message box; max-content sizes it to its own
+   labels regardless, so it can overflow past the bubble's edge instead of
+   wrapping into a column. */
+.fb-chat-message-actions { position: absolute; top: 100%; left: 0; width: max-content; display: flex; align-items: center; flex-wrap: wrap; gap: var(--space-12); min-height: var(--space-24); margin-top: var(--space-4); }
+.fb-chat-group.own .fb-chat-message-actions { left: auto; right: 0; justify-content: flex-end; }
+.fb-chat-message-action-button { display: inline-flex; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-8); border-radius: var(--radius-sm); background: transparent; color: var(--color-text-muted); font-size: var(--font-size-caption); font-weight: var(--font-weight-semibold); opacity: 0; cursor: pointer; transition: opacity var(--duration-instant) var(--ease-in-out), background-color var(--duration-instant) var(--ease-in-out), color var(--duration-instant) var(--ease-in-out); }
+.fb-chat-message:hover .fb-chat-message-action-button { opacity: 1; }
+.fb-chat-message-action-button:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.fb-chat-message-action-button:focus-visible { opacity: 1; outline: none; box-shadow: var(--focus-ring); border-radius: var(--radius-sm); }
+
+@media (hover: none) {
+  .fb-chat-message-action-button { opacity: 1; }
+}
+
+.fb-chat-attachments { display: flex; flex-wrap: wrap; gap: var(--space-6); }
+.fb-chat-bubble p + .fb-chat-attachments { margin-top: var(--space-8); }
+.fb-chat-attachment { display: inline-flex; align-items: center; gap: var(--space-6); max-width: 100%; padding: var(--space-6) var(--space-8); border-radius: var(--radius-md); background: var(--color-surface-sunken); color: var(--color-text-muted); font-size: var(--font-size-caption); text-decoration: none; }
+.fb-chat-attachment:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.fb-chat-group.own .fb-chat-attachment { background: var(--color-bg); }
