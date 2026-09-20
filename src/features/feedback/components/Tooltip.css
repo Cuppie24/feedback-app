@@ -1,0 +1,33 @@
+.fb-tooltip {
+  position: relative;
+  display: inline-flex;
+}
+
+.fb-tooltip-content {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + var(--space-6));
+  left: 50%;
+  padding: 3px var(--space-6);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-overlay);
+  color: var(--color-text);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -2px);
+  transition:
+    opacity var(--duration-fast) var(--ease-in-out),
+    transform var(--duration-fast) var(--ease-in-out);
+}
+
+.fb-tooltip[data-show-on-hover='true']:hover .fb-tooltip-content,
+.fb-tooltip[data-show-on-hover='true']:focus-within .fb-tooltip-content,
+.fb-tooltip[data-open='true'] .fb-tooltip-content {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}

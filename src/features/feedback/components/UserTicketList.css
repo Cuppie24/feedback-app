@@ -101,6 +101,35 @@
   white-space: nowrap;
 }
 
+.fb-user-ticket-id {
+  position: relative;
+  flex: none;
+  padding: 2px var(--space-6);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-subtle);
+  font-family: inherit;
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-instant) var(--ease-in-out),
+    color var(--duration-instant) var(--ease-in-out);
+  user-select: none;
+}
+
+.fb-user-ticket-id:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text);
+}
+
+.fb-user-ticket-id:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
 .fb-user-ticket-title {
   min-width: 0;
   flex: 1;

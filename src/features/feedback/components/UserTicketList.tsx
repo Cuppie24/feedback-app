@@ -1,7 +1,9 @@
-import { ChevronRight, Heart, MessageCircle } from 'lucide-react'
+import { ChevronRight, Copy, Heart, MessageCircle } from 'lucide-react'
+import { useRef, useState } from 'react'
 import { CATEGORY_VOTABLE, STATUS_LABEL, STATUS_TONE, SYSTEM_LABEL, hasUnreadMessages } from '../data'
 import type { Ticket } from '../types'
 import { Tag } from './Tag'
+import { Toast } from './Toast'
 import { VoteButton } from './VoteButton'
 import './UserTicketList.css'
 
@@ -21,12 +23,37 @@ export function UserTicketList({
   onToggleLike,
   onOpenTicket,
 }: UserTicketListProps) {
+  const [copiedTicketId, setCopiedTicketId] = useState<string | null>(null)
+  const [copyToastLeaving, setCopyToastLeaving] = useState(false)
+  const leaveTimeoutRef = useRef<number | null>(null)
+  const closeTimeoutRef = useRef<number | null>(null)
+
+  async function copyTicketId(ticketId: string) {
+    try {
+      await navigator.clipboard.writeText(ticketId)
+      if (leaveTimeoutRef.current !== null) window.clearTimeout(leaveTimeoutRef.current)
+      if (closeTimeoutRef.current !== null) window.clearTimeout(closeTimeoutRef.current)
+      setCopiedTicketId(ticketId)
+      setCopyToastLeaving(false)
+      leaveTimeoutRef.current = window.setTimeout(() => {
+        setCopyToastLeaving(true)
+      }, 1300)
+      closeTimeoutRef.current = window.setTimeout(() => {
+        setCopiedTicketId(null)
+        setCopyToastLeaving(false)
+      }, 1600)
+    } catch {
+      setCopiedTicketId(null)
+    }
+  }
+
   if (tickets.length === 0) {
     return <p className="fb-user-ticket-list-empty">{emptyMessage}</p>
   }
 
   return (
-    <div className="fb-user-ticket-list">
+    <>
+      <div className="fb-user-ticket-list">
       {tickets.map((ticket) => {
         const snippet = ticket.messages.at(-1)?.text ?? ticket.title
         const unreadMessages = hasUnreadMessages(ticket) ? 1 : 0
@@ -46,6 +73,18 @@ export function UserTicketList({
             }}
           >
             <div className="fb-user-ticket-title-row">
+              <button
+                type="button"
+                className="fb-user-ticket-id"
+                onClick={(event) => {
+                  event.stopPropagation()
+                  void copyTicketId(ticket.id)
+                }}
+                onKeyDown={(event) => event.stopPropagation()}
+                aria-label={copiedTicketId === ticket.id ? `Номер обращения ${ticket.id} скопирован` : `Скопировать номер обращения ${ticket.id}`}
+              >
+                {ticket.id}
+              </button>
               <h2 className="fb-user-ticket-title">{ticket.title}</h2>
               <span className="fb-user-ticket-time" title={new Date(ticket.createdAt).toLocaleString('ru-RU')}>
                 {ticket.time}
@@ -87,6 +126,10 @@ export function UserTicketList({
           </article>
         )
       })}
-    </div>
+      </div>
+      <Toast Icon={Copy} open={copiedTicketId !== null} leaving={copyToastLeaving}>
+        Скопировано
+      </Toast>
+    </>
   )
 }
