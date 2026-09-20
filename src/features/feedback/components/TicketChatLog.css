@@ -22,8 +22,8 @@
 .fb-chat-bubble { padding: var(--space-12) var(--space-16); border-radius: 16px; }
 .fb-chat-bubble p { margin: 0; color: var(--color-text); line-height: var(--line-height-body); white-space: pre-wrap; text-align: left; }
 
-.fb-chat-group:not(.own) .fb-chat-bubble { background: var(--color-surface-sunken); }
-.fb-chat-group.own .fb-chat-bubble { background: var(--color-accent-wash); }
+.fb-chat-group:not(.own) .fb-chat-bubble { background: var(--color-surface-sunken); border-top-left-radius: var(--radius-sm); }
+.fb-chat-group.own .fb-chat-bubble { background: var(--color-accent-wash); border-top-right-radius: var(--radius-sm); }
 
 /* Same jump-to-message pulse as CommentThread's is-highlighted, but as a
    ring rather than a background swap - bubbles already carry their own
