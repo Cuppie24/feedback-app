@@ -24,33 +24,23 @@ export function CategoryTicketsView({
   onStatusChange,
   onOpenTicket,
 }: CategoryTicketsViewProps) {
-  const [search, setSearch] = useState('')
   const [statuses, setStatuses] = useState<Status[]>([])
   const [systems, setSystems] = useState<System[]>([])
   const [sort, setSort] = useState<TicketSort>('newest')
   const CategoryIcon = CATEGORY_ICON[category]
 
   const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase()
     const matches = tickets.filter((ticket) => {
       if (ticket.category !== category) return false
       if (statuses.length > 0 && (ticket.status === null || !statuses.includes(ticket.status))) return false
       if (systems.length > 0 && (ticket.system === null || !systems.includes(ticket.system))) return false
-      if (!query) return true
-      const snippet = ticket.messages.at(-1)?.text ?? ''
-      return (
-        ticket.id.toLowerCase().includes(query) ||
-        ticket.title.toLowerCase().includes(query) ||
-        snippet.toLowerCase().includes(query) ||
-        ticket.author.name.toLowerCase().includes(query) ||
-        ticket.assignee?.name.toLowerCase().includes(query)
-      )
+      return true
     })
 
     if (sort === 'popular') return [...matches].sort(comparePopularity)
     if (sort === 'oldest') return [...matches].sort((a, b) => a.createdAt - b.createdAt)
     return [...matches].sort((a, b) => b.createdAt - a.createdAt)
-  }, [tickets, category, search, statuses, systems, sort])
+  }, [tickets, category, statuses, systems, sort])
 
   return (
     <div className="fb-view-wide">
@@ -71,8 +61,6 @@ export function CategoryTicketsView({
       />
 
       <SearchFilterBar
-        search={search}
-        onSearchChange={setSearch}
         statuses={statuses}
         onStatusesChange={setStatuses}
         systems={systems}

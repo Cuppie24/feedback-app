@@ -16,7 +16,7 @@ type SearchPaletteProps = {
   onSelectTicket: (ticket: Ticket) => void
 }
 
-const RESULT_LIMIT = 8
+const RESULT_LIMIT = 12
 
 function isMac() {
   return /Mac|iPod|iPhone|iPad/.test(navigator.platform)
@@ -91,7 +91,11 @@ export function SearchPalette({ open, query, onQueryChange, onOpen, onClose, tic
         aria-label={`Поиск по обращениям. Сочетание клавиш ${isMac() ? 'Cmd+K' : 'Ctrl+K'}`}
         title="Поиск по обращениям"
       >
-        <Search size={16} aria-hidden="true" />
+        <Search size={15} aria-hidden="true" />
+        <span className="fb-search-trigger-label">Поиск</span>
+        <kbd className="fb-search-trigger-kbd" aria-hidden="true">
+          {isMac() ? 'Cmd+K' : 'Ctrl+K'}
+        </kbd>
       </button>
 
       {open &&

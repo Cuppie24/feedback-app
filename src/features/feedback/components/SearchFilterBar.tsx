@@ -1,4 +1,4 @@
-import { Layers, ListFilter, Search, X } from 'lucide-react'
+import { Layers, ListFilter, X } from 'lucide-react'
 import { STATUS_LABEL, STATUS_TONE, SYSTEM_LABEL, SYSTEM_TONE } from '../data'
 import type { Status, System, TagTone } from '../types'
 import { Combobox, type ComboboxOption } from './Combobox'
@@ -19,8 +19,6 @@ const SYSTEM_OPTIONS = (Object.entries(SYSTEM_LABEL) as [System, string][]).map(
 }))
 
 export type SearchFilterBarProps = {
-  search: string
-  onSearchChange: (value: string) => void
   statuses: Status[]
   onStatusesChange: (value: Status[]) => void
   systems: System[]
@@ -33,8 +31,6 @@ export type SearchFilterBarProps = {
 export type TicketSort = 'newest' | 'oldest' | 'popular' | 'unread'
 
 export function SearchFilterBar({
-  search,
-  onSearchChange,
   statuses,
   onStatusesChange,
   systems,
@@ -43,10 +39,9 @@ export function SearchFilterBar({
   onSortChange,
   showUnreadSort = false,
 }: SearchFilterBarProps) {
-  const hasActiveFilters = statuses.length > 0 || systems.length > 0 || search.trim().length > 0
+  const hasActiveFilters = statuses.length > 0 || systems.length > 0
 
   function clearAll() {
-    onSearchChange('')
     onStatusesChange([])
     onSystemsChange([])
   }
@@ -54,18 +49,6 @@ export function SearchFilterBar({
   return (
     <div className="fb-database-toolbar">
       <div className="fb-filter-bar">
-        <div className="fb-search-field">
-          <Search className="fb-search-icon" size={15} strokeWidth={3} />
-          <input
-            className="fb-search-input"
-            type="search"
-            aria-label="Поиск по обращениям"
-            placeholder="Поиск..."
-            value={search}
-            onChange={(event) => onSearchChange(event.target.value)}
-          />
-        </div>
-
         <Combobox
           label="Статус"
           Icon={ListFilter}

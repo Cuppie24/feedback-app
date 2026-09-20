@@ -15,7 +15,6 @@ export function MyTicketsView({
   tickets,
   onOpenTicket,
 }: MyTicketsViewProps) {
-  const [search, setSearch] = useState('')
   const [category, setCategory] = useState<Category>('bug')
   const [statuses, setStatuses] = useState<Status[]>([])
   const [systems, setSystems] = useState<System[]>([])
@@ -24,20 +23,12 @@ export function MyTicketsView({
   const hasAny = tickets.some((ticket) => ticket.mine)
 
   const filtered = useMemo(() => {
-    const query = search.trim().toLowerCase()
     const matches = tickets.filter((ticket) => {
       if (!ticket.mine) return false
       if (category !== null && ticket.category !== category) return false
       if (statuses.length > 0 && (ticket.status === null || !statuses.includes(ticket.status))) return false
       if (systems.length > 0 && (ticket.system === null || !systems.includes(ticket.system))) return false
-      if (!query) return true
-      const snippet = ticket.messages.at(-1)?.text ?? ''
-      return (
-        ticket.id.toLowerCase().includes(query) ||
-        ticket.title.toLowerCase().includes(query) ||
-        snippet.toLowerCase().includes(query) ||
-        ticket.assignee?.name.toLowerCase().includes(query)
-      )
+      return true
     })
 
     if (sort === 'popular') return [...matches].sort(comparePopularity)
@@ -46,7 +37,7 @@ export function MyTicketsView({
       return [...matches].sort((a, b) => Number(hasUnreadMessages(b)) - Number(hasUnreadMessages(a)) || b.createdAt - a.createdAt)
     }
     return [...matches].sort((a, b) => b.createdAt - a.createdAt)
-  }, [tickets, search, category, statuses, systems, sort])
+  }, [tickets, category, statuses, systems, sort])
 
   return (
     <div className="fb-user-ticket-view">
@@ -55,8 +46,6 @@ export function MyTicketsView({
       </div>
 
       <SearchFilterBar
-        search={search}
-        onSearchChange={setSearch}
         statuses={statuses}
         onStatusesChange={setStatuses}
         systems={systems}
