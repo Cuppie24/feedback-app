@@ -120,7 +120,18 @@ export function FeedbackApp() {
         <Route path="agents" element={<AgentsView />} />
       </Route>
 
-      <Route path="user" element={<UserShell />}>
+      <Route
+        path="user"
+        element={
+          <UserShell
+            tickets={tickets}
+            onSelectTicket={(ticket) => {
+              if (!hasDetailPage(ticket)) return
+              navigate(ticket.mine ? `/user/mine/${ticket.id}` : `/user/popular/${ticket.id}`)
+            }}
+          />
+        }
+      >
         <Route index element={<Navigate to="create" replace />} />
 
         <Route

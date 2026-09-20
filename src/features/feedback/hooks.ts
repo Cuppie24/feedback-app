@@ -63,6 +63,37 @@ export function usePersistedMode(mode: AppMode) {
   }, [mode])
 }
 
+// Open/query state for the global command palette (see SearchPalette.tsx),
+// plus the Ctrl/Cmd+K shortcut that toggles it - lives in a hook rather than
+// component state so UserShell owns it the same way it owns theme/mode.
+// Every path that closes the palette also clears the query directly (rather
+// than an effect keyed on `open`) so reopening always starts from a blank
+// search without a second, cascading render.
+export function useSearchPalette() {
+  const [open, setOpen] = useState(false)
+  const [query, setQuery] = useState('')
+
+  const openPalette = useCallback(() => setOpen(true), [])
+  const closePalette = useCallback(() => {
+    setOpen(false)
+    setQuery('')
+  }, [])
+
+  useEffect(() => {
+    function onKeyDown(event: KeyboardEvent) {
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        setOpen((prev) => !prev)
+        setQuery('')
+      }
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [])
+
+  return { open, query, setQuery, openPalette, closePalette }
+}
+
 function highestTicketNumber(tickets: Ticket[]): number {
   return tickets.reduce((max, ticket) => {
     const num = Number(ticket.id.replace(/\D/g, ''))
@@ -640,6 +671,41 @@ export function useCommentThread({ comments, onAddComment, onEditComment, onDele
 }
 
 export type CommentThreadState = ReturnType<typeof useCommentThread>
+
+// Copies a value to the clipboard and drives a toast through a fixed
+// visible-then-exit timeline (1300ms visible, 200ms exit) - shared by the
+// ticket card's and the detail header's copy-id buttons so both use the same
+// Toast lifecycle instead of reimplementing the timer bookkeeping. Clearing
+// any pending timers before scheduling new ones means a second copy while
+// the toast is still showing restarts the lifecycle cleanly instead of the
+// first call's stale timers cutting the second toast short.
+export function useCopyToClipboard() {
+  const [copiedValue, setCopiedValue] = useState<string | null>(null)
+  const [leaving, setLeaving] = useState(false)
+  const leaveTimeoutRef = useRef<number | null>(null)
+  const closeTimeoutRef = useRef<number | null>(null)
+
+  const copy = useCallback(async (value: string) => {
+    try {
+      await navigator.clipboard.writeText(value)
+      if (leaveTimeoutRef.current !== null) window.clearTimeout(leaveTimeoutRef.current)
+      if (closeTimeoutRef.current !== null) window.clearTimeout(closeTimeoutRef.current)
+      setCopiedValue(value)
+      setLeaving(false)
+      leaveTimeoutRef.current = window.setTimeout(() => {
+        setLeaving(true)
+      }, 1300)
+      closeTimeoutRef.current = window.setTimeout(() => {
+        setCopiedValue(null)
+        setLeaving(false)
+      }, 1600)
+    } catch {
+      setCopiedValue(null)
+    }
+  }, [])
+
+  return { copiedValue, leaving, copy }
+}
 
 // Shared outside-click + Escape dismissal for popup controls.
 // Comboboxes need identical "close when the

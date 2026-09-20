@@ -1,12 +1,11 @@
 import { ArrowLeft, FileText, Image } from 'lucide-react'
-import { STATUS_LABEL, STATUS_TONE, USERS } from '../data'
+import { USERS } from '../data'
 import { useCommentThread } from '../hooks'
 import type { Attachment, MessageSender, Status, Ticket } from '../types'
 import { CommentComposer } from './CommentComposer'
 import { CommentSection } from './CommentSection'
-import { TicketCellSelect, type TicketCellOption } from './TicketCellSelect'
+import { DetailHeader } from './DetailHeader'
 import { UserPopover } from './UserPopover'
-import { VoteButton } from './VoteButton'
 import './SuggestionDetailView.css'
 
 type SuggestionDetailViewProps = {
@@ -18,10 +17,6 @@ type SuggestionDetailViewProps = {
   onEditComment: (commentId: string, text: string) => void
   onDeleteComment: (commentId: string) => void
 }
-
-const STATUS_OPTIONS = (Object.entries(STATUS_LABEL) as [Status, string][]).map(
-  ([value, label]): TicketCellOption<Status> => ({ value, label, tone: STATUS_TONE[value] }),
-)
 
 export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusChange, onAddComment, onEditComment, onDeleteComment }: SuggestionDetailViewProps) {
   const proposal = ticket.messages[0]
@@ -41,18 +36,15 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
             Все обращения
           </button>
 
-          <header className="fb-detail-header">
-            <div className="fb-detail-header-top">
-              <div className="fb-detail-header-main">
-                <span className="fb-detail-id">{ticket.id}</span>
-                <h1>{ticket.title}</h1>
-              </div>
-              <div className="fb-detail-actions">
-                <TicketCellSelect label="Статус" value={ticket.status} options={STATUS_OPTIONS} onChange={onStatusChange} />
-                <VoteButton likes={ticket.likes} liked={ticket.liked} onToggle={onToggleLike} />
-              </div>
-            </div>
-
+          <DetailHeader
+            id={ticket.id}
+            title={ticket.title}
+            status={ticket.status}
+            onStatusChange={onStatusChange}
+            likes={ticket.likes}
+            liked={ticket.liked}
+            onToggleLike={onToggleLike}
+          >
             <div className="fb-detail-proposal" aria-label="Предложение">
               <div className="fb-detail-author">
                 <UserPopover user={ticket.author} label="Автор" showName />
@@ -72,7 +64,7 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
                 </div>
               )}
             </div>
-          </header>
+          </DetailHeader>
 
           <CommentSection thread={thread} resolveAuthor={resolveAuthor} commentCount={comments.length} />
         </div>

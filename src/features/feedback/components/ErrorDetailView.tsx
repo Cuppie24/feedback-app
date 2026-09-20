@@ -1,15 +1,14 @@
 import { ArrowLeft, MessageCircle, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { STATUS_LABEL, STATUS_TONE, USERS } from '../data'
+import { USERS } from '../data'
 import { useCommentThread, useTicketChat } from '../hooks'
 import type { Attachment, Message, MessageSender, Status, Ticket } from '../types'
 import { CommentComposer } from './CommentComposer'
 import { CommentSection } from './CommentSection'
+import { DetailHeader } from './DetailHeader'
 import { MessageComposer } from './MessageComposer'
-import { TicketCellSelect, type TicketCellOption } from './TicketCellSelect'
 import { TicketChatLog } from './TicketChatLog'
-import { VoteButton } from './VoteButton'
 import './ErrorDetailView.css'
 
 type ErrorDetailViewProps = {
@@ -25,10 +24,6 @@ type ErrorDetailViewProps = {
   // the right-side sliding panel.
   floatingComments?: boolean
 }
-
-const STATUS_OPTIONS = (Object.entries(STATUS_LABEL) as [Status, string][]).map(
-  ([value, label]): TicketCellOption<Status> => ({ value, label, tone: STATUS_TONE[value] }),
-)
 
 export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, onSendMessage, onEditMessage, onDeleteMessage, floatingComments = false }: ErrorDetailViewProps) {
   // Comments are kept separate from the chat log (ticket.messages) - this
@@ -112,18 +107,15 @@ export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, 
             Все обращения
           </button>
 
-          <header className="fb-detail-header">
-            <div className="fb-detail-header-top">
-              <div className="fb-detail-header-main">
-                <span className="fb-detail-id">{ticket.id}</span>
-                <h1>{ticket.title}</h1>
-              </div>
-              <div className="fb-detail-actions">
-                <TicketCellSelect label="Статус" value={ticket.status} options={STATUS_OPTIONS} onChange={onStatusChange} />
-                <VoteButton likes={ticket.likes} liked={ticket.liked} onToggle={onToggleLike} />
-              </div>
-            </div>
-          </header>
+          <DetailHeader
+            id={ticket.id}
+            title={ticket.title}
+            status={ticket.status}
+            onStatusChange={onStatusChange}
+            likes={ticket.likes}
+            liked={ticket.liked}
+            onToggleLike={onToggleLike}
+          />
 
           <TicketChatLog ticket={ticket} chat={chat} />
         </div>

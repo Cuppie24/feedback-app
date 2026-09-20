@@ -1,0 +1,60 @@
+import { Copy } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { STATUS_LABEL, STATUS_TONE } from '../data'
+import { useCopyToClipboard } from '../hooks'
+import type { Status } from '../types'
+import { TicketCellSelect, type TicketCellOption } from './TicketCellSelect'
+import { Toast } from './Toast'
+import { VoteButton } from './VoteButton'
+import './DetailHeader.css'
+
+type DetailHeaderProps = {
+  id: string
+  title: string
+  status: Status | null
+  onStatusChange: (status: Status | null) => void
+  likes: number
+  liked: boolean
+  onToggleLike: () => void
+  children?: ReactNode
+}
+
+const STATUS_OPTIONS = (Object.entries(STATUS_LABEL) as [Status, string][]).map(
+  ([value, label]): TicketCellOption<Status> => ({ value, label, tone: STATUS_TONE[value] }),
+)
+
+// Shared by ErrorDetailView and SuggestionDetailView - id/title/status/vote
+// row is identical between the two. SuggestionDetailView additionally passes
+// its proposal block (author/text/attachments) as children, rendered inside
+// the same <header> below the top row; ErrorDetailView has none.
+export function DetailHeader({ id, title, status, onStatusChange, likes, liked, onToggleLike, children }: DetailHeaderProps) {
+  const { copiedValue, leaving, copy } = useCopyToClipboard()
+
+  return (
+    <>
+      <header className="fb-detail-header">
+        <div className="fb-detail-header-top">
+          <div className="fb-detail-header-main">
+            <button
+              type="button"
+              className="fb-detail-id"
+              onClick={() => void copy(id)}
+              aria-label={copiedValue === id ? `Номер обращения ${id} скопирован` : `Скопировать номер обращения ${id}`}
+            >
+              {id}
+            </button>
+            <h1>{title}</h1>
+          </div>
+          <div className="fb-detail-actions">
+            <TicketCellSelect label="Статус" value={status} options={STATUS_OPTIONS} onChange={onStatusChange} />
+            <VoteButton likes={likes} liked={liked} onToggle={onToggleLike} />
+          </div>
+        </div>
+        {children}
+      </header>
+      <Toast Icon={Copy} open={copiedValue !== null} leaving={leaving}>
+        Скопировано
+      </Toast>
+    </>
+  )
+}

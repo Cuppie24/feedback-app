@@ -1,0 +1,29 @@
+.fb-detail-header { padding: var(--space-24) 0 var(--space-32); border-bottom: 1px solid var(--color-border); }
+.fb-detail-header-top { display: flex; flex-direction: column; gap: var(--space-12); }
+.fb-detail-header-main { min-width: 0; }
+.fb-detail-id {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: var(--space-8);
+  padding: 2px var(--space-6);
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-instant) var(--ease-in-out),
+    color var(--duration-instant) var(--ease-in-out);
+}
+
+.fb-detail-id:hover { background: var(--color-surface-hover); color: var(--color-text); }
+.fb-detail-id:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.fb-detail-header h1 { margin: 0; color: var(--color-text); font-size: 28px; line-height: var(--line-height-tight); letter-spacing: -0.02em; user-select: none; }
+.fb-detail-actions { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: var(--space-8); }
+.fb-detail-actions .fb-ticket-cell-select { width: 94px; }
+
+@media (max-width: 640px) {
+  .fb-detail-header h1 { font-size: var(--font-size-heading); }
+}
