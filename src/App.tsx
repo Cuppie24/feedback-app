@@ -1,3 +1,4 @@
+import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from './context/useAuth'
 import { FeedbackApp } from './features/feedback/components/FeedbackApp'
 import { LoadingScreen } from './shared/LoadingScreen'
@@ -10,11 +11,12 @@ function App() {
     return <LoadingScreen />
   }
 
-  if (status === 'unauthenticated') {
-    return <LoginPage />
-  }
-
-  return <FeedbackApp />
+  return (
+    <Routes>
+      <Route path="/login" element={status === 'authenticated' ? <Navigate to="/" replace /> : <LoginPage />} />
+      <Route path="/*" element={status === 'authenticated' ? <FeedbackApp /> : <Navigate to="/login" replace />} />
+    </Routes>
+  )
 }
 
 export default App

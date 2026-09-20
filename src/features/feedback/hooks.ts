@@ -37,10 +37,12 @@ const MODE_STORAGE_KEY = 'feedback-app-mode'
 
 // 'agent' is the full app (sidebar, every view) for support staff; 'user'
 // is the two-tab create/my-tickets shell for a regular employee - see
-// FeedbackApp.tsx and ModeSwitch.
+// FeedbackApp.tsx and ModeSwitch. The URL (/agent/... vs /user/...) is the
+// source of truth for which mode is active; this is only for remembering
+// the last one visited so "/" has somewhere sensible to redirect to.
 export type AppMode = 'agent' | 'user'
 
-function readStoredMode(): AppMode {
+export function readStoredMode(): AppMode {
   try {
     return localStorage.getItem(MODE_STORAGE_KEY) === 'user' ? 'user' : 'agent'
   } catch {
@@ -49,11 +51,9 @@ function readStoredMode(): AppMode {
   }
 }
 
-// Remembers the agent/user mode across reloads - same try/catch-localStorage
-// shape as useSidebarCollapsed/useTheme.
-export function useAppMode() {
-  const [mode, setMode] = useState<AppMode>(readStoredMode)
-
+// Syncs the current route's mode to localStorage - same try/catch shape as
+// useSidebarCollapsed/useTheme, just writing instead of also owning state.
+export function usePersistedMode(mode: AppMode) {
   useEffect(() => {
     try {
       localStorage.setItem(MODE_STORAGE_KEY, mode)
@@ -61,10 +61,6 @@ export function useAppMode() {
       // Persisting is best-effort.
     }
   }, [mode])
-
-  const toggleMode = useCallback(() => setMode((prev) => (prev === 'agent' ? 'user' : 'agent')), [])
-
-  return { mode, toggleMode }
 }
 
 function highestTicketNumber(tickets: Ticket[]): number {

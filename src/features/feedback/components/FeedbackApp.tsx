@@ -1,160 +1,170 @@
-import { useState } from 'react'
-import { useAppMode, useFeedbackTickets, useSidebarCollapsed } from '../hooks'
-import { useTheme } from '../../../shared/useTheme'
+import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import { readStoredMode, useFeedbackTickets } from '../hooks'
+import type { Ticket } from '../types'
+import { AgentShell } from './AgentShell'
 import { AgentsView } from './AgentsView'
 import { AllTicketsView } from './AllTicketsView'
 import { CategoryTicketsView } from './CategoryTicketsView'
 import { CreateFeedbackView } from './CreateFeedbackView'
-import { ErrorDetailView } from './ErrorDetailView'
-import { ModeSwitch } from './ModeSwitch'
 import { MyTicketsView } from './MyTicketsView'
 import { PopularTicketsView } from './PopularTicketsView'
-import { Sidebar, type SidebarView } from './Sidebar'
 import { SystemsView } from './SystemsView'
-import { SuggestionDetailView } from './SuggestionDetailView'
-import { ThemeToggle } from './ThemeToggle'
-import { UserTabBar, type UserView } from './UserTabBar'
+import { TicketDetailRoute } from './TicketDetailRoute'
+import { UserShell } from './UserShell'
 import './FeedbackApp.css'
 
-// No router yet (see CLAUDE.md) - navigation between the feedback screens
-// is local view state, same pattern App.tsx already uses for
-// loading/login/signed-in.
+// Every feedback screen is now a real route (see CLAUDE.md - this replaced
+// the old local view-state switch). The two modes stay separate render
+// trees (AgentShell vs UserShell), each with its own nested routes; a
+// ticket's detail page lives under whichever list it was opened from, so
+// the shell's active nav item stays correct without extra bookkeeping.
 //
-// The app has two modes, toggled by the floating ModeSwitch and
-// persisted by useAppMode: 'agent' is the sidebar/category-views shell
-// below, for support staff triaging every ticket; 'user' is a separate
-// tabbed shell (create / my tickets / popular) for a regular employee -
-// creating feedback and browsing "my tickets" are user-mode-only, not
-// duplicated in agent mode. Rendered as its own early-return branch
-// rather than threaded through the agent layout's view state.
+// Route map:
+//   /                        -> redirect to last-used mode (see readStoredMode)
+//   /agent                   -> redirect to /agent/all
+//   /agent/all               -> AllTicketsView
+//   /agent/all/:ticketId     -> ticket detail
+//   /agent/bug               -> CategoryTicketsView (bug)
+//   /agent/bug/:ticketId     -> ticket detail
+//   /agent/idea              -> CategoryTicketsView (idea)
+//   /agent/idea/:ticketId    -> ticket detail
+//   /agent/review            -> CategoryTicketsView (review, no detail page)
+//   /agent/systems           -> SystemsView (placeholder)
+//   /agent/agents            -> AgentsView (placeholder)
+//   /user                    -> redirect to /user/create
+//   /user/create             -> CreateFeedbackView
+//   /user/mine               -> MyTicketsView
+//   /user/mine/:ticketId     -> ticket detail (floating comments panel)
+//   /user/popular            -> PopularTicketsView (placeholder)
+// Idea and bug tickets have a detail page; review tickets don't (see
+// TicketDetailRoute and the /agent/review route below, which has no
+// :ticketId child) - so opening one from a mixed list (all/mine) is a
+// no-op, same as the old openTicket's category guard.
+function hasDetailPage(ticket: Ticket) {
+  return ticket.category === 'idea' || ticket.category === 'bug'
+}
+
 export function FeedbackApp() {
   const { tickets, toggleLike, updateSystem, updateStatus, addComment, editComment, deleteComment, addTicket } = useFeedbackTickets()
-  const { collapsed, toggleCollapsed } = useSidebarCollapsed()
-  const { mode, toggleMode } = useAppMode()
-  const { preference, cycleTheme } = useTheme()
-  const [view, setView] = useState<SidebarView>('all')
-  const [userView, setUserView] = useState<UserView>('create')
-  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null)
-  const selectedTicket = tickets.find((ticket) => ticket.id === selectedTicketId)
+  const navigate = useNavigate()
 
-  const openTicket = (ticket: (typeof tickets)[number]) => {
-    if (ticket.category === 'idea' || ticket.category === 'bug') setSelectedTicketId(ticket.id)
-  }
+  return (
+    <Routes>
+      <Route index element={<Navigate to={`/${readStoredMode()}`} replace />} />
 
-  if (mode === 'user') {
-    return (
-      <div className="fb-user-shell">
-        <ThemeToggle preference={preference} onCycle={cycleTheme} />
-        <ModeSwitch mode={mode} onToggle={toggleMode} />
-        <UserTabBar active={userView} onNavigate={setUserView} />
+      <Route path="agent" element={<AgentShell />}>
+        <Route index element={<Navigate to="all" replace />} />
 
-        <main className="fb-user-content">
-          {selectedTicket?.category === 'idea' && (
-            <SuggestionDetailView
-              ticket={selectedTicket}
-              onBack={() => setSelectedTicketId(null)}
-              onToggleLike={() => toggleLike(selectedTicket.id)}
-              onStatusChange={(status) => updateStatus(selectedTicket.id, status)}
-              onAddComment={(text, replyToId, attachments) => addComment(selectedTicket.id, text, replyToId, attachments)}
-              onEditComment={(commentId, text) => editComment(selectedTicket.id, commentId, text)}
-              onDeleteComment={(commentId) => deleteComment(selectedTicket.id, commentId)}
+        <Route
+          path="all"
+          element={
+            <AllTicketsView
+              tickets={tickets}
+              onToggleLike={toggleLike}
+              onSystemChange={updateSystem}
+              onStatusChange={updateStatus}
+              onOpenTicket={(ticket) => hasDetailPage(ticket) && navigate(`/agent/all/${ticket.id}`)}
             />
-          )}
-          {selectedTicket?.category === 'bug' && (
-            <ErrorDetailView
-              ticket={selectedTicket}
-              onBack={() => setSelectedTicketId(null)}
-              onToggleLike={() => toggleLike(selectedTicket.id)}
-              onStatusChange={(status) => updateStatus(selectedTicket.id, status)}
-              onSendMessage={(text, attachments, replyToId) => addComment(selectedTicket.id, text, replyToId, attachments)}
-              onEditMessage={(messageId, text) => editComment(selectedTicket.id, messageId, text)}
-              onDeleteMessage={(messageId) => deleteComment(selectedTicket.id, messageId)}
-              floatingComments
+          }
+        />
+        <Route
+          path="all/:ticketId"
+          element={
+            <TicketDetailRoute
+              tickets={tickets}
+              fallbackTo="/agent/all"
+              onToggleLike={toggleLike}
+              onStatusChange={updateStatus}
+              onAddComment={addComment}
+              onEditComment={editComment}
+              onDeleteComment={deleteComment}
             />
-          )}
-          {!selectedTicket && userView === 'create' && (
+          }
+        />
+
+        {(['bug', 'idea', 'review'] as const).map((category) => (
+          <Route key={category} path={category}>
+            <Route
+              index
+              element={
+                <CategoryTicketsView
+                  category={category}
+                  tickets={tickets}
+                  onToggleLike={toggleLike}
+                  onSystemChange={updateSystem}
+                  onStatusChange={updateStatus}
+                  onOpenTicket={(ticket) => hasDetailPage(ticket) && navigate(`/agent/${category}/${ticket.id}`)}
+                />
+              }
+            />
+            {category !== 'review' && (
+              <Route
+                path=":ticketId"
+                element={
+                  <TicketDetailRoute
+                    tickets={tickets}
+                    fallbackTo={`/agent/${category}`}
+                    onToggleLike={toggleLike}
+                    onStatusChange={updateStatus}
+                    onAddComment={addComment}
+                    onEditComment={editComment}
+                    onDeleteComment={deleteComment}
+                  />
+                }
+              />
+            )}
+          </Route>
+        ))}
+
+        <Route path="systems" element={<SystemsView />} />
+        <Route path="agents" element={<AgentsView />} />
+      </Route>
+
+      <Route path="user" element={<UserShell />}>
+        <Route index element={<Navigate to="create" replace />} />
+
+        <Route
+          path="create"
+          element={
             <CreateFeedbackView
               onSubmit={(input) => {
                 addTicket(input)
-                setUserView('mine')
+                navigate('/user/mine')
               }}
             />
-          )}
-          {!selectedTicket && userView === 'mine' && (
+          }
+        />
+        <Route
+          path="mine"
+          element={
             <MyTicketsView
               tickets={tickets}
               onToggleLike={toggleLike}
               onSystemChange={updateSystem}
               onStatusChange={updateStatus}
-              onOpenTicket={openTicket}
+              onOpenTicket={(ticket) => hasDetailPage(ticket) && navigate(`/user/mine/${ticket.id}`)}
             />
-          )}
-          {!selectedTicket && userView === 'popular' && <PopularTicketsView />}
-        </main>
-      </div>
-    )
-  }
+          }
+        />
+        <Route
+          path="mine/:ticketId"
+          element={
+            <TicketDetailRoute
+              tickets={tickets}
+              fallbackTo="/user/mine"
+              onToggleLike={toggleLike}
+              onStatusChange={updateStatus}
+              onAddComment={addComment}
+              onEditComment={editComment}
+              onDeleteComment={deleteComment}
+              floatingComments
+            />
+          }
+        />
+        <Route path="popular" element={<PopularTicketsView />} />
+      </Route>
 
-  return (
-    <div className="fb-app">
-      <Sidebar
-        active={view}
-        onNavigate={setView}
-        collapsed={collapsed}
-        onToggleCollapsed={toggleCollapsed}
-        footer={
-          <>
-            <ModeSwitch mode={mode} onToggle={toggleMode} variant="inline" />
-            <ThemeToggle preference={preference} onCycle={cycleTheme} variant="inline" />
-          </>
-        }
-      />
-
-      <main className="fb-main">
-        {selectedTicket?.category === 'idea' && (
-          <SuggestionDetailView
-            ticket={selectedTicket}
-            onBack={() => setSelectedTicketId(null)}
-            onToggleLike={() => toggleLike(selectedTicket.id)}
-            onStatusChange={(status) => updateStatus(selectedTicket.id, status)}
-            onAddComment={(text, replyToId, attachments) => addComment(selectedTicket.id, text, replyToId, attachments)}
-            onEditComment={(commentId, text) => editComment(selectedTicket.id, commentId, text)}
-            onDeleteComment={(commentId) => deleteComment(selectedTicket.id, commentId)}
-          />
-        )}
-        {selectedTicket?.category === 'bug' && (
-          <ErrorDetailView
-            ticket={selectedTicket}
-            onBack={() => setSelectedTicketId(null)}
-            onToggleLike={() => toggleLike(selectedTicket.id)}
-            onStatusChange={(status) => updateStatus(selectedTicket.id, status)}
-            onSendMessage={(text, attachments, replyToId) => addComment(selectedTicket.id, text, replyToId, attachments)}
-            onEditMessage={(messageId, text) => editComment(selectedTicket.id, messageId, text)}
-            onDeleteMessage={(messageId) => deleteComment(selectedTicket.id, messageId)}
-          />
-        )}
-        {!selectedTicket && view === 'all' && (
-          <AllTicketsView
-            tickets={tickets}
-            onToggleLike={toggleLike}
-            onSystemChange={updateSystem}
-            onStatusChange={updateStatus}
-            onOpenTicket={openTicket}
-          />
-        )}
-        {!selectedTicket && (view === 'bug' || view === 'idea' || view === 'review') && (
-          <CategoryTicketsView
-            category={view}
-            tickets={tickets}
-            onToggleLike={toggleLike}
-            onSystemChange={updateSystem}
-            onStatusChange={updateStatus}
-            onOpenTicket={openTicket}
-          />
-        )}
-        {!selectedTicket && view === 'systems' && <SystemsView />}
-        {!selectedTicket && view === 'agents' && <AgentsView />}
-      </main>
-    </div>
+      <Route path="*" element={<Navigate to={`/${readStoredMode()}`} replace />} />
+    </Routes>
   )
 }
