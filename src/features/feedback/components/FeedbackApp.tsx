@@ -139,9 +139,6 @@ export function FeedbackApp() {
           element={
             <MyTicketsView
               tickets={tickets}
-              onToggleLike={toggleLike}
-              onSystemChange={updateSystem}
-              onStatusChange={updateStatus}
               onOpenTicket={(ticket) => hasDetailPage(ticket) && navigate(`/user/mine/${ticket.id}`)}
             />
           }
@@ -161,7 +158,31 @@ export function FeedbackApp() {
             />
           }
         />
-        <Route path="popular" element={<PopularTicketsView />} />
+        <Route
+          path="popular"
+          element={
+            <PopularTicketsView
+              tickets={tickets}
+              onToggleLike={toggleLike}
+              onOpenTicket={(ticket) => hasDetailPage(ticket) && navigate(`/user/popular/${ticket.id}`)}
+            />
+          }
+        />
+        <Route
+          path="popular/:ticketId"
+          element={
+            <TicketDetailRoute
+              tickets={tickets}
+              fallbackTo="/user/popular"
+              onToggleLike={toggleLike}
+              onStatusChange={updateStatus}
+              onAddComment={addComment}
+              onEditComment={editComment}
+              onDeleteComment={deleteComment}
+              floatingComments
+            />
+          }
+        />
       </Route>
 
       <Route path="*" element={<Navigate to={`/${readStoredMode()}`} replace />} />

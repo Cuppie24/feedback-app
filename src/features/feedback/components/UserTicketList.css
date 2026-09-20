@@ -1,0 +1,163 @@
+.fb-user-ticket-view {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: var(--space-32) var(--space-24) var(--space-48);
+  animation: fb-view-in var(--duration-medium) var(--ease-out);
+}
+
+.fb-user-ticket-view .fb-page-header {
+  margin-bottom: var(--space-24);
+}
+
+.fb-user-ticket-view .fb-database-toolbar {
+  margin-bottom: var(--space-24);
+}
+
+.fb-user-ticket-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+.fb-user-ticket-list-empty {
+  margin: var(--space-24) 0;
+  font-size: var(--font-size-ui);
+  color: var(--color-text-muted);
+}
+
+.fb-user-ticket-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+  padding: var(--space-24);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-instant) var(--ease-in-out),
+    background-color var(--duration-instant) var(--ease-in-out),
+    transform var(--duration-instant) var(--ease-in-out),
+    box-shadow var(--duration-instant) var(--ease-in-out);
+}
+
+.fb-user-ticket-card:hover {
+  border-color: var(--color-text-subtle);
+  background: var(--color-surface-hover);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-1px);
+}
+
+.fb-user-ticket-card:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.fb-user-ticket-card-topline,
+.fb-user-ticket-footer,
+.fb-user-ticket-actions,
+.fb-user-ticket-tags,
+.fb-user-ticket-category,
+.fb-user-ticket-system {
+  display: flex;
+  align-items: center;
+}
+
+.fb-user-ticket-card-topline,
+.fb-user-ticket-footer {
+  gap: var(--space-12);
+}
+
+.fb-user-ticket-footer {
+  justify-content: space-between;
+}
+
+.fb-user-ticket-time {
+  margin-left: auto;
+}
+
+.fb-user-ticket-category {
+  gap: var(--space-6);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  user-select: none;
+}
+
+.fb-user-ticket-system {
+  gap: var(--space-6);
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-caption);
+  white-space: nowrap;
+}
+
+.fb-user-ticket-time {
+  flex: none;
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-caption);
+}
+
+.fb-user-ticket-title {
+  margin: 0;
+  font-size: var(--font-size-body);
+  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-body);
+  user-select: none;
+}
+
+.fb-user-ticket-snippet {
+  display: -webkit-box;
+  margin: 0;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-ui);
+  line-height: var(--line-height-body);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.fb-user-ticket-tags {
+  flex-wrap: wrap;
+  gap: var(--space-6);
+}
+
+.fb-user-ticket-actions {
+  flex: none;
+  gap: var(--space-8);
+}
+
+.fb-user-ticket-vote-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-4);
+  height: var(--control-height);
+  padding: 0 var(--space-12);
+  color: var(--color-text-subtle);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  user-select: none;
+}
+
+.fb-user-ticket-open-icon {
+  color: var(--color-text-subtle);
+}
+
+@media (max-width: 640px) {
+  .fb-user-ticket-view {
+    padding: var(--space-24) var(--space-16) var(--space-32);
+  }
+
+  .fb-user-ticket-view .fb-database-toolbar {
+    margin-bottom: var(--space-16);
+  }
+
+  .fb-user-ticket-card {
+    padding: var(--space-16);
+  }
+
+  .fb-user-ticket-footer {
+    align-items: flex-end;
+  }
+}

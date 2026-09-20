@@ -4,22 +4,16 @@ import type { Category, Status, System, Ticket } from '../types'
 import { pluralizeRu } from '../utils'
 import { PageHeader } from './PageHeader'
 import { SearchFilterBar, type TicketSort } from './SearchFilterBar'
-import { TicketList } from './TicketList'
+import { UserTicketList } from './UserTicketList'
 import './ViewLayout.css'
 
 type MyTicketsViewProps = {
   tickets: Ticket[]
-  onToggleLike: (id: string) => void
-  onSystemChange: (id: string, system: System | null) => void
-  onStatusChange: (id: string, status: Status | null) => void
   onOpenTicket: (ticket: Ticket) => void
 }
 
 export function MyTicketsView({
   tickets,
-  onToggleLike,
-  onSystemChange,
-  onStatusChange,
   onOpenTicket,
 }: MyTicketsViewProps) {
   const [search, setSearch] = useState('')
@@ -53,7 +47,7 @@ export function MyTicketsView({
   }, [tickets, search, categories, statuses, systems, sort])
 
   return (
-    <div className="fb-view-wide">
+    <div className="fb-user-ticket-view">
       <PageHeader
         subtitle="Обращения, которые вы отправили."
         meta={
@@ -76,14 +70,8 @@ export function MyTicketsView({
         onSortChange={setSort}
       />
 
-      <TicketList
+      <UserTicketList
         tickets={filtered}
-        variant="wide"
-        sort={sort}
-        onSortChange={setSort}
-        onToggleLike={onToggleLike}
-        onSystemChange={onSystemChange}
-        onStatusChange={onStatusChange}
         onOpenTicket={onOpenTicket}
         emptyMessage={hasAny ? 'Ничего не найдено.' : 'Вы ещё не отправляли обращений.'}
       />

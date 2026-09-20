@@ -1,9 +1,31 @@
-import { PlaceholderView } from './PlaceholderView'
+import { useMemo } from 'react'
+import { comparePopularity } from '../data'
+import type { Ticket } from '../types'
+import { pluralizeRu } from '../utils'
+import { PageHeader } from './PageHeader'
+import { UserTicketList } from './UserTicketList'
+import './ViewLayout.css'
 
-// Placeholder for the user-mode "Популярное" tab - see UserTabBar.tsx and
-// FeedbackApp.tsx. Intentionally empty until popularity ranking ships.
-export function PopularTicketsView() {
+type PopularTicketsViewProps = {
+  tickets: Ticket[]
+  onToggleLike: (id: string) => void
+  onOpenTicket: (ticket: Ticket) => void
+}
+
+export function PopularTicketsView({ tickets, onToggleLike, onOpenTicket }: PopularTicketsViewProps) {
+  const popularTickets = useMemo(() => [...tickets].sort(comparePopularity), [tickets])
+
   return (
-    <PlaceholderView subtitle="Раздел в разработке — скоро здесь появятся самые обсуждаемые обращения." />
+    <div className="fb-user-ticket-view">
+      <PageHeader
+        subtitle="Самые поддерживаемые обращения от коллег."
+        meta={
+          <span className="fb-page-count">
+            {popularTickets.length} {pluralizeRu(popularTickets.length, 'обращение', 'обращения', 'обращений')}
+          </span>
+        }
+      />
+      <UserTicketList tickets={popularTickets} onToggleLike={onToggleLike} onOpenTicket={onOpenTicket} />
+    </div>
   )
 }
