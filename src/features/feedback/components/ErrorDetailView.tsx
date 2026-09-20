@@ -16,6 +16,7 @@ type ErrorDetailViewProps = {
   onBack: () => void
   onToggleLike: () => void
   onStatusChange: (status: Status | null) => void
+  statusEditable?: boolean
   onSendMessage: (text: string, attachments: Attachment[], replyToId?: string) => void
   onEditMessage: (messageId: string, text: string) => void
   onDeleteMessage: (messageId: string) => void
@@ -25,7 +26,7 @@ type ErrorDetailViewProps = {
   floatingComments?: boolean
 }
 
-export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, onSendMessage, onEditMessage, onDeleteMessage, floatingComments = false }: ErrorDetailViewProps) {
+export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, statusEditable, onSendMessage, onEditMessage, onDeleteMessage, floatingComments = false }: ErrorDetailViewProps) {
   // Comments are kept separate from the chat log (ticket.messages) - this
   // panel is for open discussion, the chat above it is the 1:1 thread with
   // the assignee. Local state for now: there's no seed/backend shape yet
@@ -112,6 +113,7 @@ export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, 
             title={ticket.title}
             status={ticket.status}
             onStatusChange={onStatusChange}
+            statusEditable={statusEditable}
             likes={ticket.likes}
             liked={ticket.liked}
             onToggleLike={onToggleLike}

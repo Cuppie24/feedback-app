@@ -162,6 +162,7 @@ export function FeedbackApp() {
               fallbackTo="/user/mine"
               onToggleLike={toggleLike}
               onStatusChange={updateStatus}
+              statusEditable={false}
               onAddComment={addComment}
               onEditComment={editComment}
               onDeleteComment={deleteComment}
@@ -187,6 +188,7 @@ export function FeedbackApp() {
               fallbackTo="/user/popular"
               onToggleLike={toggleLike}
               onStatusChange={updateStatus}
+              statusEditable={false}
               onAddComment={addComment}
               onEditComment={editComment}
               onDeleteComment={deleteComment}

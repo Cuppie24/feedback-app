@@ -3,6 +3,7 @@ import type { ReactNode } from 'react'
 import { STATUS_LABEL, STATUS_TONE } from '../data'
 import { useCopyToClipboard } from '../hooks'
 import type { Status } from '../types'
+import { Tag } from './Tag'
 import { TicketCellSelect, type TicketCellOption } from './TicketCellSelect'
 import { Toast } from './Toast'
 import { VoteButton } from './VoteButton'
@@ -13,6 +14,10 @@ type DetailHeaderProps = {
   title: string
   status: Status | null
   onStatusChange: (status: Status | null) => void
+  // Agent mode triages status from here; user mode can only view it (see
+  // FeedbackApp.tsx's TicketDetailRoute usage) - status changes belong to
+  // support staff, not the ticket's own author.
+  statusEditable?: boolean
   likes: number
   liked: boolean
   onToggleLike: () => void
@@ -27,7 +32,7 @@ const STATUS_OPTIONS = (Object.entries(STATUS_LABEL) as [Status, string][]).map(
 // row is identical between the two. SuggestionDetailView additionally passes
 // its proposal block (author/text/attachments) as children, rendered inside
 // the same <header> below the top row; ErrorDetailView has none.
-export function DetailHeader({ id, title, status, onStatusChange, likes, liked, onToggleLike, children }: DetailHeaderProps) {
+export function DetailHeader({ id, title, status, onStatusChange, statusEditable = true, likes, liked, onToggleLike, children }: DetailHeaderProps) {
   const { copiedValue, leaving, copy } = useCopyToClipboard()
 
   return (
@@ -46,7 +51,11 @@ export function DetailHeader({ id, title, status, onStatusChange, likes, liked, 
             <h1>{title}</h1>
           </div>
           <div className="fb-detail-actions">
-            <TicketCellSelect label="Статус" value={status} options={STATUS_OPTIONS} onChange={onStatusChange} />
+            {statusEditable ? (
+              <TicketCellSelect label="Статус" value={status} options={STATUS_OPTIONS} onChange={onStatusChange} />
+            ) : (
+              status && <Tag tone={STATUS_TONE[status]}>{STATUS_LABEL[status]}</Tag>
+            )}
             <VoteButton likes={likes} liked={liked} onToggle={onToggleLike} />
           </div>
         </div>

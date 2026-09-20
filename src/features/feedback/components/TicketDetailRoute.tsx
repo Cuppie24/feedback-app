@@ -8,6 +8,7 @@ type TicketDetailRouteProps = {
   fallbackTo: string
   onToggleLike: (id: string) => void
   onStatusChange: (id: string, status: Status | null) => void
+  statusEditable?: boolean
   onAddComment: (ticketId: string, text: string, replyToId?: string, attachments?: Attachment[]) => string
   onEditComment: (ticketId: string, commentId: string, text: string) => void
   onDeleteComment: (ticketId: string, commentId: string) => void
@@ -23,6 +24,7 @@ export function TicketDetailRoute({
   fallbackTo,
   onToggleLike,
   onStatusChange,
+  statusEditable,
   onAddComment,
   onEditComment,
   onDeleteComment,
@@ -45,6 +47,7 @@ export function TicketDetailRoute({
         onBack={onBack}
         onToggleLike={() => onToggleLike(ticket.id)}
         onStatusChange={(status) => onStatusChange(ticket.id, status)}
+        statusEditable={statusEditable}
         onAddComment={(text, replyToId, attachments) => onAddComment(ticket.id, text, replyToId, attachments)}
         onEditComment={(commentId, text) => onEditComment(ticket.id, commentId, text)}
         onDeleteComment={(commentId) => onDeleteComment(ticket.id, commentId)}
@@ -58,6 +61,7 @@ export function TicketDetailRoute({
       onBack={onBack}
       onToggleLike={() => onToggleLike(ticket.id)}
       onStatusChange={(status) => onStatusChange(ticket.id, status)}
+      statusEditable={statusEditable}
       onSendMessage={(text, attachments, replyToId) => onAddComment(ticket.id, text, replyToId, attachments)}
       onEditMessage={(messageId, text) => onEditComment(ticket.id, messageId, text)}
       onDeleteMessage={(messageId) => onDeleteComment(ticket.id, messageId)}

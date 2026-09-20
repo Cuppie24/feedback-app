@@ -13,12 +13,13 @@ type SuggestionDetailViewProps = {
   onBack: () => void
   onToggleLike: () => void
   onStatusChange: (status: Status | null) => void
+  statusEditable?: boolean
   onAddComment: (text: string, replyToId?: string, attachments?: Attachment[]) => string
   onEditComment: (commentId: string, text: string) => void
   onDeleteComment: (commentId: string) => void
 }
 
-export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusChange, onAddComment, onEditComment, onDeleteComment }: SuggestionDetailViewProps) {
+export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusChange, statusEditable, onAddComment, onEditComment, onDeleteComment }: SuggestionDetailViewProps) {
   const proposal = ticket.messages[0]
   const comments = ticket.messages.slice(1)
   const thread = useCommentThread({ comments, onAddComment, onEditComment, onDeleteComment })
@@ -41,6 +42,7 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
             title={ticket.title}
             status={ticket.status}
             onStatusChange={onStatusChange}
+            statusEditable={statusEditable}
             likes={ticket.likes}
             liked={ticket.liked}
             onToggleLike={onToggleLike}
