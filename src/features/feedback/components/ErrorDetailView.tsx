@@ -38,6 +38,7 @@ export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, 
   // the shared ticket data until that's decided.
   const [comments, setComments] = useState<Message[]>([])
   const [commentsOpen, setCommentsOpen] = useState(false)
+  const scrollRef = useRef<HTMLDivElement>(null)
   const composerDockRef = useRef<HTMLDivElement>(null)
   // Starting value matches the dock's collapsed height (padding + a
   // single-line composer, see ErrorDetailView.css) so there's no jump on
@@ -96,10 +97,15 @@ export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, 
   const thread = useCommentThread({ comments, onAddComment: addComment, onEditComment: editComment, onDeleteComment: deleteComment })
   const chat = useTicketChat({ ticket, onSendMessage, onEditMessage, onDeleteMessage })
   const replyTo = chat.replyTo
+  const messageCount = ticket.messages.length
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' })
+  }, [messageCount])
 
   return (
     <article className={`fb-error-detail${commentsOpen && !floatingComments ? ' comments-open' : ''}`}>
-      <div className="fb-detail-scroll">
+      <div className="fb-detail-scroll" ref={scrollRef}>
         <div className="fb-detail-content">
           <button type="button" className="fb-detail-back" onClick={onBack}>
             <ArrowLeft size={16} />
@@ -113,8 +119,8 @@ export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, 
                 <h1>{ticket.title}</h1>
               </div>
               <div className="fb-detail-actions">
-                <VoteButton likes={ticket.likes} liked={ticket.liked} onToggle={onToggleLike} />
                 <TicketCellSelect label="Статус" value={ticket.status} options={STATUS_OPTIONS} onChange={onStatusChange} />
+                <VoteButton likes={ticket.likes} liked={ticket.liked} onToggle={onToggleLike} />
               </div>
             </div>
           </header>

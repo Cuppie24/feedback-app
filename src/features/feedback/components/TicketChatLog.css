@@ -10,6 +10,10 @@
 .fb-chat-group .fb-row-assignee-initials { width: 32px; height: 32px; }
 
 .fb-chat-content { flex: 0 1 auto; width: fit-content; max-width: 72%; }
+/* While editing, use the full 72% allotment instead of shrink-wrapping -
+   fit-content otherwise sizes off the edit textarea's own intrinsic width
+   (~20 columns), not its text, giving a cramped box to type into. */
+.fb-chat-content.is-editing { width: 100%; }
 
 .fb-chat-meta { display: flex; align-items: baseline; gap: var(--space-8); }
 .fb-chat-group.own .fb-chat-meta { justify-content: flex-end; }
@@ -18,8 +22,13 @@
 
 .fb-chat-messages { display: flex; flex-direction: column; align-items: flex-start; gap: var(--space-32); margin-top: var(--space-8); }
 .fb-chat-group.own .fb-chat-messages { align-items: flex-end; }
+/* The message being edited still shrinks to its own bubble/content width
+   otherwise - align-items above only stopped every message from stretching
+   to the group's widest one, it didn't exempt the one now holding a wide
+   edit textarea (see .fb-chat-content.is-editing). */
+.fb-chat-message:has(.fb-chat-edit) { align-self: stretch; }
 .fb-chat-message { position: relative; }
-.fb-chat-bubble { padding: var(--space-12) var(--space-16); border-radius: 16px; }
+.fb-chat-bubble { --bubble-radius: 16px; padding: var(--space-12) var(--space-16); border-radius: var(--bubble-radius); }
 .fb-chat-bubble p { margin: 0; color: var(--color-text); line-height: var(--line-height-body); white-space: pre-wrap; text-align: left; }
 
 .fb-chat-group:not(.own) .fb-chat-bubble { background: var(--color-surface-sunken); border-top-left-radius: var(--radius-sm); }
@@ -38,16 +47,33 @@
 
 .fb-chat-quote { display: flex; flex-direction: column; gap: 2px; width: 100%; margin-bottom: var(--space-8); padding: var(--space-4) var(--space-8); border: 0; border-left: 2px solid var(--color-accent); border-radius: var(--radius-sm); background: var(--color-surface-hover); text-align: left; cursor: pointer; }
 .fb-chat-quote:hover { background: var(--color-surface-active); }
+/* Concentric-corner rule: the quote sits flush in the bubble's top corner,
+   inset only by the bubble's own padding (12/16px). Nested against the
+   bubble's 3px tail radius there, outer_radius - padding is negative, so
+   that corner should read as sharp rather than keep the uniform radius. */
+.fb-chat-group:not(.own) .fb-chat-quote { border-top-left-radius: 0; }
+.fb-chat-group.own .fb-chat-quote { border-top-right-radius: 0; }
 .fb-chat-quote:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 .fb-chat-quote-author { color: var(--color-accent); font-size: var(--font-size-caption); font-weight: var(--font-weight-semibold); }
 .fb-chat-quote-text { overflow: hidden; color: var(--color-text-muted); font-size: var(--font-size-caption); text-overflow: ellipsis; white-space: nowrap; }
 
-.fb-chat-edit textarea { display: block; width: 100%; min-height: 60px; resize: vertical; padding: var(--space-8) var(--space-10); border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-bg); color: var(--color-text); font: inherit; line-height: var(--line-height-body); }
+/* A textarea's contribution to its shrink-to-fit parent's width is its own
+   intrinsic size (~20 columns), not its text content, so without an
+   explicit min-width the now-content-sized bubble collapsed to a tiny box
+   the moment a message entered edit mode. */
+/* Concentric with the bubble again: --bubble-radius (16px, inherited from
+   .fb-chat-bubble) minus the bubble's own padding gives the radius its
+   flush-inset content should use, same math as the quote block above. The
+   corner sharing the bubble's tail corner goes fully sharp for the same
+   reason that one is - tail radius (3px) minus this padding is negative. */
+.fb-chat-edit textarea { display: block; width: 100%; min-width: 260px; min-height: 60px; resize: vertical; padding: var(--space-12) var(--space-16); border: 1px solid var(--color-border); border-radius: calc(var(--bubble-radius) - var(--space-12)); background: var(--color-bg); color: var(--color-text); font: inherit; line-height: var(--line-height-body); }
 .fb-chat-edit textarea:focus { outline: none; border-color: var(--color-accent); box-shadow: var(--focus-ring); }
+.fb-chat-group:not(.own) .fb-chat-edit textarea { border-top-left-radius: 0; }
+.fb-chat-group.own .fb-chat-edit textarea { border-top-right-radius: 0; }
 .fb-chat-edit-error { margin-top: var(--space-6); color: var(--color-danger); font-size: var(--font-size-caption); }
 .fb-chat-edit-actions { display: flex; align-items: center; gap: var(--space-6); margin-top: var(--space-8); }
 .fb-chat-edit-save,
-.fb-chat-edit-cancel { display: inline-flex; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-8); border-radius: var(--radius-sm); font-size: var(--font-size-caption); font-weight: var(--font-weight-semibold); cursor: pointer; }
+.fb-chat-edit-cancel { display: inline-flex; align-items: center; gap: var(--space-4); padding: var(--space-4) var(--space-8); border-radius: calc(var(--bubble-radius) - var(--space-12)); font-size: var(--font-size-caption); font-weight: var(--font-weight-semibold); cursor: pointer; }
 .fb-chat-edit-save { background: var(--color-accent); color: var(--color-text-on-accent); }
 .fb-chat-edit-save:hover { background: var(--color-accent-hover); }
 .fb-chat-edit-cancel { background: transparent; color: var(--color-text-muted); }

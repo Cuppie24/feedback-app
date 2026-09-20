@@ -1,6 +1,7 @@
 import { Check, CornerUpLeft, FileText, Image, Pencil, Trash2, X } from 'lucide-react'
 import type { TicketChatState } from '../hooks'
 import type { Ticket } from '../types'
+import { ConfirmDialog } from '../../../shared/ConfirmDialog'
 import { UserPopover } from './UserPopover'
 import './TicketChatLog.css'
 
@@ -20,10 +21,11 @@ export function TicketChatLog({ ticket, chat }: TicketChatLogProps) {
         {chat.groups.map((group, index) => {
           const isOwn = group.sender === 'me'
           const author = chat.resolveAuthor(group.sender)
+          const isGroupEditing = group.messages.some((message) => message.id === chat.editingId)
           return (
             <div key={index} className={`fb-chat-group${isOwn ? ' own' : ''}`}>
               <UserPopover user={author} label={isOwn ? 'Вы' : 'Исполнитель'} />
-              <div className="fb-chat-content">
+              <div className={`fb-chat-content${isGroupEditing ? ' is-editing' : ''}`}>
                 <div className="fb-chat-meta">
                   {isOwn ? (
                     <>
@@ -129,7 +131,7 @@ export function TicketChatLog({ ticket, chat }: TicketChatLogProps) {
                                 <button
                                   type="button"
                                   className="fb-chat-message-action-button"
-                                  onClick={() => chat.deleteMessage(message)}
+                                  onClick={() => chat.requestDelete(message)}
                                   aria-label="Удалить"
                                   title="Удалить"
                                 >
@@ -149,6 +151,14 @@ export function TicketChatLog({ ticket, chat }: TicketChatLogProps) {
           )
         })}
       </div>
+
+      <ConfirmDialog
+        open={chat.pendingDelete !== null}
+        title="Удалить сообщение?"
+        confirmLabel="Удалить"
+        onConfirm={chat.confirmDelete}
+        onCancel={chat.cancelDelete}
+      />
     </section>
   )
 }

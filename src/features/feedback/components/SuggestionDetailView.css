@@ -31,7 +31,7 @@
 .fb-detail-header-main { min-width: 0; }
 .fb-detail-id { display: block; margin-bottom: var(--space-8); color: var(--color-text-subtle); font-size: var(--font-size-caption); font-weight: var(--font-weight-medium); user-select: none; }
 .fb-detail-header h1 { margin: 0; color: var(--color-text); font-size: 28px; line-height: var(--line-height-tight); letter-spacing: -0.02em; user-select: none; }
-.fb-detail-actions { display: flex; align-self: flex-end; align-items: center; gap: var(--space-8); }
+.fb-detail-actions { display: flex; width: 100%; align-items: center; justify-content: space-between; gap: var(--space-8); }
 .fb-detail-actions .fb-ticket-cell-select { width: 94px; }
 
 .fb-detail-proposal { padding-top: var(--space-12); }
@@ -61,6 +61,5 @@
   .fb-detail-content { padding: var(--space-24) var(--space-16) 0; }
   .fb-detail-composer-dock { padding: var(--space-12) var(--space-16) var(--space-16); }
   .fb-detail-header h1 { font-size: var(--font-size-heading); }
-  .fb-detail-actions { align-self: flex-start; }
   .fb-detail-proposal-text, .fb-detail-attachments { margin-left: 0; }
 }

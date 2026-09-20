@@ -48,8 +48,8 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
                 <h1>{ticket.title}</h1>
               </div>
               <div className="fb-detail-actions">
-                <VoteButton likes={ticket.likes} liked={ticket.liked} onToggle={onToggleLike} />
                 <TicketCellSelect label="Статус" value={ticket.status} options={STATUS_OPTIONS} onChange={onStatusChange} />
+                <VoteButton likes={ticket.likes} liked={ticket.liked} onToggle={onToggleLike} />
               </div>
             </div>
 

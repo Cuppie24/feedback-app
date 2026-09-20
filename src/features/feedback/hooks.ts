@@ -252,6 +252,7 @@ export function useTicketChat({ ticket, onSendMessage, onEditMessage, onDeleteMe
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editText, setEditText] = useState('')
   const [editError, setEditError] = useState('')
+  const [pendingDelete, setPendingDelete] = useState<Message | null>(null)
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const messageRefs = useRef(new Map<string, HTMLElement>())
   const [highlightedMessageId, setHighlightedMessageId] = useState<string | null>(null)
@@ -346,11 +347,20 @@ export function useTicketChat({ ticket, onSendMessage, onEditMessage, onDeleteMe
     cancelEditing()
   }
 
-  function deleteMessage(message: Message) {
-    if (!window.confirm('Удалить сообщение?')) return
-    if (editingId === message.id) cancelEditing()
-    if (replyTo?.id === message.id) setReplyTo(null)
-    onDeleteMessage(message.id)
+  function requestDelete(message: Message) {
+    setPendingDelete(message)
+  }
+
+  function cancelDelete() {
+    setPendingDelete(null)
+  }
+
+  function confirmDelete() {
+    if (!pendingDelete) return
+    if (editingId === pendingDelete.id) cancelEditing()
+    if (replyTo?.id === pendingDelete.id) setReplyTo(null)
+    onDeleteMessage(pendingDelete.id)
+    setPendingDelete(null)
   }
 
   const replyToAuthor = replyTo ? resolveAuthor(replyTo.sender) : undefined
@@ -380,7 +390,10 @@ export function useTicketChat({ ticket, onSendMessage, onEditMessage, onDeleteMe
     startEditing,
     cancelEditing,
     submitEdit,
-    deleteMessage,
+    pendingDelete,
+    requestDelete,
+    cancelDelete,
+    confirmDelete,
   }
 }
 
