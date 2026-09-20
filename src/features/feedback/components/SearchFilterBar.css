@@ -1,7 +1,7 @@
 .fb-database-toolbar {
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  flex-direction: column;
+  align-items: flex-start;
   gap: var(--space-16);
   min-height: 48px;
 }
@@ -66,22 +66,17 @@
   opacity: 0.55;
 }
 
-.fb-sort-filter .fb-filter-panel {
+.fb-sort-combobox .fb-combobox-menu {
   right: 0;
   left: auto;
 }
 
-.fb-sort-filter {
+.fb-sort-combobox {
   margin-left: auto;
 }
 
-.fb-sort-filter .fb-filter-option {
-  justify-content: space-between;
-}
-
-.fb-sort-selected {
-  margin-left: var(--space-12);
-  color: var(--color-accent);
+.fb-combobox-wide .fb-combobox-menu {
+  max-width: min(420px, calc(100vw - var(--space-32)));
 }
 
 .fb-filter-clear {

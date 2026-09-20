@@ -1,16 +1,10 @@
-import { Layers, ListFilter, Search, Tag as TagIcon, X } from 'lucide-react'
-import { CATEGORY_ICON, CATEGORY_LABEL, CATEGORY_TONE, STATUS_LABEL, STATUS_TONE, SYSTEM_LABEL, SYSTEM_TONE } from '../data'
-import type { Category, Status, System } from '../types'
-import { FilterDropdown } from './FilterDropdown'
+import { Layers, ListFilter, Search, X } from 'lucide-react'
+import { STATUS_LABEL, STATUS_TONE, SYSTEM_LABEL, SYSTEM_TONE } from '../data'
+import type { Status, System, TagTone } from '../types'
+import { Combobox, type ComboboxOption } from './Combobox'
 import { SortDropdown } from './SortDropdown'
+import { Tag } from './Tag'
 import './SearchFilterBar.css'
-
-const CATEGORY_OPTIONS = (Object.entries(CATEGORY_LABEL) as [Category, string][]).map(([value, label]) => ({
-  value,
-  label,
-  tone: CATEGORY_TONE[value],
-  Icon: CATEGORY_ICON[value],
-}))
 
 const STATUS_OPTIONS = (Object.entries(STATUS_LABEL) as [Status, string][]).map(([value, label]) => ({
   value,
@@ -27,36 +21,32 @@ const SYSTEM_OPTIONS = (Object.entries(SYSTEM_LABEL) as [System, string][]).map(
 export type SearchFilterBarProps = {
   search: string
   onSearchChange: (value: string) => void
-  categories?: Category[]
-  onCategoriesChange?: (value: Category[]) => void
   statuses: Status[]
   onStatusesChange: (value: Status[]) => void
   systems: System[]
   onSystemsChange: (value: System[]) => void
   sort: TicketSort
   onSortChange: (value: TicketSort) => void
+  showUnreadSort?: boolean
 }
 
-export type TicketSort = 'newest' | 'oldest' | 'popular'
+export type TicketSort = 'newest' | 'oldest' | 'popular' | 'unread'
 
 export function SearchFilterBar({
   search,
   onSearchChange,
-  categories = [],
-  onCategoriesChange,
   statuses,
   onStatusesChange,
   systems,
   onSystemsChange,
   sort,
   onSortChange,
+  showUnreadSort = false,
 }: SearchFilterBarProps) {
-  const hasActiveFilters =
-    categories.length > 0 || statuses.length > 0 || systems.length > 0 || search.trim().length > 0
+  const hasActiveFilters = statuses.length > 0 || systems.length > 0 || search.trim().length > 0
 
   function clearAll() {
     onSearchChange('')
-    onCategoriesChange?.([])
     onStatusesChange([])
     onSystemsChange([])
   }
@@ -76,31 +66,24 @@ export function SearchFilterBar({
           />
         </div>
 
-        {onCategoriesChange && (
-          <FilterDropdown
-            label="Категория"
-            Icon={TagIcon}
-            options={CATEGORY_OPTIONS}
-            selected={categories}
-            onChange={onCategoriesChange}
-            wide
-          />
-        )}
-
-        <FilterDropdown
+        <Combobox
           label="Статус"
           Icon={ListFilter}
           options={STATUS_OPTIONS}
           selected={statuses}
           onChange={onStatusesChange}
+          multiple
+          renderOption={renderFilterOption}
         />
 
-        <FilterDropdown
+        <Combobox
           label="Система"
           Icon={Layers}
           options={SYSTEM_OPTIONS}
           selected={systems}
           onChange={onSystemsChange}
+          multiple
+          renderOption={renderFilterOption}
         />
 
         {hasActiveFilters && (
@@ -110,8 +93,18 @@ export function SearchFilterBar({
           </button>
         )}
 
-        <SortDropdown value={sort} onChange={onSortChange} />
+        <SortDropdown value={sort} onChange={onSortChange} showUnreadOption={showUnreadSort} />
       </div>
     </div>
+  )
+}
+
+function renderFilterOption<T extends string>(option: ComboboxOption<T> & { tone?: TagTone }) {
+  return option.tone ? (
+    <Tag tone={option.tone}>
+      {option.label}
+    </Tag>
+  ) : (
+    option.label
   )
 }

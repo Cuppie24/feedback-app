@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { CATEGORY_ICON, CATEGORY_LABEL, CATEGORY_TONE, comparePopularity } from '../data'
+import { CATEGORY_ICON, CATEGORY_TONE, comparePopularity, getCategoryLabel } from '../data'
 import type { Category, Status, System, Ticket } from '../types'
 import { pluralizeRu } from '../utils'
 import { PageHeader } from './PageHeader'
@@ -55,7 +55,7 @@ export function CategoryTicketsView({
   return (
     <div className="fb-view-wide">
       <PageHeader
-        title={CATEGORY_LABEL[category]}
+        title={getCategoryLabel(category)}
         icon={
           <CategoryIcon
             className={`fb-page-title-icon fb-page-title-icon-${CATEGORY_TONE[category]}`}

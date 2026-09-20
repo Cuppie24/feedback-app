@@ -1,5 +1,5 @@
 import { Bug, Lightbulb, MessageSquare, type LucideIcon } from 'lucide-react'
-import type { Category, Message, Status, System, TagTone, Ticket, User } from './types'
+import type { Category, CategoryLabelMode, Message, Status, System, TagTone, Ticket, User } from './types'
 
 // Placeholder data: the feedback backend does not exist yet (see
 // CLAUDE.md). Seeds useFeedbackTickets() so the feature is fully
@@ -12,10 +12,14 @@ const HOUR_MS = 60 * 60 * 1000
 // addTicket's 'только что'.
 const now = Date.now()
 
-export const CATEGORY_LABEL: Record<Category, string> = {
-  bug: 'Ошибка',
-  idea: 'Предложение',
-  review: 'Отзыв',
+export const CATEGORY_LABEL: Record<Category, Record<CategoryLabelMode, string>> = {
+  bug: { singular: 'Ошибка', plural: 'Ошибки' },
+  idea: { singular: 'Предложение', plural: 'Предложения' },
+  review: { singular: 'Отзыв', plural: 'Отзывы' },
+}
+
+export function getCategoryLabel(category: Category, mode: CategoryLabelMode = 'singular') {
+  return CATEGORY_LABEL[category][mode]
 }
 
 export const STATUS_LABEL: Record<Status, string> = {
@@ -40,6 +44,12 @@ export const CATEGORY_VOTABLE: Record<Category, boolean> = {
   bug: true,
   idea: true,
   review: false,
+}
+
+// Temporary presentation state for the user ticket list. Replace this with
+// backend-backed read receipts when message delivery is available.
+export function hasUnreadMessages(ticket: Ticket) {
+  return ticket.category === 'bug' && ticket.status !== 'done'
 }
 
 // A non-votable ticket (review) always sorts after votable ones, even

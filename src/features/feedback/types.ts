@@ -1,5 +1,7 @@
 export type Category = 'bug' | 'idea' | 'review'
 
+export type CategoryLabelMode = 'singular' | 'plural'
+
 export type Status = 'open' | 'progress' | 'done'
 
 export type System = 'cwatis' | 'bookkeep' | 'personnel' | 'manufacture'

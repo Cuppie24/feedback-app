@@ -1,5 +1,5 @@
-import { ChevronRight, Heart } from 'lucide-react'
-import { CATEGORY_ICON, CATEGORY_LABEL, CATEGORY_VOTABLE, STATUS_LABEL, STATUS_TONE, SYSTEM_LABEL, SYSTEM_TONE } from '../data'
+import { ChevronRight, Heart, MessageCircle } from 'lucide-react'
+import { CATEGORY_VOTABLE, STATUS_LABEL, STATUS_TONE, SYSTEM_LABEL, hasUnreadMessages } from '../data'
 import type { Ticket } from '../types'
 import { Tag } from './Tag'
 import { VoteButton } from './VoteButton'
@@ -28,13 +28,13 @@ export function UserTicketList({
   return (
     <div className="fb-user-ticket-list">
       {tickets.map((ticket) => {
-        const Icon = CATEGORY_ICON[ticket.category]
         const snippet = ticket.messages.at(-1)?.text ?? ticket.title
+        const unreadMessages = hasUnreadMessages(ticket) ? 1 : 0
 
         return (
           <article
             key={ticket.id}
-            className="fb-user-ticket-card"
+            className={`fb-user-ticket-card${unreadMessages > 0 ? ' has-unread' : ''}`}
             role="button"
             tabIndex={0}
             onClick={() => onOpenTicket(ticket)}
@@ -45,31 +45,33 @@ export function UserTicketList({
               }
             }}
           >
-            <div className="fb-user-ticket-card-topline">
-              <span className="fb-user-ticket-category">
-                <Icon size={15} aria-hidden="true" />
-                {CATEGORY_LABEL[ticket.category]}
-              </span>
-              {ticket.system && (
-                <span className="fb-user-ticket-system">
-                  <span>Система</span>
-                  <Tag tone={SYSTEM_TONE[ticket.system]}>{SYSTEM_LABEL[ticket.system]}</Tag>
-                </span>
-              )}
+            <div className="fb-user-ticket-title-row">
+              <h2 className="fb-user-ticket-title">{ticket.title}</h2>
               <span className="fb-user-ticket-time" title={new Date(ticket.createdAt).toLocaleString('ru-RU')}>
                 {ticket.time}
               </span>
             </div>
 
-            <h2 className="fb-user-ticket-title">{ticket.title}</h2>
             <p className="fb-user-ticket-snippet">{snippet}</p>
 
             <footer className="fb-user-ticket-footer">
               <div className="fb-user-ticket-tags">
                 {ticket.status && <Tag tone={STATUS_TONE[ticket.status]}>{STATUS_LABEL[ticket.status]}</Tag>}
+                {ticket.system && (
+                  <span className="fb-user-ticket-system">
+                    <span>Система</span>
+                    <Tag tone="neutral">{SYSTEM_LABEL[ticket.system]}</Tag>
+                  </span>
+                )}
               </div>
 
               <div className="fb-user-ticket-actions">
+                {unreadMessages > 0 && (
+                  <span className="fb-user-ticket-unread" aria-label={`${unreadMessages} непрочитанное сообщение`}>
+                    <MessageCircle size={14} aria-hidden="true" />
+                    {unreadMessages}
+                  </span>
+                )}
                 {CATEGORY_VOTABLE[ticket.category] &&
                   (onToggleLike ? (
                     <VoteButton likes={ticket.likes} liked={ticket.liked} onToggle={() => onToggleLike(ticket.id)} />

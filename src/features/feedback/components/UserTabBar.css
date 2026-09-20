@@ -7,7 +7,7 @@
   display: flex;
   flex: none;
   justify-content: center;
-  padding: var(--space-48) var(--space-24) var(--space-24);
+  padding: var(--space-24) var(--space-24) var(--space-16);
   -webkit-user-select: none;
   user-select: none;
   animation: fb-user-header-in var(--duration-medium) var(--ease-out);
@@ -30,7 +30,7 @@
   position: relative;
   display: flex;
   width: 100%;
-  max-width: 560px;
+  max-width: 500px;
   padding: var(--space-4);
   background: var(--color-surface-sunken);
   border-radius: var(--radius-pill);
@@ -66,13 +66,13 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-8);
-  height: 52px;
+  height: 44px;
   padding: 0 var(--space-16);
   border: none;
   border-radius: var(--radius-pill);
   background: transparent;
   font-family: inherit;
-  font-size: var(--font-size-body);
+  font-size: var(--font-size-ui);
   font-weight: var(--font-weight-medium);
   color: var(--color-text-muted);
   white-space: nowrap;
@@ -114,11 +114,11 @@
    scale type/padding down before labels start ellipsizing. */
 @media (max-width: 640px) {
   .fb-user-header {
-    padding: var(--space-32) var(--space-16) var(--space-16);
+    padding: var(--space-16) var(--space-16) var(--space-12);
   }
 
   .fb-user-tab {
-    height: 44px;
+    height: 40px;
     padding: 0 var(--space-12);
     font-size: var(--font-size-ui);
     gap: var(--space-6);

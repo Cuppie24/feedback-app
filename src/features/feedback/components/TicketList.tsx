@@ -1,7 +1,7 @@
 import { ArrowDown, ArrowUp } from 'lucide-react'
 import {
   CATEGORY_ICON,
-  CATEGORY_LABEL,
+  getCategoryLabel,
   CATEGORY_VOTABLE,
   STATUS_LABEL,
   STATUS_TONE,
@@ -100,7 +100,7 @@ export function TicketList({
       {tickets.map((ticket) => {
         const snippet = ticket.messages.at(-1)?.text ?? ticket.title
         const Icon = CATEGORY_ICON[ticket.category]
-        const categoryLabel = CATEGORY_LABEL[ticket.category]
+        const categoryLabel = getCategoryLabel(ticket.category)
 
         return (
           <div

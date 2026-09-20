@@ -1,0 +1,129 @@
+.fb-combobox {
+  position: relative;
+  flex: none;
+}
+
+.fb-combobox-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-6);
+  height: var(--control-height-sm);
+  padding: 0 var(--space-8);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 13px;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition:
+    background var(--duration-fast) var(--ease-in-out),
+    color var(--duration-fast) var(--ease-in-out);
+}
+
+.fb-combobox-trigger:hover,
+.fb-combobox-trigger[aria-expanded='true'] {
+  color: var(--color-text);
+  background: var(--color-surface-hover);
+}
+
+.fb-combobox-trigger.active {
+  color: var(--color-accent);
+  background: var(--color-accent-wash);
+}
+
+.fb-combobox-trigger:focus-visible,
+.fb-combobox-option:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.fb-combobox-label {
+  position: relative;
+  top: -1px;
+}
+
+.fb-combobox-name {
+  font-weight: var(--font-weight-regular);
+}
+
+.fb-combobox-trigger.active .fb-combobox-name {
+  font-weight: var(--font-weight-bold);
+}
+
+.fb-combobox-selection {
+  font-weight: var(--font-weight-regular);
+}
+
+.fb-combobox-chevron {
+  flex: none;
+  color: var(--color-text-subtle);
+}
+
+.fb-combobox-menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + var(--space-6));
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 200px;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-overlay);
+  transform-origin: top left;
+  animation: fb-combobox-in var(--duration-medium) var(--ease-out);
+}
+
+.fb-combobox-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-16);
+  min-height: 30px;
+  padding: 0 var(--space-8);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--font-size-ui);
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+}
+
+.fb-combobox-option:hover {
+  background: var(--color-surface-hover);
+}
+
+.fb-combobox-option.selected {
+  background: var(--color-accent-wash);
+  color: var(--color-accent);
+}
+
+.fb-combobox-option.selected:hover {
+  background: var(--color-accent-wash);
+}
+
+.fb-combobox-option-label {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.fb-combobox-check {
+  flex: none;
+  margin-left: auto;
+  color: var(--color-accent);
+}
+
+@keyframes fb-combobox-in {
+  from {
+    opacity: 0;
+    transform: translateY(-2px) scale(0.7);
+  }
+}

@@ -1,0 +1,92 @@
+.fb-category-filter-tabs {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: center;
+  width: min(100%, 460px);
+  padding: var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-sunken);
+  box-shadow: inset 0 0 0 1px var(--color-border);
+  user-select: none;
+}
+
+.fb-category-filter-tab {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-6);
+  height: var(--control-height-sm);
+  padding: 0 var(--space-8);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--ease-in-out),
+    transform var(--duration-instant) var(--ease-in-out);
+}
+
+.fb-category-filter-tab:hover {
+  color: var(--color-text);
+}
+
+.fb-category-filter-tab:active {
+  transform: scale(0.97);
+}
+
+.fb-category-filter-tab.active {
+  color: var(--color-text);
+}
+
+.fb-category-filter-tab:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.fb-category-filter-tab svg {
+  flex: none;
+}
+
+.fb-category-filter-tab-icon-danger {
+  color: var(--color-danger);
+}
+
+.fb-category-filter-tab-icon-warning {
+  color: var(--color-warning);
+}
+
+.fb-category-filter-tab-icon-info {
+  color: var(--color-info-text);
+}
+
+.fb-category-filter-tabs-thumb {
+  position: absolute;
+  top: var(--space-4);
+  bottom: var(--space-4);
+  left: var(--space-4);
+  width: calc((100% - 2 * var(--space-4)) / 3);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-raised);
+  transition: transform var(--duration-fast) var(--ease-in-out);
+}
+
+.fb-category-filter-tabs[data-active='1'] .fb-category-filter-tabs-thumb {
+  transform: translateX(100%);
+}
+
+.fb-category-filter-tabs[data-active='2'] .fb-category-filter-tabs-thumb {
+  transform: translateX(200%);
+}
+
+@media (max-width: 560px) {
+  .fb-category-filter-tabs {
+    width: 100%;
+  }
+}

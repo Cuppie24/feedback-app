@@ -641,8 +641,8 @@ export function useCommentThread({ comments, onAddComment, onEditComment, onDele
 
 export type CommentThreadState = ReturnType<typeof useCommentThread>
 
-// Shared outside-click + Escape dismissal for the filter/sort dropdowns
-// (FilterDropdown, SortDropdown) - both need identical "close when the
+// Shared outside-click + Escape dismissal for popup controls.
+// Comboboxes need identical "close when the
 // user clicks elsewhere or presses Escape" behavior.
 export function useDismissOnOutsideOrEscape(
   open: boolean,

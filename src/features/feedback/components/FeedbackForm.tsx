@@ -1,6 +1,6 @@
 import { Send } from 'lucide-react'
 import { useId, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
-import { CATEGORY_ICON, CATEGORY_LABEL, CATEGORY_TONE } from '../data'
+import { CATEGORY_ICON, CATEGORY_LABEL, CATEGORY_TONE, getCategoryLabel } from '../data'
 import { useAttachments } from '../hooks'
 import type { Category, NewFeedbackInput } from '../types'
 import { AttachmentsField } from './AttachmentsField'
@@ -136,7 +136,7 @@ export function FeedbackForm({ onSubmit }: FeedbackFormProps) {
                 onClick={() => selectCategory(option)}
               >
                 <Icon className="fb-pill-icon" size={15} strokeWidth={2.25} aria-hidden="true" />
-                {CATEGORY_LABEL[option]}
+                {getCategoryLabel(option)}
               </button>
             )
           })}
