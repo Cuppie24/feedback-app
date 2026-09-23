@@ -42,18 +42,21 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
         <div className="fb-detail-content">
           <DetailHeader
             id={ticket.id}
+            category={ticket.category}
             title={ticket.title}
             status={ticket.status}
             onStatusChange={onStatusChange}
             statusEditable={statusEditable}
             vote={{ likes: ticket.likes, liked: ticket.liked, onToggle: onToggleLike, readOnly: ticket.mine }}
-          >
-            <div className="fb-detail-proposal" aria-label="Предложение">
+            byline={
               <div className="fb-detail-author">
                 <UserPopover user={ticket.author} label="Автор" showName />
                 <span className="fb-detail-author-role">{ticket.author.role}</span>
                 <time>{proposal.time}</time>
               </div>
+            }
+          >
+            <div className="fb-detail-proposal" aria-label="Предложение">
               <p className="fb-detail-proposal-text">{proposal.text}</p>
               {proposal.attachments.length > 0 && (
                 <div className="fb-detail-attachments" aria-label="Вложения">

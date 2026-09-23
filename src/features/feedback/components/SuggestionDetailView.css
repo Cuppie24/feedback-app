@@ -7,8 +7,7 @@
   animation: fb-view-in var(--duration-medium) var(--ease-out);
 }
 
-.fb-detail-proposal { padding-top: var(--space-12); }
-.fb-detail-author { display: flex; align-items: center; gap: var(--space-6); color: var(--color-text-muted); font-size: var(--font-size-caption); }
+.fb-detail-author { display: flex; align-items: center; gap: var(--space-6); margin-bottom: var(--space-12); color: var(--color-text-muted); font-size: var(--font-size-caption); }
 .fb-detail-author .fb-assignee-popover-root.with-name { width: auto; }
 .fb-detail-author .fb-row-assignee-avatar.with-name { width: auto; height: 28px; padding: 0 0 0 34px; gap: 0; }
 .fb-detail-author .fb-row-assignee-avatar.with-name::before { inset: 0 auto 0 0; width: 28px; }

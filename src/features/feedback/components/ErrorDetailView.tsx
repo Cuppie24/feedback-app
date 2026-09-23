@@ -114,6 +114,7 @@ export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, 
         <div className="fb-detail-content">
           <DetailHeader
             id={ticket.id}
+            category={ticket.category}
             title={ticket.title}
             status={ticket.status}
             onStatusChange={onStatusChange}
