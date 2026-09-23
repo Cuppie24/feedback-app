@@ -6,6 +6,8 @@ export type UserView = 'create' | 'mine' | 'popular'
 type UserTabBarProps = {
   active: UserView
   onNavigate: (view: UserView) => void
+  // Tabs with something new for the user get a dot on their icon.
+  notifications?: Partial<Record<UserView, boolean>>
 }
 
 const TAB_ITEMS: { view: UserView; label: string; Icon: LucideIcon }[] = [
@@ -18,7 +20,7 @@ const TAB_ITEMS: { view: UserView; label: string; Icon: LucideIcon }[] = [
 // not the Sidebar's vertical nav. Deliberately its own component/file
 // with no brand mark, so user mode stays free to look nothing like
 // agent mode's chrome - see FeedbackApp.tsx.
-export function UserTabBar({ active, onNavigate }: UserTabBarProps) {
+export function UserTabBar({ active, onNavigate, notifications = {} }: UserTabBarProps) {
   const activeIndex = TAB_ITEMS.findIndex((item) => item.view === active)
 
   return (
@@ -33,8 +35,12 @@ export function UserTabBar({ active, onNavigate }: UserTabBarProps) {
             onClick={() => onNavigate(view)}
             aria-current={active === view ? 'page' : undefined}
           >
-            <Icon size={20} />
+            <span className="fb-user-tab-icon">
+              <Icon size={20} />
+              {notifications[view] && <span className="fb-user-tab-dot" aria-hidden="true" />}
+            </span>
             {label}
+            {notifications[view] && <span className="fb-user-tab-sr-only">, есть обновления</span>}
           </button>
         ))}
       </nav>

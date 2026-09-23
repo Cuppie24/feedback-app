@@ -59,12 +59,12 @@
 }
 
 .fb-user-ticket-card.has-unread {
-  box-shadow: inset 3px 0 0 var(--color-accent);
+  box-shadow: inset 3px 0 0 var(--color-danger);
 }
 
 .fb-user-ticket-card.has-unread:hover {
   box-shadow:
-    inset 3px 0 0 var(--color-accent),
+    inset 3px 0 0 var(--color-danger),
     var(--shadow-sm);
 }
 

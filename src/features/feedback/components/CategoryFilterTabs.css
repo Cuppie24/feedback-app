@@ -53,6 +53,23 @@
   flex: none;
 }
 
+.fb-category-filter-tab-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--color-danger);
+}
+
+.fb-category-filter-tab-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 .fb-category-filter-tab-icon-danger {
   color: var(--color-danger);
 }

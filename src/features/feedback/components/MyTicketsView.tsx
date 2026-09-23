@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { filterAndSortTickets } from '../data'
+import { filterAndSortTickets, hasUnreadMessages } from '../data'
 import type { Category, Status, System, Ticket } from '../types'
 import { CategoryFilterTabs } from './CategoryFilterTabs'
 import { SearchFilterBar, type TicketSort } from './SearchFilterBar'
@@ -21,6 +21,10 @@ export function MyTicketsView({
   const [sort, setSort] = useState<TicketSort>('newest')
 
   const hasAny = tickets.some((ticket) => ticket.mine)
+  const unreadByCategory: Partial<Record<Category, boolean>> = {}
+  for (const ticket of tickets) {
+    if (ticket.mine && hasUnreadMessages(ticket)) unreadByCategory[ticket.category] = true
+  }
 
   const filtered = useMemo(() => {
     const mine = tickets.filter((ticket) => {
@@ -34,7 +38,11 @@ export function MyTicketsView({
   return (
     <div className="fb-user-ticket-view">
       <div className="fb-my-tickets-category-tabs">
-        <CategoryFilterTabs value={category} onChange={(value) => value && setCategory(value)} />
+        <CategoryFilterTabs
+          value={category}
+          onChange={(value) => value && setCategory(value)}
+          notifications={unreadByCategory}
+        />
       </div>
 
       <SearchFilterBar

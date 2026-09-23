@@ -10,9 +10,11 @@ type CategoryFilterTabsProps = {
   onChange: (value: Category | null) => void
   // Subset/order of tabs to show; defaults to every category.
   categories?: Category[]
+  // Tabs with something new for the user get a dot after their label.
+  notifications?: Partial<Record<Category, boolean>>
 }
 
-export function CategoryFilterTabs({ value, onChange, categories = ALL_CATEGORIES }: CategoryFilterTabsProps) {
+export function CategoryFilterTabs({ value, onChange, categories = ALL_CATEGORIES, notifications = {} }: CategoryFilterTabsProps) {
   const activeIndex = value ? categories.indexOf(value) : -1
 
   return (
@@ -39,6 +41,12 @@ export function CategoryFilterTabs({ value, onChange, categories = ALL_CATEGORIE
           >
             <Icon className={`fb-category-filter-tab-icon-${CATEGORY_TONE[category]}`} size={14} strokeWidth={2.5} />
             {getCategoryLabel(category, 'plural')}
+            {notifications[category] && (
+              <>
+                <span className="fb-category-filter-tab-dot" aria-hidden="true" />
+                <span className="fb-category-filter-tab-sr-only">, есть обновления</span>
+              </>
+            )}
           </button>
         )
       })}

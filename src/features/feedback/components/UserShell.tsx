@@ -1,5 +1,6 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTheme } from '../../../shared/useTheme'
+import { hasUnreadMessages } from '../data'
 import { usePersistedMode, useSearchPalette } from '../hooks'
 import type { Ticket } from '../types'
 import { ModeSwitch } from './ModeSwitch'
@@ -48,7 +49,11 @@ export function UserShell({ tickets, onSelectTicket }: UserShellProps) {
       />
       <ThemeToggle preference={preference} onCycle={cycleTheme} />
       <ModeSwitch mode="user" onToggle={() => navigate('/agent')} />
-      <UserTabBar active={active} onNavigate={(view) => navigate(`/user/${view}`)} />
+      <UserTabBar
+        active={active}
+        onNavigate={(view) => navigate(`/user/${view}`)}
+        notifications={{ mine: tickets.some((ticket) => ticket.mine && hasUnreadMessages(ticket)) }}
+      />
 
       <main className="fb-user-content">
         <Outlet />
