@@ -1,0 +1,8 @@
+.fb-review-detail {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  animation: fb-view-in var(--duration-medium) var(--ease-out);
+}

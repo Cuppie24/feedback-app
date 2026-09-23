@@ -9,6 +9,7 @@ import { CommentSection } from './CommentSection'
 import { DetailHeader } from './DetailHeader'
 import { MessageComposer } from './MessageComposer'
 import { TicketChatLog } from './TicketChatLog'
+import './DetailLayout.css'
 import './ErrorDetailView.css'
 
 type ErrorDetailViewProps = {
@@ -117,10 +118,7 @@ export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, 
             status={ticket.status}
             onStatusChange={onStatusChange}
             statusEditable={statusEditable}
-            likes={ticket.likes}
-            liked={ticket.liked}
-            voteReadOnly={ticket.mine}
-            onToggleLike={onToggleLike}
+            vote={{ likes: ticket.likes, liked: ticket.liked, onToggle: onToggleLike, readOnly: ticket.mine }}
           />
 
           <TicketChatLog ticket={ticket} chat={chat} />

@@ -1,6 +1,5 @@
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import { readStoredMode, useFeedbackTickets } from '../hooks'
-import type { Ticket } from '../types'
 import { AgentShell } from './AgentShell'
 import { AgentsView } from './AgentsView'
 import { AllTicketsView } from './AllTicketsView'
@@ -28,7 +27,8 @@ import './FeedbackApp.css'
 //   /agent/bug/:ticketId     -> ticket detail
 //   /agent/idea              -> CategoryTicketsView (idea)
 //   /agent/idea/:ticketId    -> ticket detail
-//   /agent/review            -> CategoryTicketsView (review, no detail page)
+//   /agent/review            -> CategoryTicketsView (review)
+//   /agent/review/:ticketId  -> ticket detail
 //   /agent/systems           -> SystemsView (placeholder)
 //   /agent/agents            -> AgentsView (placeholder)
 //   /user                    -> redirect to /user/create
@@ -36,14 +36,6 @@ import './FeedbackApp.css'
 //   /user/mine               -> MyTicketsView
 //   /user/mine/:ticketId     -> ticket detail
 //   /user/popular            -> PopularTicketsView (placeholder)
-// Idea and bug tickets have a detail page; review tickets don't (see
-// TicketDetailRoute and the /agent/review route below, which has no
-// :ticketId child) - so opening one from a mixed list (all/mine) is a
-// no-op, same as the old openTicket's category guard.
-function hasDetailPage(ticket: Ticket) {
-  return ticket.category === 'idea' || ticket.category === 'bug'
-}
-
 export function FeedbackApp() {
   const { tickets, toggleLike, updateSystem, updateStatus, addComment, editComment, deleteComment, addTicket } = useFeedbackTickets()
   const navigate = useNavigate()
@@ -63,7 +55,7 @@ export function FeedbackApp() {
               onToggleLike={toggleLike}
               onSystemChange={updateSystem}
               onStatusChange={updateStatus}
-              onOpenTicket={(ticket) => hasDetailPage(ticket) && navigate(`/agent/all/${ticket.id}`)}
+              onOpenTicket={(ticket) => navigate(`/agent/all/${ticket.id}`)}
             />
           }
         />
@@ -93,26 +85,24 @@ export function FeedbackApp() {
                   onToggleLike={toggleLike}
                   onSystemChange={updateSystem}
                   onStatusChange={updateStatus}
-                  onOpenTicket={(ticket) => hasDetailPage(ticket) && navigate(`/agent/${category}/${ticket.id}`)}
+                  onOpenTicket={(ticket) => navigate(`/agent/${category}/${ticket.id}`)}
                 />
               }
             />
-            {category !== 'review' && (
-              <Route
-                path=":ticketId"
-                element={
-                  <TicketDetailRoute
-                    tickets={tickets}
-                    fallbackTo={`/agent/${category}`}
-                    onToggleLike={toggleLike}
-                    onStatusChange={updateStatus}
-                    onAddComment={addComment}
-                    onEditComment={editComment}
-                    onDeleteComment={deleteComment}
-                  />
-                }
-              />
-            )}
+            <Route
+              path=":ticketId"
+              element={
+                <TicketDetailRoute
+                  tickets={tickets}
+                  fallbackTo={`/agent/${category}`}
+                  onToggleLike={toggleLike}
+                  onStatusChange={updateStatus}
+                  onAddComment={addComment}
+                  onEditComment={editComment}
+                  onDeleteComment={deleteComment}
+                />
+              }
+            />
           </Route>
         ))}
 
@@ -125,10 +115,7 @@ export function FeedbackApp() {
         element={
           <UserShell
             tickets={tickets}
-            onSelectTicket={(ticket) => {
-              if (!hasDetailPage(ticket)) return
-              navigate(ticket.mine ? `/user/mine/${ticket.id}` : `/user/popular/${ticket.id}`)
-            }}
+            onSelectTicket={(ticket) => navigate(ticket.mine ? `/user/mine/${ticket.id}` : `/user/popular/${ticket.id}`)}
           />
         }
       >
@@ -150,7 +137,7 @@ export function FeedbackApp() {
           element={
             <MyTicketsView
               tickets={tickets}
-              onOpenTicket={(ticket) => hasDetailPage(ticket) && navigate(`/user/mine/${ticket.id}`)}
+              onOpenTicket={(ticket) => navigate(`/user/mine/${ticket.id}`)}
             />
           }
         />
@@ -176,7 +163,7 @@ export function FeedbackApp() {
             <PopularTicketsView
               tickets={tickets}
               onToggleLike={toggleLike}
-              onOpenTicket={(ticket) => hasDetailPage(ticket) && navigate(`/user/popular/${ticket.id}`)}
+              onOpenTicket={(ticket) => navigate(`/user/popular/${ticket.id}`)}
             />
           }
         />

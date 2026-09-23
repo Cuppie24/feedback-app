@@ -1,6 +1,7 @@
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import type { Attachment, Status, Ticket } from '../types'
 import { ErrorDetailView } from './ErrorDetailView'
+import { ReviewDetailView } from './ReviewDetailView'
 import { SuggestionDetailView } from './SuggestionDetailView'
 
 type TicketDetailRouteProps = {
@@ -16,9 +17,8 @@ type TicketDetailRouteProps = {
 }
 
 // Resolves :ticketId to a ticket and picks the matching detail view - idea
-// tickets get SuggestionDetailView, bug tickets get ErrorDetailView. Review
-// tickets (and unknown ids) have no detail page, same as openTicket's
-// category check in AgentShell/UserShell - so this redirects back instead.
+// tickets get SuggestionDetailView, bug tickets get ErrorDetailView, review
+// tickets get ReviewDetailView. Unknown ids redirect back instead.
 export function TicketDetailRoute({
   tickets,
   fallbackTo,
@@ -34,11 +34,25 @@ export function TicketDetailRoute({
   const navigate = useNavigate()
   const ticket = tickets.find((candidate) => candidate.id === ticketId)
 
-  if (!ticket || (ticket.category !== 'idea' && ticket.category !== 'bug')) {
+  if (!ticket) {
     return <Navigate to={fallbackTo} replace />
   }
 
   const onBack = () => navigate(-1)
+
+  if (ticket.category === 'review') {
+    return (
+      <ReviewDetailView
+        ticket={ticket}
+        onBack={onBack}
+        onStatusChange={(status) => onStatusChange(ticket.id, status)}
+        statusEditable={statusEditable}
+        onSendMessage={(text, attachments, replyToId) => onAddComment(ticket.id, text, replyToId, attachments)}
+        onEditMessage={(messageId, text) => onEditComment(ticket.id, messageId, text)}
+        onDeleteMessage={(messageId) => onDeleteComment(ticket.id, messageId)}
+      />
+    )
+  }
 
   if (ticket.category === 'idea') {
     return (

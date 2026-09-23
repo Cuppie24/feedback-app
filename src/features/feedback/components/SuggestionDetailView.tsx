@@ -6,6 +6,7 @@ import { CommentComposer } from './CommentComposer'
 import { CommentSection } from './CommentSection'
 import { DetailHeader } from './DetailHeader'
 import { UserPopover } from './UserPopover'
+import './DetailLayout.css'
 import './SuggestionDetailView.css'
 
 type SuggestionDetailViewProps = {
@@ -45,10 +46,7 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
             status={ticket.status}
             onStatusChange={onStatusChange}
             statusEditable={statusEditable}
-            likes={ticket.likes}
-            liked={ticket.liked}
-            voteReadOnly={ticket.mine}
-            onToggleLike={onToggleLike}
+            vote={{ likes: ticket.likes, liked: ticket.liked, onToggle: onToggleLike, readOnly: ticket.mine }}
           >
             <div className="fb-detail-proposal" aria-label="Предложение">
               <div className="fb-detail-author">
