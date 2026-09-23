@@ -1,5 +1,5 @@
 import { Bug, Lightbulb, MessageSquare, type LucideIcon } from 'lucide-react'
-import type { Category, CategoryLabelMode, Message, Status, System, TagTone, Ticket, User } from './types'
+import type { Category, CategoryLabelMode, Message, Status, System, TagTone, Ticket, TicketSort, User } from './types'
 
 // Placeholder data: the feedback backend does not exist yet (see
 // CLAUDE.md). Seeds useFeedbackTickets() so the feature is fully
@@ -61,6 +61,28 @@ export function comparePopularity(a: Ticket, b: Ticket): number {
   if (aVotable !== bVotable) return aVotable ? -1 : 1
   if (aVotable) return b.likes - a.likes
   return b.createdAt - a.createdAt
+}
+
+// Shared status/system filter plus sort, reused by every ticket-list page
+// (AllTicketsView, CategoryTicketsView, MyTicketsView, PopularTicketsView).
+// Unread tickets always come first; `sort` only orders within each of the
+// unread/read groups, it never overrides the grouping. Category/mine
+// filtering is page-specific, so callers apply that themselves before
+// passing the result in here.
+export function filterAndSortTickets(tickets: Ticket[], statuses: Status[], systems: System[], sort: TicketSort): Ticket[] {
+  const matches = tickets.filter((ticket) => {
+    if (statuses.length > 0 && (ticket.status === null || !statuses.includes(ticket.status))) return false
+    if (systems.length > 0 && (ticket.system === null || !systems.includes(ticket.system))) return false
+    return true
+  })
+
+  function bySelectedSort(a: Ticket, b: Ticket): number {
+    if (sort === 'popular') return comparePopularity(a, b)
+    if (sort === 'oldest') return a.createdAt - b.createdAt
+    return b.createdAt - a.createdAt
+  }
+
+  return matches.sort((a, b) => Number(hasUnreadMessages(b)) - Number(hasUnreadMessages(a)) || bySelectedSort(a, b))
 }
 
 export const STATUS_TONE: Record<Status, TagTone> = {

@@ -8,22 +8,17 @@ const SORT_OPTIONS: { value: TicketSort; label: string }[] = [
   { value: 'popular', label: 'Больше голосов' },
 ]
 
-const UNREAD_SORT_OPTION: { value: TicketSort; label: string } = { value: 'unread', label: 'Сначала непрочитанные' }
-
 type SortDropdownProps = {
   value: TicketSort
   onChange: (value: TicketSort) => void
-  showUnreadOption?: boolean
 }
 
-export function SortDropdown({ value, onChange, showUnreadOption = false }: SortDropdownProps) {
-  const options = showUnreadOption ? [...SORT_OPTIONS, UNREAD_SORT_OPTION] : SORT_OPTIONS
-
+export function SortDropdown({ value, onChange }: SortDropdownProps) {
   return (
     <Combobox
       label="Сортировка"
       Icon={ArrowUpDown}
-      options={options}
+      options={SORT_OPTIONS}
       selected={[value]}
       multiple={false}
       onChange={([next]) => onChange(next ?? value)}

@@ -111,7 +111,7 @@ export function useFeedbackTickets() {
   const toggleLike = useCallback((id: string) => {
     setTickets((prev) =>
       prev.map((ticket) =>
-        ticket.id === id
+        ticket.id === id && !ticket.mine
           ? { ...ticket, liked: !ticket.liked, likes: ticket.likes + (ticket.liked ? -1 : 1) }
           : ticket,
       ),

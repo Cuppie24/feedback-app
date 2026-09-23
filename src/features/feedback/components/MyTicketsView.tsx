@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { comparePopularity, hasUnreadMessages } from '../data'
+import { filterAndSortTickets } from '../data'
 import type { Category, Status, System, Ticket } from '../types'
 import { CategoryFilterTabs } from './CategoryFilterTabs'
 import { SearchFilterBar, type TicketSort } from './SearchFilterBar'
@@ -23,20 +23,12 @@ export function MyTicketsView({
   const hasAny = tickets.some((ticket) => ticket.mine)
 
   const filtered = useMemo(() => {
-    const matches = tickets.filter((ticket) => {
+    const mine = tickets.filter((ticket) => {
       if (!ticket.mine) return false
       if (category !== null && ticket.category !== category) return false
-      if (statuses.length > 0 && (ticket.status === null || !statuses.includes(ticket.status))) return false
-      if (systems.length > 0 && (ticket.system === null || !systems.includes(ticket.system))) return false
       return true
     })
-
-    if (sort === 'popular') return [...matches].sort(comparePopularity)
-    if (sort === 'oldest') return [...matches].sort((a, b) => a.createdAt - b.createdAt)
-    if (sort === 'unread') {
-      return [...matches].sort((a, b) => Number(hasUnreadMessages(b)) - Number(hasUnreadMessages(a)) || b.createdAt - a.createdAt)
-    }
-    return [...matches].sort((a, b) => b.createdAt - a.createdAt)
+    return filterAndSortTickets(mine, statuses, systems, sort)
   }, [tickets, category, statuses, systems, sort])
 
   return (
@@ -52,7 +44,6 @@ export function MyTicketsView({
         onSystemsChange={setSystems}
         sort={sort}
         onSortChange={setSort}
-        showUnreadSort
       />
 
       <UserTicketList

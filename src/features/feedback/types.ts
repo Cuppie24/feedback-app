@@ -6,6 +6,8 @@ export type Status = 'open' | 'progress' | 'done'
 
 export type System = 'cwatis' | 'bookkeep' | 'personnel' | 'manufacture'
 
+export type TicketSort = 'newest' | 'oldest' | 'popular'
+
 export type TagTone =
   | 'danger'
   | 'info'

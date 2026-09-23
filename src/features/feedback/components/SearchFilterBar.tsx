@@ -1,6 +1,6 @@
 import { Layers, ListFilter, X } from 'lucide-react'
 import { STATUS_LABEL, STATUS_TONE, SYSTEM_LABEL, SYSTEM_TONE } from '../data'
-import type { Status, System, TagTone } from '../types'
+import type { Status, System, TagTone, TicketSort } from '../types'
 import { Combobox, type ComboboxOption } from './Combobox'
 import { SortDropdown } from './SortDropdown'
 import { Tag } from './Tag'
@@ -25,10 +25,9 @@ export type SearchFilterBarProps = {
   onSystemsChange: (value: System[]) => void
   sort: TicketSort
   onSortChange: (value: TicketSort) => void
-  showUnreadSort?: boolean
 }
 
-export type TicketSort = 'newest' | 'oldest' | 'popular' | 'unread'
+export type { TicketSort }
 
 export function SearchFilterBar({
   statuses,
@@ -37,7 +36,6 @@ export function SearchFilterBar({
   onSystemsChange,
   sort,
   onSortChange,
-  showUnreadSort = false,
 }: SearchFilterBarProps) {
   const hasActiveFilters = statuses.length > 0 || systems.length > 0
 
@@ -76,7 +74,7 @@ export function SearchFilterBar({
           </button>
         )}
 
-        <SortDropdown value={sort} onChange={onSortChange} showUnreadOption={showUnreadSort} />
+        <SortDropdown value={sort} onChange={onSortChange} />
       </div>
     </div>
   )

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { CATEGORY_ICON, CATEGORY_TONE, comparePopularity, getCategoryLabel } from '../data'
+import { CATEGORY_ICON, CATEGORY_TONE, filterAndSortTickets, getCategoryLabel } from '../data'
 import type { Category, Status, System, Ticket } from '../types'
 import { pluralizeRu } from '../utils'
 import { PageHeader } from './PageHeader'
@@ -30,16 +30,8 @@ export function CategoryTicketsView({
   const CategoryIcon = CATEGORY_ICON[category]
 
   const filtered = useMemo(() => {
-    const matches = tickets.filter((ticket) => {
-      if (ticket.category !== category) return false
-      if (statuses.length > 0 && (ticket.status === null || !statuses.includes(ticket.status))) return false
-      if (systems.length > 0 && (ticket.system === null || !systems.includes(ticket.system))) return false
-      return true
-    })
-
-    if (sort === 'popular') return [...matches].sort(comparePopularity)
-    if (sort === 'oldest') return [...matches].sort((a, b) => a.createdAt - b.createdAt)
-    return [...matches].sort((a, b) => b.createdAt - a.createdAt)
+    const inCategory = tickets.filter((ticket) => ticket.category === category)
+    return filterAndSortTickets(inCategory, statuses, systems, sort)
   }, [tickets, category, statuses, systems, sort])
 
   return (

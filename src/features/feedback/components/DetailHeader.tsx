@@ -21,6 +21,8 @@ type DetailHeaderProps = {
   likes: number
   liked: boolean
   onToggleLike: () => void
+  // Authors see their own vote count but cannot vote.
+  voteReadOnly?: boolean
   children?: ReactNode
 }
 
@@ -32,7 +34,7 @@ const STATUS_OPTIONS = (Object.entries(STATUS_LABEL) as [Status, string][]).map(
 // row is identical between the two. SuggestionDetailView additionally passes
 // its proposal block (author/text/attachments) as children, rendered inside
 // the same <header> below the top row; ErrorDetailView has none.
-export function DetailHeader({ id, title, status, onStatusChange, statusEditable = true, likes, liked, onToggleLike, children }: DetailHeaderProps) {
+export function DetailHeader({ id, title, status, onStatusChange, statusEditable = true, likes, liked, onToggleLike, voteReadOnly = false, children }: DetailHeaderProps) {
   const { copiedValue, leaving, copy } = useCopyToClipboard()
 
   return (
@@ -56,7 +58,7 @@ export function DetailHeader({ id, title, status, onStatusChange, statusEditable
             ) : (
               status && <Tag tone={STATUS_TONE[status]}>{STATUS_LABEL[status]}</Tag>
             )}
-            <VoteButton likes={likes} liked={liked} onToggle={onToggleLike} />
+            <VoteButton likes={likes} liked={liked} readOnly={voteReadOnly} onToggle={onToggleLike} />
           </div>
         </div>
         {children}

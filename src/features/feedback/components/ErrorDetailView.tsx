@@ -116,6 +116,7 @@ export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, 
             statusEditable={statusEditable}
             likes={ticket.likes}
             liked={ticket.liked}
+            voteReadOnly={ticket.mine}
             onToggleLike={onToggleLike}
           />
 

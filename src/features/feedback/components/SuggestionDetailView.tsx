@@ -45,6 +45,7 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
             statusEditable={statusEditable}
             likes={ticket.likes}
             liked={ticket.liked}
+            voteReadOnly={ticket.mine}
             onToggleLike={onToggleLike}
           >
             <div className="fb-detail-proposal" aria-label="Предложение">

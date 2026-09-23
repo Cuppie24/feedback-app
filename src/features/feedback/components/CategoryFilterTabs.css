@@ -1,9 +1,9 @@
 .fb-category-filter-tabs {
   position: relative;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(var(--tab-count, 3), minmax(0, 1fr));
   align-items: center;
-  width: min(100%, 460px);
+  width: min(100%, calc(var(--tab-count, 3) * 154px));
   padding: var(--space-4);
   border-radius: var(--radius-pill);
   background: var(--color-surface-sunken);
@@ -70,7 +70,7 @@
   top: var(--space-4);
   bottom: var(--space-4);
   left: var(--space-4);
-  width: calc((100% - 2 * var(--space-4)) / 3);
+  width: calc((100% - 2 * var(--space-4)) / var(--tab-count, 3));
   border-radius: var(--radius-pill);
   background: var(--color-bg);
   box-shadow: var(--shadow-raised);

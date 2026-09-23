@@ -1,4 +1,4 @@
-import { ChevronRight, Copy, Heart, MessageCircle } from 'lucide-react'
+import { ChevronRight, Copy, Heart } from 'lucide-react'
 import { CATEGORY_VOTABLE, STATUS_LABEL, STATUS_TONE, SYSTEM_LABEL, hasUnreadMessages } from '../data'
 import { useCopyToClipboard } from '../hooks'
 import type { Ticket } from '../types'
@@ -34,12 +34,12 @@ export function UserTicketList({
       <div className="fb-user-ticket-list">
       {tickets.map((ticket) => {
         const snippet = ticket.messages.at(-1)?.text ?? ticket.title
-        const unreadMessages = hasUnreadMessages(ticket) ? 1 : 0
+        const unread = hasUnreadMessages(ticket)
 
         return (
           <article
             key={ticket.id}
-            className={`fb-user-ticket-card${unreadMessages > 0 ? ' has-unread' : ''}`}
+            className={`fb-user-ticket-card${unread ? ' has-unread' : ''}`}
             role="button"
             tabIndex={0}
             onClick={() => onOpenTicket(ticket)}
@@ -51,6 +51,7 @@ export function UserTicketList({
             }}
           >
             <div className="fb-user-ticket-title-row">
+              <h2 className="fb-user-ticket-title">{ticket.title}</h2>
               <button
                 type="button"
                 className="fb-user-ticket-id"
@@ -63,7 +64,6 @@ export function UserTicketList({
               >
                 {ticket.id}
               </button>
-              <h2 className="fb-user-ticket-title">{ticket.title}</h2>
               <span className="fb-user-ticket-time" title={new Date(ticket.createdAt).toLocaleString('ru-RU')}>
                 {ticket.time}
               </span>
@@ -73,7 +73,12 @@ export function UserTicketList({
 
             <footer className="fb-user-ticket-footer">
               <div className="fb-user-ticket-tags">
-                {ticket.status && <Tag tone={STATUS_TONE[ticket.status]}>{STATUS_LABEL[ticket.status]}</Tag>}
+                {ticket.status && (
+                  <span className="fb-user-ticket-status">
+                    <span>Статус</span>
+                    <Tag tone={STATUS_TONE[ticket.status]}>{STATUS_LABEL[ticket.status]}</Tag>
+                  </span>
+                )}
                 {ticket.system && (
                   <span className="fb-user-ticket-system">
                     <span>Система</span>
@@ -83,18 +88,12 @@ export function UserTicketList({
               </div>
 
               <div className="fb-user-ticket-actions">
-                {unreadMessages > 0 && (
-                  <span className="fb-user-ticket-unread" aria-label={`${unreadMessages} непрочитанное сообщение`}>
-                    <MessageCircle size={14} aria-hidden="true" />
-                    {unreadMessages}
-                  </span>
-                )}
                 {CATEGORY_VOTABLE[ticket.category] &&
                   (onToggleLike ? (
-                    <VoteButton likes={ticket.likes} liked={ticket.liked} onToggle={() => onToggleLike(ticket.id)} />
+                    <VoteButton likes={ticket.likes} liked={ticket.liked} readOnly={ticket.mine} onToggle={() => onToggleLike(ticket.id)} />
                   ) : (
                     <span className="fb-user-ticket-vote-count" aria-label={`${ticket.likes} голосов`}>
-                      <Heart size={14} aria-hidden="true" />
+                      <Heart size={18} strokeWidth={2.5} aria-hidden="true" />
                       {ticket.likes}
                     </span>
                   ))}

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { comparePopularity } from '../data'
+import { filterAndSortTickets } from '../data'
 import type { Status, System, Ticket } from '../types'
 import { pluralizeRu } from '../utils'
 import { PageHeader } from './PageHeader'
@@ -26,17 +26,10 @@ export function AllTicketsView({
   const [systems, setSystems] = useState<System[]>([])
   const [sort, setSort] = useState<TicketSort>('newest')
 
-  const filtered = useMemo(() => {
-    const matches = tickets.filter((ticket) => {
-      if (statuses.length > 0 && (ticket.status === null || !statuses.includes(ticket.status))) return false
-      if (systems.length > 0 && (ticket.system === null || !systems.includes(ticket.system))) return false
-      return true
-    })
-
-    if (sort === 'popular') return [...matches].sort(comparePopularity)
-    if (sort === 'oldest') return [...matches].sort((a, b) => a.createdAt - b.createdAt)
-    return [...matches].sort((a, b) => b.createdAt - a.createdAt)
-  }, [tickets, statuses, systems, sort])
+  const filtered = useMemo(
+    () => filterAndSortTickets(tickets, statuses, systems, sort),
+    [tickets, statuses, systems, sort],
+  )
 
   return (
     <div className="fb-view-wide">

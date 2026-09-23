@@ -156,7 +156,7 @@ export function TicketList({
             </div>
 
             {CATEGORY_VOTABLE[ticket.category] ? (
-              <VoteButton likes={ticket.likes} liked={ticket.liked} onToggle={() => onToggleLike(ticket.id)} />
+              <VoteButton likes={ticket.likes} liked={ticket.liked} readOnly={ticket.mine} onToggle={() => onToggleLike(ticket.id)} />
             ) : (
               <span className="fb-row-vote-empty" aria-hidden="true" />
             )}
