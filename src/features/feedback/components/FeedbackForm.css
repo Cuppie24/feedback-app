@@ -54,12 +54,12 @@
   color: var(--color-text-muted);
   white-space: nowrap;
   cursor: pointer;
-  scale: 0.88;
+  scale: 0.96;
   box-shadow: inset 0 0 0 1px var(--color-border-strong);
   transition: background-color var(--duration-fast) var(--ease-in-out),
     box-shadow var(--duration-fast) var(--ease-in-out),
     color var(--duration-fast) var(--ease-in-out),
-    scale calc(var(--duration-medium) * 2) var(--ease-out);
+    scale var(--duration-medium) var(--ease-out);
 }
 
 .fb-pill:hover {
@@ -76,7 +76,7 @@
   background: var(--fb-pill-wash);
   color: var(--fb-pill-color);
   font-weight: var(--font-weight-semibold);
-  scale: 1.16;
+  scale: 1.04;
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fb-pill-color) 42%, transparent);
 }
 

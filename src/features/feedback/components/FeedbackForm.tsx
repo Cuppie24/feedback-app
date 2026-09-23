@@ -1,5 +1,5 @@
 import { Send } from 'lucide-react'
-import { useId, useLayoutEffect, useRef, useState, type FormEvent } from 'react'
+import { useId, useState, type FormEvent } from 'react'
 import { CATEGORY_ICON, CATEGORY_LABEL, CATEGORY_TONE, getCategoryLabel } from '../data'
 import { useAttachments } from '../hooks'
 import type { Category, NewFeedbackInput } from '../types'
@@ -17,17 +17,6 @@ type FieldErrors = {
 }
 
 const CATEGORY_OPTIONS = Object.keys(CATEGORY_LABEL) as Category[]
-const CATEGORY_MOTION_DURATION_MS = 400
-
-function centerSelectedCategory(selected: Category): Category[] {
-  const selectedIndex = CATEGORY_OPTIONS.indexOf(selected)
-  const centerIndex = Math.floor(CATEGORY_OPTIONS.length / 2)
-
-  return CATEGORY_OPTIONS.map((_, displayIndex) => {
-    const optionIndex = (selectedIndex - centerIndex + displayIndex + CATEGORY_OPTIONS.length) % CATEGORY_OPTIONS.length
-    return CATEGORY_OPTIONS[optionIndex]
-  })
-}
 
 export function FeedbackForm({ onSubmit }: FeedbackFormProps) {
   const titleId = useId()
@@ -38,55 +27,7 @@ export function FeedbackForm({ onSubmit }: FeedbackFormProps) {
   const [title, setTitle] = useState('')
   const [message, setMessage] = useState('')
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
-  const [displayedCategories, setDisplayedCategories] = useState<Category[]>(() => centerSelectedCategory('bug'))
-  const pillElements = useRef(new Map<Category, HTMLButtonElement>())
-  const previousPillRects = useRef(new Map<Category, DOMRect>())
   const { attachments, addFiles, removeAttachment, clearAttachments } = useAttachments()
-
-  useLayoutEffect(() => {
-    if (previousPillRects.current.size === 0) return
-
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-
-    if (!reduceMotion) {
-      pillElements.current.forEach((element, option) => {
-        const previousRect = previousPillRects.current.get(option)
-        if (!previousRect) return
-
-        const currentRect = element.getBoundingClientRect()
-        const deltaX = previousRect.left - currentRect.left
-        const deltaY = previousRect.top - currentRect.top
-        if (Math.abs(deltaX) < 0.5 && Math.abs(deltaY) < 0.5) return
-
-        element.animate(
-          [{ transform: `translate(${deltaX}px, ${deltaY}px)` }, { transform: 'translate(0, 0)' }],
-          { duration: CATEGORY_MOTION_DURATION_MS, easing: 'cubic-bezier(0.16, 1, 0.3, 1)' },
-        )
-      })
-    }
-
-    previousPillRects.current.clear()
-  }, [category])
-
-  const selectCategory = (nextCategory: Category) => {
-    if (nextCategory === category) return
-
-    const currentRects = new Map<Category, DOMRect>()
-    pillElements.current.forEach((element, option) => {
-      currentRects.set(option, element.getBoundingClientRect())
-    })
-    previousPillRects.current = currentRects
-    setDisplayedCategories((currentCategories) => {
-      const selectedIndex = currentCategories.indexOf(category)
-      const nextIndex = currentCategories.indexOf(nextCategory)
-      const nextCategories = [...currentCategories]
-      const selectedCategory = nextCategories[selectedIndex]
-      nextCategories[selectedIndex] = nextCategories[nextIndex]
-      nextCategories[nextIndex] = selectedCategory
-      return nextCategories
-    })
-    setCategory(nextCategory)
-  }
 
   const clearFieldError = (field: keyof FieldErrors) => {
     setFieldErrors((prev) => (prev[field] ? { ...prev, [field]: undefined } : prev))
@@ -105,7 +46,7 @@ export function FeedbackForm({ onSubmit }: FeedbackFormProps) {
 
     onSubmit({ category, title: title.trim(), message: message.trim(), attachments })
 
-    selectCategory('bug')
+    setCategory('bug')
     setTitle('')
     setMessage('')
     clearAttachments()
@@ -118,22 +59,18 @@ export function FeedbackForm({ onSubmit }: FeedbackFormProps) {
           Тип обращения
         </span>
         <div className="fb-pills" role="radiogroup" aria-labelledby={typeLabelId}>
-          {displayedCategories.map((option) => {
+          {CATEGORY_OPTIONS.map((option) => {
             const Icon = CATEGORY_ICON[option]
             const tone = CATEGORY_TONE[option]
 
             return (
               <button
-                ref={(element) => {
-                  if (element) pillElements.current.set(option, element)
-                  else pillElements.current.delete(option)
-                }}
                 key={option}
                 type="button"
                 className={`fb-pill fb-pill-${tone}${category === option ? ' active' : ''}`}
                 role="radio"
                 aria-checked={category === option}
-                onClick={() => selectCategory(option)}
+                onClick={() => setCategory(option)}
               >
                 <Icon className="fb-pill-icon" size={15} strokeWidth={2.25} aria-hidden="true" />
                 {getCategoryLabel(option)}
