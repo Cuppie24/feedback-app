@@ -31,12 +31,14 @@ export function SuggestionDetailView({ ticket, onBack, onToggleLike, onStatusCha
   return (
     <article className="fb-suggestion-detail">
       <div className="fb-detail-scroll">
-        <div className="fb-detail-content">
+        <div className="fb-detail-back-rail">
           <button type="button" className="fb-detail-back" onClick={onBack}>
             <ArrowLeft size={16} />
             Все обращения
           </button>
+        </div>
 
+        <div className="fb-detail-content">
           <DetailHeader
             id={ticket.id}
             title={ticket.title}

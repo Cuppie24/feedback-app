@@ -20,9 +20,12 @@ type ErrorDetailViewProps = {
   onSendMessage: (text: string, attachments: Attachment[], replyToId?: string) => void
   onEditMessage: (messageId: string, text: string) => void
   onDeleteMessage: (messageId: string) => void
-  // User mode wants the discussion as a corner-docked floating card shown
-  // alongside the main panel (no backdrop, not modal); agent mode keeps
-  // the right-side sliding panel.
+  // User mode wants the discussion as a permanent second column next to
+  // the main panel, wider than agent mode's toggleable strip and always
+  // visible (see .comments-static / .floating desktop rules in
+  // ErrorDetailView.css). Below the two-column breakpoint there isn't
+  // room for that, so it falls back to the same toggleable floating
+  // card + FAB agent mode never sees.
   floatingComments?: boolean
 }
 
@@ -100,14 +103,16 @@ export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, 
   }, [messageCount])
 
   return (
-    <article className={`fb-error-detail${commentsOpen && !floatingComments ? ' comments-open' : ''}`}>
+    <article className={`fb-error-detail${floatingComments ? ' comments-static' : commentsOpen ? ' comments-open' : ''}`}>
       <div className="fb-detail-scroll" ref={scrollRef}>
-        <div className="fb-detail-content">
+        <div className="fb-detail-back-rail">
           <button type="button" className="fb-detail-back" onClick={onBack}>
             <ArrowLeft size={16} />
             Все обращения
           </button>
+        </div>
 
+        <div className="fb-detail-content">
           <DetailHeader
             id={ticket.id}
             title={ticket.title}

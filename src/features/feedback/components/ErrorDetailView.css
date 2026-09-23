@@ -23,21 +23,40 @@
 .fb-detail-composer-panel { width: 100%; max-width: 756px; margin: 0 auto; }
 .fb-detail-composer-dock .fb-composer { margin: 0; }
 
+/* Sits outside .fb-detail-content (full scroll width, not the centered
+   820px column) so the button lands in the margin to the content's left
+   instead of above it - and sticky, so it rides along at the top of the
+   viewport instead of scrolling away with the ticket. Height matches
+   .fb-detail-back so this adds no extra flow space beyond what the button
+   itself used to take inside the content column. */
+.fb-detail-back-rail {
+  position: sticky;
+  top: var(--space-16);
+  z-index: 5;
+  display: flex;
+  justify-content: flex-start;
+  width: 100%;
+  padding: 0 var(--space-32);
+}
+
 .fb-detail-back {
   display: inline-flex;
   align-items: center;
   gap: var(--space-6);
   height: var(--control-height);
-  padding: 0 var(--space-8);
-  border-radius: var(--radius-md);
-  background: transparent;
+  padding: 0 var(--space-12);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-bg);
   color: var(--color-text-muted);
   font-size: var(--font-size-ui);
+  box-shadow: var(--shadow-raised);
   cursor: pointer;
+  transition: background-color var(--duration-fast) var(--ease-in-out), color var(--duration-fast) var(--ease-in-out);
 }
 
 .fb-detail-back:hover { background: var(--color-surface-hover); color: var(--color-text); }
-.fb-detail-back:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.fb-detail-back:focus-visible { outline: none; box-shadow: var(--shadow-raised), var(--focus-ring); }
 
 /* Floating trigger, bottom-right (theme toggle + mode switch already own
    the top-right corner). Hidden while the panel is open - its own close
@@ -125,6 +144,35 @@
 }
 .fb-error-comments-panel.floating.open { transform: translateY(0) scale(1); opacity: 1; }
 
+/* Desktop: user mode gets a real second column instead of a corner card -
+   full height, no open/close chrome, permanently visible next to the main
+   panel (see .comments-static below, and the FAB/close-bar hide rule).
+   Below the breakpoint there isn't room for two columns side by side, so
+   it stays the toggleable floating card defined above. */
+@media (min-width: 901px) {
+  .fb-error-detail.comments-static { padding-right: clamp(380px, 34vw, 520px); }
+
+  .fb-error-comments-panel.floating {
+    top: calc(var(--space-48) + 52px + var(--space-24));
+    right: 0;
+    bottom: 0;
+    width: clamp(380px, 34vw, 520px);
+    max-width: clamp(380px, 34vw, 520px);
+    border: none;
+    border-left: 1px solid var(--color-border);
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .fb-error-comments-fab,
+  .fb-error-comments-panel.floating .fb-error-comments-panel-bar {
+    display: none;
+  }
+}
+
 .fb-error-comments-panel-bar { flex: none; display: flex; justify-content: flex-end; padding: var(--space-12); }
 .fb-error-comments-panel-close { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: var(--radius-md); background: transparent; color: var(--color-text-muted); cursor: pointer; }
 .fb-error-comments-panel-close:hover { background: var(--color-surface-hover); color: var(--color-text); }
@@ -138,6 +186,7 @@
 
 @media (max-width: 640px) {
   .fb-detail-content { padding: var(--space-24) var(--space-16) 0; }
+  .fb-detail-back-rail { padding: 0 var(--space-16); }
   .fb-detail-composer-dock { padding: var(--space-12) var(--space-16) var(--space-16); }
   /* bottom stays JS-driven (inline style) at every width - only right needs a mobile override. */
   .fb-error-comments-fab { right: var(--space-16); }
