@@ -20,23 +20,21 @@ type ErrorDetailViewProps = {
   onSendMessage: (text: string, attachments: Attachment[], replyToId?: string) => void
   onEditMessage: (messageId: string, text: string) => void
   onDeleteMessage: (messageId: string) => void
-  // User mode wants the discussion as a permanent second column next to
-  // the main panel, wider than agent mode's toggleable strip and always
-  // visible (see .comments-static / .floating desktop rules in
-  // ErrorDetailView.css). Below the two-column breakpoint there isn't
-  // room for that, so it falls back to the same toggleable floating
-  // card + FAB agent mode never sees.
-  floatingComments?: boolean
+  // User mode has a header above the content, so the fixed comments panel
+  // has to start below it (see .below-header in ErrorDetailView.css).
+  commentsBelowHeader?: boolean
 }
 
-export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, statusEditable, onSendMessage, onEditMessage, onDeleteMessage, floatingComments = false }: ErrorDetailViewProps) {
+export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, statusEditable, onSendMessage, onEditMessage, onDeleteMessage, commentsBelowHeader = false }: ErrorDetailViewProps) {
   // Comments are kept separate from the chat log (ticket.messages) - this
   // panel is for open discussion, the chat above it is the 1:1 thread with
   // the assignee. Local state for now: there's no seed/backend shape yet
   // for who besides the author can post here, so nothing is persisted to
   // the shared ticket data until that's decided.
   const [comments, setComments] = useState<Message[]>([])
-  const [commentsOpen, setCommentsOpen] = useState(false)
+  // Desktop's two-column layout starts with the discussion open; the
+  // narrow-screen floating card starts closed.
+  const [commentsOpen, setCommentsOpen] = useState(() => window.matchMedia('(min-width: 901px)').matches)
   const scrollRef = useRef<HTMLDivElement>(null)
   const composerDockRef = useRef<HTMLDivElement>(null)
   // Starting value matches the dock's collapsed height (padding + a
@@ -103,7 +101,7 @@ export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, 
   }, [messageCount])
 
   return (
-    <article className={`fb-error-detail${floatingComments ? ' comments-static' : commentsOpen ? ' comments-open' : ''}`}>
+    <article className={`fb-error-detail${commentsOpen ? ' comments-open' : ''}`}>
       <div className="fb-detail-scroll" ref={scrollRef}>
         <div className="fb-detail-back-rail">
           <button type="button" className="fb-detail-back" onClick={onBack}>
@@ -172,7 +170,7 @@ export function ErrorDetailView({ ticket, onBack, onToggleLike, onStatusChange, 
           )}
 
           <aside
-            className={`fb-error-comments-panel${floatingComments ? ' floating' : ''}${commentsOpen ? ' open' : ''}`}
+            className={`fb-error-comments-panel${commentsBelowHeader ? ' below-header' : ''}${commentsOpen ? ' open' : ''}`}
             aria-label="Обсуждение"
             aria-hidden={!commentsOpen}
           >

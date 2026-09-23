@@ -12,7 +12,7 @@ type TicketDetailRouteProps = {
   onAddComment: (ticketId: string, text: string, replyToId?: string, attachments?: Attachment[]) => string
   onEditComment: (ticketId: string, commentId: string, text: string) => void
   onDeleteComment: (ticketId: string, commentId: string) => void
-  floatingComments?: boolean
+  commentsBelowHeader?: boolean
 }
 
 // Resolves :ticketId to a ticket and picks the matching detail view - idea
@@ -28,7 +28,7 @@ export function TicketDetailRoute({
   onAddComment,
   onEditComment,
   onDeleteComment,
-  floatingComments,
+  commentsBelowHeader,
 }: TicketDetailRouteProps) {
   const { ticketId } = useParams()
   const navigate = useNavigate()
@@ -65,7 +65,7 @@ export function TicketDetailRoute({
       onSendMessage={(text, attachments, replyToId) => onAddComment(ticket.id, text, replyToId, attachments)}
       onEditMessage={(messageId, text) => onEditComment(ticket.id, messageId, text)}
       onDeleteMessage={(messageId) => onDeleteComment(ticket.id, messageId)}
-      floatingComments={floatingComments}
+      commentsBelowHeader={commentsBelowHeader}
     />
   )
 }

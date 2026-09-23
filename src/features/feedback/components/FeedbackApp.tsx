@@ -34,7 +34,7 @@ import './FeedbackApp.css'
 //   /user                    -> redirect to /user/create
 //   /user/create             -> CreateFeedbackView
 //   /user/mine               -> MyTicketsView
-//   /user/mine/:ticketId     -> ticket detail (floating comments panel)
+//   /user/mine/:ticketId     -> ticket detail
 //   /user/popular            -> PopularTicketsView (placeholder)
 // Idea and bug tickets have a detail page; review tickets don't (see
 // TicketDetailRoute and the /agent/review route below, which has no
@@ -166,7 +166,7 @@ export function FeedbackApp() {
               onAddComment={addComment}
               onEditComment={editComment}
               onDeleteComment={deleteComment}
-              floatingComments
+              commentsBelowHeader
             />
           }
         />
@@ -192,7 +192,7 @@ export function FeedbackApp() {
               onAddComment={addComment}
               onEditComment={editComment}
               onDeleteComment={deleteComment}
-              floatingComments
+              commentsBelowHeader
             />
           }
         />

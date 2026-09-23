@@ -8,11 +8,6 @@
   transition: padding-right var(--duration-medium) var(--ease-out);
 }
 
-/* Matches the comments panel's own width, so the centered content column
-   (max-width + margin: 0 auto below) recenters into the space actually
-   left over instead of sitting behind the panel. */
-.fb-error-detail.comments-open { padding-right: min(400px, 92vw); }
-
 /* Only this scrolls - the composer dock below is a fixed footer outside
    it, same split as SuggestionDetailView's .fb-detail-scroll +
    .fb-detail-composer-dock. */
@@ -23,20 +18,22 @@
 .fb-detail-composer-panel { width: 100%; max-width: 756px; margin: 0 auto; }
 .fb-detail-composer-dock .fb-composer { margin: 0; }
 
-/* Sits outside .fb-detail-content (full scroll width, not the centered
-   820px column) so the button lands in the margin to the content's left
-   instead of above it - and sticky, so it rides along at the top of the
-   viewport instead of scrolling away with the ticket. Height matches
-   .fb-detail-back so this adds no extra flow space beyond what the button
-   itself used to take inside the content column. */
+/* Sticky, so it rides along at the top of the viewport. The rail spans
+   from the scroll area's left edge to just short of .fb-detail-content's
+   text edge ((100% - 820px) / 2 + its 32px padding), with the button
+   right-aligned in it - so it hangs off the content column's left side.
+   When that gutter is narrower than the button, min-width takes over and
+   the button falls back to the left, arrow on the content edge (left
+   padding minus the button's own inner padding). */
 .fb-detail-back-rail {
   position: sticky;
   top: var(--space-16);
   z-index: 5;
   display: flex;
-  justify-content: flex-start;
-  width: 100%;
-  padding: 0 var(--space-32);
+  justify-content: flex-end;
+  width: calc((100% - 820px) / 2 + var(--space-32) - var(--space-24));
+  min-width: max-content;
+  padding-left: calc(var(--space-32) - var(--space-12));
 }
 
 .fb-detail-back {
@@ -45,18 +42,17 @@
   gap: var(--space-6);
   height: var(--control-height);
   padding: 0 var(--space-12);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-pill);
+  border: none;
+  border-radius: var(--radius-md);
   background: var(--color-bg);
   color: var(--color-text-muted);
   font-size: var(--font-size-ui);
-  box-shadow: var(--shadow-raised);
   cursor: pointer;
   transition: background-color var(--duration-fast) var(--ease-in-out), color var(--duration-fast) var(--ease-in-out);
 }
 
 .fb-detail-back:hover { background: var(--color-surface-hover); color: var(--color-text); }
-.fb-detail-back:focus-visible { outline: none; box-shadow: var(--shadow-raised), var(--focus-ring); }
+.fb-detail-back:focus-visible { outline: none; box-shadow: var(--focus-ring); }
 
 /* Floating trigger, bottom-right (theme toggle + mode switch already own
    the top-right corner). Hidden while the panel is open - its own close
@@ -91,69 +87,49 @@
 .fb-error-comments-fab:focus-visible { outline: none; box-shadow: var(--shadow-overlay), var(--focus-ring); }
 .fb-error-comments-fab-count { display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px; padding: 0 var(--space-4); border-radius: var(--radius-pill); background: var(--color-accent-wash); color: var(--color-accent); font-size: var(--font-size-caption); }
 
-/* Slide-in panel, Notion-AI-style: fixed to the viewport edge, no backdrop
-   (the chat behind it stays readable and interactive), dismissed by its own
-   close button or Escape - not by clicking outside, since it's meant to
-   stay open alongside the chat rather than behave like a transient popover.
-   z-index is deliberately above the mode switch/theme toggle (z-index 50,
-   see ModeSwitch.css) - while this panel is open it's the top-level surface
-   and covers them, same as the create-feedback widget's full-screen reveal
-   would. Closing the panel (its own button, or Escape) hands the corner
-   back to them. */
+/* Narrow screens: a corner-docked floating card, not a modal - it sits over
+   the bottom-right corner (where its own trigger FAB lives) and leaves the
+   ticket behind it visible and interactive. No backdrop: dismissed only by
+   its own close button or Escape. z-index is above the user shell's
+   floating mode switch/theme toggle (z-index 50, see ModeSwitch.css). */
 .fb-error-comments-panel {
   position: fixed;
-  top: 0;
-  right: 0;
-  bottom: 0;
+  top: var(--space-24);
+  right: var(--space-24);
+  bottom: var(--space-24);
   z-index: 60;
   display: flex;
   flex-direction: column;
   width: 400px;
-  max-width: 92vw;
-  background: var(--color-bg);
-  border-left: 1px solid var(--color-border);
-  box-shadow: var(--shadow-overlay);
-  transform: translateX(100%);
-  transition: transform var(--duration-medium) var(--ease-out);
-  pointer-events: none;
-}
-.fb-error-comments-panel.open { transform: translateX(0); pointer-events: auto; }
-
-/* User mode variant: a corner-docked floating card, not a modal - it sits
-   over the bottom-right corner (where its own trigger FAB lives) rather
-   than centering over and dimming the ticket behind it, so the main panel
-   stays fully visible and interactive while the card is open. No backdrop:
-   dismissed only by its own close button or Escape, same as the docked
-   sidebar variant. Scales/lifts in from that corner. `top` matches
-   .fb-user-header's rendered height (space-48 + 52px tab height +
-   space-24, see UserTabBar.css) so the card starts level with the ticket's
-   back button/title and spans down to the same bottom margin - update
-   both if that header's padding or tab height ever changes. */
-.fb-error-comments-panel.floating {
-  top: calc(var(--space-48) + 52px + var(--space-24));
-  left: auto;
-  right: var(--space-24);
-  bottom: var(--space-24);
-  width: 400px;
   max-width: min(400px, 92vw);
+  background: var(--color-bg);
+  color: var(--color-text);
+  /* Portaled to body, so it doesn't inherit the app shell's type settings. */
+  font-family: var(--font-sans);
+  font-size: var(--font-size-ui);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-overlay);
   transform: translateY(12px) scale(0.98);
   opacity: 0;
   transition: transform var(--duration-medium) var(--ease-out), opacity var(--duration-medium) var(--ease-out);
+  pointer-events: none;
 }
-.fb-error-comments-panel.floating.open { transform: translateY(0) scale(1); opacity: 1; }
+.fb-error-comments-panel.open { transform: translateY(0) scale(1); opacity: 1; pointer-events: auto; }
 
-/* Desktop: user mode gets a real second column instead of a corner card -
-   full height, no open/close chrome, permanently visible next to the main
-   panel (see .comments-static below, and the FAB/close-bar hide rule).
-   Below the breakpoint there isn't room for two columns side by side, so
-   it stays the toggleable floating card defined above. */
+/* User mode has a header above the content; start the panel below it.
+   Matches .fb-user-header's rendered height (space-48 + 52px tab height +
+   space-24, see UserTabBar.css) - update both together. */
+.fb-error-comments-panel.below-header { top: calc(var(--space-48) + 52px + var(--space-24)); }
+
+/* Desktop: a real second column that slides in from the right edge, open
+   by default (see ErrorDetailView) but closable/reopenable via its close
+   button and the FAB. */
 @media (min-width: 901px) {
-  .fb-error-detail.comments-static { padding-right: clamp(380px, 34vw, 520px); }
+  .fb-error-detail.comments-open { padding-right: clamp(380px, 34vw, 520px); }
 
-  .fb-error-comments-panel.floating {
-    top: calc(var(--space-48) + 52px + var(--space-24));
+  .fb-error-comments-panel {
+    top: 0;
     right: 0;
     bottom: 0;
     width: clamp(380px, 34vw, 520px);
@@ -162,15 +138,11 @@
     border-left: 1px solid var(--color-border);
     border-radius: 0;
     box-shadow: none;
-    transform: none;
+    transform: translateX(100%);
     opacity: 1;
-    pointer-events: auto;
   }
 
-  .fb-error-comments-fab,
-  .fb-error-comments-panel.floating .fb-error-comments-panel-bar {
-    display: none;
-  }
+  .fb-error-comments-panel.open { transform: translateX(0); }
 }
 
 .fb-error-comments-panel-bar { flex: none; display: flex; justify-content: flex-end; padding: var(--space-12); }
@@ -186,13 +158,10 @@
 
 @media (max-width: 640px) {
   .fb-detail-content { padding: var(--space-24) var(--space-16) 0; }
-  .fb-detail-back-rail { padding: 0 var(--space-16); }
+  .fb-detail-back-rail { padding-left: calc(var(--space-16) - var(--space-12)); }
   .fb-detail-composer-dock { padding: var(--space-12) var(--space-16) var(--space-16); }
   /* bottom stays JS-driven (inline style) at every width - only right needs a mobile override. */
   .fb-error-comments-fab { right: var(--space-16); }
-  .fb-error-comments-panel.floating {
-    top: calc(var(--space-32) + 44px + var(--space-16));
-    right: var(--space-16);
-    bottom: var(--space-16);
-  }
+  .fb-error-comments-panel { top: var(--space-16); right: var(--space-16); bottom: var(--space-16); }
+  .fb-error-comments-panel.below-header { top: calc(var(--space-32) + 44px + var(--space-16)); }
 }
